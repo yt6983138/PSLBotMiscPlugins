@@ -15,7 +15,7 @@ public class PokeCommand : GuestCommandBase
 		"Sup?",
 		@"*sleeping\*",
 		@"\_(´ཀ`」 ∠) _",
-		"ehh, huh, huh,	eraaaaaaaaaaaaaammmmm, aaaaaaaaaaaaaaaaah, aaaaaaaaaaaaaaaaaaa... x114514",
+		"ehh, huh, huh, eraaaaaaaaaaaaaammmmm, aaaaaaaaaaaaaaaaah, aaaaaaaaaaaaaaaaaaa... x114514",
 		"Yum",
 		"oiiaiooiiai",
 		@"你幹嘛~哈哈哎呦\~",
