@@ -1,8 +1,9 @@
 ﻿using Discord;
 using Discord.Rest;
 using Discord.WebSocket;
-using PSLDiscordBot.Core;
 using PSLDiscordBot.Core.Command.Base;
+using PSLDiscordBot.Core.Services;
+using PSLDiscordBot.Core.UserDatas;
 using PSLDiscordBot.Framework;
 using PSLDiscordBot.Framework.CommandBase;
 
@@ -32,7 +33,7 @@ public class EditMessageCommand : AdminCommandBase
 			"Content of the message you want",
 			isRequired: false);
 
-	public override async Task Execute(SocketSlashCommand arg, UserData? data, object executer)
+	public override async Task Callback(SocketSlashCommand arg, UserData? data, DataBaseService.DbDataRequester requester, object executer)
 	{
 		try
 		{
