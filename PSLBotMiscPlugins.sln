@@ -9,7 +9,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PSLDiscordBot.Framework", "
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PSLDiscordBot.Core", "..\PSLDiscordBot\PSLDiscordBot.Core\PSLDiscordBot.Core.csproj", "{37B6D35B-4A9E-456A-BA53-840EE63761FD}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MessageManipulate", "MessageManipulate\MessageManipulate.csproj", "{20BE1FCC-DDB5-4713-8F23-E4B75ED2ED6D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MessageManipulate", "MessageManipulate\MessageManipulate.csproj", "{20BE1FCC-DDB5-4713-8F23-E4B75ED2ED6D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JsonMigrater", "JsonMigrater\JsonMigrater.csproj", "{4AC3260D-89D8-411B-8382-823A70F1DD3B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -33,6 +35,10 @@ Global
 		{20BE1FCC-DDB5-4713-8F23-E4B75ED2ED6D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{20BE1FCC-DDB5-4713-8F23-E4B75ED2ED6D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{20BE1FCC-DDB5-4713-8F23-E4B75ED2ED6D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4AC3260D-89D8-411B-8382-823A70F1DD3B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4AC3260D-89D8-411B-8382-823A70F1DD3B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4AC3260D-89D8-411B-8382-823A70F1DD3B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4AC3260D-89D8-411B-8382-823A70F1DD3B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

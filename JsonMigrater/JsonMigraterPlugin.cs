@@ -1,15 +1,15 @@
 ﻿using PSLDiscordBot.Framework;
 
-namespace MessageManipulate;
+namespace JsonMigrater;
 
-public class MessageManipulatePlugin : IPlugin
+public class JsonMigraterPlugin : IPlugin
 {
-	string IPlugin.Name => "Message manipulate";
-	string IPlugin.Description => "Manipulate message so u can prank ppl :o";
-	string IPlugin.Version => "0.0.1.0";
-	int IPlugin.VersionId => 0x00_00_01_00;
+	string IPlugin.Name => "Json Migrater";
+	string IPlugin.Description => "Migrate json userdatas to sql data";
+	string IPlugin.Version => "0.0.0.1";
+	int IPlugin.VersionId => 0x00_00_00_01;
 	string IPlugin.Author => "yt6983138 aka static_void (yt6983138@gmail.com)";
-	int IPlugin.Priority => 114514_1;
+	int IPlugin.Priority => 114514_2;
 
 	bool IPlugin.CanBeDynamicallyLoaded => false;
 	bool IPlugin.CanBeDynamicallyUnloaded => false;
@@ -17,6 +17,7 @@ public class MessageManipulatePlugin : IPlugin
 	void IPlugin.Load(Program program, bool isDynamicLoading)
 	{
 	}
+
 	void IPlugin.Unload(Program program, bool isDynamicUnloading)
 	{
 	}
