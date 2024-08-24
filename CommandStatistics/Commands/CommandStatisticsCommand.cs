@@ -28,7 +28,10 @@ public class CommandStatisticsCommand : GuestCommandBase
 
 	public override async Task Callback(SocketSlashCommand arg, UserData? data, DataBaseService.DbDataRequester requester, object executer)
 	{
-		List<KeyValuePair<string, CommandStatisticInfo>> filtered = this.CommandStatisticsService.Data.Where(x => x.Value.ExistsAnymore).ToList();
+		List<KeyValuePair<string, CommandStatisticInfo>> filtered = this.CommandStatisticsService.Data
+			.Where(x => x.Value.ExistsAnymore)
+			.ToList();
+		filtered.Sort((x, y) => y.Value.UseCount.CompareTo(x.Value.UseCount));
 
 		StringBuilder sb = new("Use count | Command name\n");
 		foreach (KeyValuePair<string, CommandStatisticInfo> item in filtered)
