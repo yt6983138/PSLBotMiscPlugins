@@ -50,9 +50,9 @@ public class CommandStatisticsService : FileManagementServiceBase<Dictionary<str
 		foreach (KeyValuePair<string, CommandStatisticInfo> item in rawData)
 		{
 			if (!this.CommandResolveService.GlobalCommands.ContainsKey(item.Key)
-				|| !this.CommandResolveService.GuildCommands.ContainsKey(item.Key)
-				|| !this.CommandResolveService.UserCommands.ContainsKey(item.Key)
-				|| !this.CommandResolveService.MessageCommands.ContainsKey(item.Key))
+				&& !this.CommandResolveService.GuildCommands.ContainsKey(item.Key)
+				&& !this.CommandResolveService.UserCommands.ContainsKey(item.Key)
+				&& !this.CommandResolveService.MessageCommands.ContainsKey(item.Key))
 			{
 				item.Value.ExistsAnymore = false;
 			}
