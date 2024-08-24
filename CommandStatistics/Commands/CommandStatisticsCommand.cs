@@ -14,11 +14,6 @@ namespace CommandStatistics.Commands;
 [AddToGlobal]
 public class CommandStatisticsCommand : GuestCommandBase
 {
-#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring as nullable.
-	[Inject]
-	public CommandStatisticsService CommandStatisticsService { get; set; }
-#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring as nullable.
-
 	public override string Name => "command-statistics";
 	public override string Description => "Show all command statistics, including all global/guild/user/message commands.";
 	public override bool IsEphemeral => false;
@@ -28,7 +23,14 @@ public class CommandStatisticsCommand : GuestCommandBase
 
 	public override async Task Callback(SocketSlashCommand arg, UserData? data, DataBaseService.DbDataRequester requester, object executer)
 	{
-		List<KeyValuePair<string, CommandStatisticInfo>> filtered = this.CommandStatisticsService.Data
+		CommandStatisticsService? service = InjectableBase.GetSingleton<CommandStatisticsService>();
+		if (service is null)
+		{
+			await arg.QuickReply("Something went wrong.");
+			return;
+		}
+
+		List<KeyValuePair<string, CommandStatisticInfo>> filtered = service.Data
 			.Where(x => x.Value.ExistsAnymore)
 			.ToList();
 		filtered.Sort((x, y) => y.Value.UseCount.CompareTo(x.Value.UseCount));

@@ -26,12 +26,17 @@ public class CommandStatisticsPlugin : InjectableBase, IPlugin
 	void IPlugin.Load(Program program, bool isDynamicLoading)
 	{
 		this.CommandResolveService.BeforeSlashCommandExecutes += this.CommandResolveService_BeforeSlashCommandExecutes;
-		this._commandStatisticsService = new();
-		InjectableBase.AddSingleton(this._commandStatisticsService);
+		program.AfterMainInitialize += this.Program_AfterMainInitialize;
 	}
 	void IPlugin.Unload(Program program, bool isDynamicUnloading)
 	{
 		this._commandStatisticsService.Save();
+	}
+
+	private void Program_AfterMainInitialize(object? sender, EventArgs e)
+	{
+		this._commandStatisticsService = new();
+		InjectableBase.AddSingleton(this._commandStatisticsService);
 	}
 	private void CommandResolveService_BeforeSlashCommandExecutes(object? sender, PSLDiscordBot.Framework.MiscEventArgs.SlashCommandEventArgs e)
 	{
