@@ -13,7 +13,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MessageManipulate", "Messag
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "JsonMigrater", "JsonMigrater\JsonMigrater.csproj", "{4AC3260D-89D8-411B-8382-823A70F1DD3B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VerifierAndBanner", "VerifierAndBanner\VerifierAndBanner.csproj", "{8560ACC4-362A-4694-8B85-AFE1C9979DC6}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VerifierAndBanner", "VerifierAndBanner\VerifierAndBanner.csproj", "{8560ACC4-362A-4694-8B85-AFE1C9979DC6}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CommandStatistics", "CommandStatistics\CommandStatistics.csproj", "{CFE3AE6E-0CC0-4761-A7E0-CC27556242E4}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -45,6 +47,10 @@ Global
 		{8560ACC4-362A-4694-8B85-AFE1C9979DC6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8560ACC4-362A-4694-8B85-AFE1C9979DC6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8560ACC4-362A-4694-8B85-AFE1C9979DC6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CFE3AE6E-0CC0-4761-A7E0-CC27556242E4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CFE3AE6E-0CC0-4761-A7E0-CC27556242E4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CFE3AE6E-0CC0-4761-A7E0-CC27556242E4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CFE3AE6E-0CC0-4761-A7E0-CC27556242E4}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
