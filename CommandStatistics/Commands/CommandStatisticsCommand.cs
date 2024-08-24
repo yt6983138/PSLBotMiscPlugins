@@ -20,7 +20,7 @@ public class CommandStatisticsCommand : GuestCommandBase
 #pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring as nullable.
 
 	public override string Name => "command-statistics";
-	public override string Description => "Poke me";
+	public override string Description => "Show all command statistics, including all global/guild/user/message commands.";
 	public override bool IsEphemeral => false;
 
 	public override SlashCommandBuilder CompleteBuilder
