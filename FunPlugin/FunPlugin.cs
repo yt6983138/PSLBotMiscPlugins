@@ -1,4 +1,6 @@
-﻿using PSLDiscordBot.Framework;
+﻿using FunPlugin.Services;
+using PSLDiscordBot.Framework;
+using PSLDiscordBot.Framework.DependencyInjection;
 
 namespace FunPlugin;
 
@@ -16,6 +18,7 @@ public class FunPlugin : IPlugin
 
 	void IPlugin.Load(Program program, bool isDynamicLoading)
 	{
+		InjectableBase.AddSingleton(new FPConfigService());
 	}
 
 	void IPlugin.Unload(Program program, bool isDynamicUnloading)
