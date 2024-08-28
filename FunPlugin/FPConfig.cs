@@ -26,5 +26,6 @@ public class FPConfig
 		new(1, " ", "./MiscPlugins/FPAssets/bugjump1080p.gif"),
 		new(1, " ", "./MiscPlugins/FPAssets/slownet.gif"),
 		new(1, " ", "./MiscPlugins/FPAssets/sus_carl.gif"),
+		new(1, " ", "./MiscPlugins/FPAssets/miku_light.jpg"),
 	};
 }
