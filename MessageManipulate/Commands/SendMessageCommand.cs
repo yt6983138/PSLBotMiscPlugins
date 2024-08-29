@@ -45,7 +45,7 @@ public class SendMessageCommand : AdminCommandBase
 		{
 			string content = arg.Data.Options.First(x => x.Name == "content").Value.Unbox<string>();
 			string? reply = arg.Data.Options.FirstOrDefault(x => x.Name == "reply")?.Value.Unbox<string>();
-			ITextChannel channel = (ITextChannel)arg.Data.Options.First(x => x.Name == "channel").Value.Unbox<IGuildChannel>();
+			IMessageChannel channel = arg.Data.Options.First(x => x.Name == "channel").Value.Unbox<IMessageChannel>();
 			IAttachment? attachment = arg.Data.Options.FirstOrDefault(x => x.Name == "attachment")?.Value.Unbox<IAttachment>();
 
 			if (attachment is null)

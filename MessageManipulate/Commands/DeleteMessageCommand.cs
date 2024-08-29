@@ -31,8 +31,8 @@ public class DeleteMessageCommand : AdminCommandBase
 	{
 		try
 		{
-			ITextChannel channel = (ITextChannel)arg.Data.Options.First(x => x.Name == "channel")
-				.Value.Unbox<IGuildChannel>();
+			IMessageChannel channel = arg.Data.Options.First(x => x.Name == "channel")
+				.Value.Unbox<IMessageChannel>();
 
 			string id = arg.Data.Options.First(x => x.Name == "message_id").Value.Unbox<string>();
 
