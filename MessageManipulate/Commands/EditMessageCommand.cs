@@ -1,7 +1,6 @@
 ﻿using Discord;
 using Discord.Rest;
 using Discord.WebSocket;
-using PSLDiscordBot.Core.Command.Global.Base;
 using PSLDiscordBot.Core.Services;
 using PSLDiscordBot.Core.UserDatas;
 using PSLDiscordBot.Framework;
@@ -10,7 +9,7 @@ using PSLDiscordBot.Framework.CommandBase;
 namespace MessageManipulate.Commands;
 
 [AddToGlobal]
-public class EditMessageCommand : AdminCommandBase
+public class EditMessageCommand : AvailableEveryWhereAdminCommand
 {
 	public override string Name => "mm-edit-message";
 	public override string Description => "Try edit message. [Admin command]";

@@ -1,6 +1,5 @@
 ﻿using Discord;
 using Discord.WebSocket;
-using PSLDiscordBot.Core.Command.Global.Base;
 using PSLDiscordBot.Core.Services;
 using PSLDiscordBot.Core.UserDatas;
 using PSLDiscordBot.Framework;
@@ -9,7 +8,7 @@ using PSLDiscordBot.Framework.CommandBase;
 namespace MessageManipulate.Commands;
 
 [AddToGlobal]
-public class DmCommand : AdminCommandBase
+public class DmCommand : AvailableEveryWhereAdminCommand
 {
 	private readonly HttpClient _httpClient = new();
 

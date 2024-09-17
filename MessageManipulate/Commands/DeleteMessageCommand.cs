@@ -1,6 +1,5 @@
 ﻿using Discord;
 using Discord.WebSocket;
-using PSLDiscordBot.Core.Command.Global.Base;
 using PSLDiscordBot.Core.Services;
 using PSLDiscordBot.Core.UserDatas;
 using PSLDiscordBot.Framework;
@@ -9,7 +8,7 @@ using PSLDiscordBot.Framework.CommandBase;
 namespace MessageManipulate.Commands;
 
 [AddToGlobal]
-public class DeleteMessageCommand : AdminCommandBase
+public class DeleteMessageCommand : AvailableEveryWhereAdminCommand
 {
 	public override string Name => "mm-delete-message";
 	public override string Description => "Try delete message. [Admin command]";
