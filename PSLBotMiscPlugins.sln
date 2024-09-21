@@ -15,7 +15,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "JsonMigrater", "JsonMigrate
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VerifierAndBanner", "VerifierAndBanner\VerifierAndBanner.csproj", "{8560ACC4-362A-4694-8B85-AFE1C9979DC6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CommandStatistics", "CommandStatistics\CommandStatistics.csproj", "{CFE3AE6E-0CC0-4761-A7E0-CC27556242E4}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CommandStatistics", "CommandStatistics\CommandStatistics.csproj", "{CFE3AE6E-0CC0-4761-A7E0-CC27556242E4}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MinimalDependency", "MinimalDependency\MinimalDependency.csproj", "{A446658F-5652-4A6F-878D-4BFB7CF90D6C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -51,6 +53,10 @@ Global
 		{CFE3AE6E-0CC0-4761-A7E0-CC27556242E4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CFE3AE6E-0CC0-4761-A7E0-CC27556242E4}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CFE3AE6E-0CC0-4761-A7E0-CC27556242E4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A446658F-5652-4A6F-878D-4BFB7CF90D6C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A446658F-5652-4A6F-878D-4BFB7CF90D6C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A446658F-5652-4A6F-878D-4BFB7CF90D6C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A446658F-5652-4A6F-878D-4BFB7CF90D6C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
