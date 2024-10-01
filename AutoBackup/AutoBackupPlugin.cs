@@ -30,6 +30,14 @@ public class AutoBackupPlugin : IPlugin
 
 	void IPlugin.Load(Program program, bool isDynamicLoading)
 	{
+		program.AfterMainInitialize += this.Program_AfterMainInitialize;
+	}
+	void IPlugin.Unload(Program program, bool isDynamicUnloading)
+	{
+	}
+
+	private void Program_AfterMainInitialize(object? sender, EventArgs e)
+	{
 		this.Logger = InjectableBase.GetSingleton<Logger>();
 		this.ConfigService = new();
 		InjectableBase.AddSingleton(this.ConfigService);
@@ -48,9 +56,6 @@ public class AutoBackupPlugin : IPlugin
 			this.SaveThings(this.FormattedStartupDestination, this.ConfigService.Data.StartupBackupSources);
 			this.Logger.Log(LogLevel.Information, "Startup backup ended.", EventId, this);
 		}
-	}
-	void IPlugin.Unload(Program program, bool isDynamicUnloading)
-	{
 	}
 
 	private void TimedSave(object? state)
