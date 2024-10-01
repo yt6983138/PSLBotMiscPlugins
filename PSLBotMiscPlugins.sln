@@ -17,7 +17,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VerifierAndBanner", "Verifi
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CommandStatistics", "CommandStatistics\CommandStatistics.csproj", "{CFE3AE6E-0CC0-4761-A7E0-CC27556242E4}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MinimalDependency", "MinimalDependency\MinimalDependency.csproj", "{A446658F-5652-4A6F-878D-4BFB7CF90D6C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MinimalDependency", "MinimalDependency\MinimalDependency.csproj", "{A446658F-5652-4A6F-878D-4BFB7CF90D6C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AutoBackup", "AutoBackup\AutoBackup.csproj", "{41D413B8-6946-4902-AC47-377E55145B16}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -57,6 +59,10 @@ Global
 		{A446658F-5652-4A6F-878D-4BFB7CF90D6C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A446658F-5652-4A6F-878D-4BFB7CF90D6C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A446658F-5652-4A6F-878D-4BFB7CF90D6C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{41D413B8-6946-4902-AC47-377E55145B16}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{41D413B8-6946-4902-AC47-377E55145B16}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{41D413B8-6946-4902-AC47-377E55145B16}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{41D413B8-6946-4902-AC47-377E55145B16}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
