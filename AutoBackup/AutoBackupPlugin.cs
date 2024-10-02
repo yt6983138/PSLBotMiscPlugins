@@ -89,11 +89,13 @@ public class AutoBackupPlugin : IPlugin
 			{
 				if (file is DirectoryInfo di)
 				{
-					CopyFolder(dest, di, true);
+					CopyFolder(Path.Combine(dest, di.Name), di, true);
 				}
 				else if (file is FileInfo fi)
 				{
-					fi.CopyTo(dest, true);
+					string folder = Path.Combine(dest, fi.Directory!.Name);
+					Directory.CreateDirectory(folder);
+					fi.CopyTo(folder, true);
 				}
 				else throw new ApplicationException("This should not happen");
 			}
@@ -105,15 +107,14 @@ public class AutoBackupPlugin : IPlugin
 
 		static void CopyFolder(string dest, DirectoryInfo src, bool overwrite)
 		{
+			Directory.CreateDirectory(dest);
 			foreach (FileInfo item in src.GetFiles())
 			{
 				item.CopyTo(Path.Combine(dest, item.Name), overwrite);
 			}
 			foreach (DirectoryInfo item in src.GetDirectories())
 			{
-				string target = Path.Combine(dest, item.Name);
-				Directory.CreateDirectory(target);
-				CopyFolder(target, item, overwrite);
+				CopyFolder(Path.Combine(dest, item.Name), item, overwrite);
 			}
 		}
 	}
