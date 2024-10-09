@@ -15,11 +15,11 @@ public class ConfigService : FileManagementServiceBase<Config>
 
 	protected override bool Load(out Config data)
 	{
-		return TryLoadJsonAs(this.InfoOfFile, out data);
+		return this.TryLoadJsonAs(this.InfoOfFile, out data);
 	}
 
 	protected override void Save(Config data)
 	{
-		WriteToFile(this.InfoOfFile, data);
+		this.WriteJsonToFile(this.InfoOfFile, data);
 	}
 }

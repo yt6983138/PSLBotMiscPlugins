@@ -42,7 +42,7 @@ public class CommandStatisticsService : FileManagementServiceBase<Dictionary<str
 
 	protected override bool Load(out Dictionary<string, CommandStatisticInfo> data)
 	{
-		bool result = TryLoadJsonAs(this.InfoOfFile, out Dictionary<string, CommandStatisticInfo> rawData);
+		bool result = this.TryLoadJsonAs(this.InfoOfFile, out Dictionary<string, CommandStatisticInfo> rawData);
 
 		if (!result)
 			goto BypassExistsCheck;
@@ -67,6 +67,6 @@ public class CommandStatisticsService : FileManagementServiceBase<Dictionary<str
 
 	protected override void Save(Dictionary<string, CommandStatisticInfo> data)
 	{
-		WriteToFile(this.InfoOfFile, data);
+		this.WriteJsonToFile(this.InfoOfFile, data);
 	}
 }

@@ -18,13 +18,13 @@ public class VABConfigService : FileManagementServiceBase<VABConfig>
 
 	protected override bool Load(out VABConfig data)
 	{
-		bool success = TryLoadJsonAs(this.InfoOfFile, out data);
+		bool success = this.TryLoadJsonAs(this.InfoOfFile, out data);
 
 		return success;
 	}
 
 	protected override void Save(VABConfig data)
 	{
-		WriteToFile(this.InfoOfFile, data);
+		this.WriteJsonToFile(this.InfoOfFile, data);
 	}
 }

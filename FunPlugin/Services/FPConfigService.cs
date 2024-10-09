@@ -15,11 +15,11 @@ public class FPConfigService : FileManagementServiceBase<FPConfig>
 	}
 	protected override bool Load(out FPConfig data)
 	{
-		return TryLoadJsonAs(this.InfoOfFile, out data);
+		return this.TryLoadJsonAs(this.InfoOfFile, out data);
 	}
 
 	protected override void Save(FPConfig data)
 	{
-		WriteToFile(this.InfoOfFile, data);
+		this.WriteJsonToFile(this.InfoOfFile, data);
 	}
 }
