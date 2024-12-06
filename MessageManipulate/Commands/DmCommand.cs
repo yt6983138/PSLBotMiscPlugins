@@ -42,7 +42,11 @@ public class DmCommand : AvailableEveryWhereAdminCommand
 	{
 		try
 		{
-			string content = arg.Data.Options.First(x => x.Name == "content").Value.Unbox<string>();
+			string content = arg.Data.Options.First(x => x.Name == "content").Value
+				.Unbox<string>()
+				.Replace(@"\n", "\n")
+				.Replace("\\\n", @"\n");
+			content = $"{content}\n\n*Note: We cannot see your message sent in dm. Please use `/report-problem` to reply.*";
 			string? reply = arg.Data.Options.FirstOrDefault(x => x.Name == "reply")?.Value.Unbox<string>();
 			IUser user = arg.Data.Options.First(x => x.Name == "user").Value.Unbox<IUser>();
 			IAttachment? attachment = arg.Data.Options.FirstOrDefault(x => x.Name == "attachment")?.Value.Unbox<IAttachment>();
