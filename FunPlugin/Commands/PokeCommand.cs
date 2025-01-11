@@ -8,7 +8,6 @@ using PSLDiscordBot.Core.UserDatas;
 using PSLDiscordBot.Framework;
 using PSLDiscordBot.Framework.CommandBase;
 using PSLDiscordBot.Framework.DependencyInjection;
-using yt6983138.Common;
 
 namespace FunPlugin.Commands;
 
@@ -18,8 +17,6 @@ public class PokeCommand : GuestCommandBase
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring as nullable.
 	[Inject]
 	public FPConfigService FPConfigService { get; set; }
-	[Inject]
-	public Logger Logger { get; set; }
 #pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring as nullable.
 
 	public override string Name => "poke";
