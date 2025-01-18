@@ -40,9 +40,10 @@ public class MigrateAdminCommand : AdminCommandBase
 		foreach (KeyValuePair<ulong, OldUserData> item in parsed)
 		{
 			i++;
-			Task<int> t1 = requester.AddOrReplaceTokenAsync(item.Key, item.Value.Token, item.Value.ShowFormat);
-			Task<int> t2 = requester.AddOrReplaceTagsAsync(item.Key, item.Value.Tags.ToArray());
-			Task.WaitAll(t1, t2);
+			Task<int> t1 = requester.AddOrReplaceUserDataAsync(item.Key, new(item.Value.Token) { ShowFormat = item.Value.ShowFormat });
+			//Task<int> t2 = requester.AddOrReplaceTagsAsync(item.Key, item.Value.Tags.ToArray());
+			// no tags anymore
+			Task.WaitAll(t1);
 			if (i % 100 == 0)
 				await message.ModifyAsync(x => x.Content = $"Migrated {i} records.");
 		}

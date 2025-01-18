@@ -30,8 +30,7 @@ public class MinimalPlugin : InjectableBase, IPlugin
 	#region Properties
 	string IPlugin.Name => "PSLDiscordBot Minimal";
 	string IPlugin.Description => "Minimal implementation for PSLDiscord bot";
-	string IPlugin.Version => "0.0.0.1";
-	int IPlugin.VersionId => 0x00_00_00_01;
+	Version IPlugin.Version => new(1, 0, 0, 0);
 	string IPlugin.Author => "yt6983138 aka static_void (yt6983138@gmail.com)";
 
 	bool IPlugin.CanBeDynamicallyLoaded => false;
