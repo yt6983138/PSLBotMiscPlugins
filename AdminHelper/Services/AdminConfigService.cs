@@ -3,7 +3,7 @@
 namespace AdminHelper.Services;
 public class AdminConfigService : FileManagementServiceBase<AdminConfig>
 {
-	public AdminConfigService() : base("./MiscPlugin/AdminConfig.json") { }
+	public AdminConfigService() : base("./MiscPlugins/AdminConfig.json") { }
 
 	public override AdminConfig Generate()
 	{

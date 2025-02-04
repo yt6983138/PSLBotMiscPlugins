@@ -2,10 +2,11 @@
 using PSLDiscordBot.Framework;
 using PSLDiscordBot.Framework.BuiltInServices;
 using PSLDiscordBot.Framework.DependencyInjection;
+using yt6983138.Common;
 
 namespace AdminHelper;
 
-public class AdminHelperPlugin : IPlugin
+public class AdminHelperPlugin : InjectableBase, IPlugin
 {
 	string IPlugin.Name => "Admin helper";
 	string IPlugin.Description => "Help admins do shit";
@@ -22,7 +23,7 @@ public class AdminHelperPlugin : IPlugin
 	{
 		InjectableBase.AddSingleton(this._config);
 		program.AfterArgParse += (_, _2) =>
-			InjectableBase.AddSingleton(new BlackListService(InjectableBase.GetSingleton<CommandResolveService>()));
+			AddSingleton(new BlackListService(GetSingleton<CommandResolveService>(), this._config, GetSingleton<Logger>()));
 	}
 	void IPlugin.Unload(Program program, bool isDynamicUnloading)
 	{

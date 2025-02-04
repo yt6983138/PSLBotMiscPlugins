@@ -1,6 +1,5 @@
 ﻿using Discord.WebSocket;
 using Microsoft.Extensions.Logging;
-using PSLDiscordBot.Framework;
 using PSLDiscordBot.Framework.BuiltInServices;
 using PSLDiscordBot.Framework.DependencyInjection;
 using yt6983138.Common;
@@ -13,17 +12,16 @@ public class BlackListService : InjectableBase // TODO: implement save function
 	private static readonly EventId EventId = new(114514191, nameof(BlackListService));
 
 	private readonly CommandResolveService _commandResolveService;
-
-	[Inject]
-	public AdminConfigService AdminConfigService { get; } = null!;
-	[Inject]
-	public Logger Logger { get; } = null!;
+	public AdminConfigService _adminConfigService = null!;
+	public Logger _logger = null!;
 
 	public Dictionary<ulong, ShouldDenyDelegate> BlackListedUsers { get; set; } = new();
 
-	public BlackListService(CommandResolveService service)
+	public BlackListService(CommandResolveService service, AdminConfigService config, Logger logger)
 	{
 		this._commandResolveService = service;
+		this._adminConfigService = config;
+		this._logger = logger;
 		service.BeforeSlashCommandExecutes += this.Service_BeforeSlashCommandExecutes;
 	}
 	~BlackListService()
@@ -44,8 +42,8 @@ public class BlackListService : InjectableBase // TODO: implement save function
 			if (this.BlackListedUsers[arg.User.Id].Invoke(arg))
 			{
 				e.Canceled = true;
-				await e.SocketSlashCommand.QuickReply(this.AdminConfigService.Data.BlackListedUserMessage);
-				this.Logger.Log(LogLevel.Information, EventId, $"Blacklisted user {arg.User.Id} tried to execute command {arg.CommandName}");
+				await e.SocketSlashCommand.RespondAsync(this._adminConfigService.Data.BlackListedUserMessage[arg.UserLocale]);
+				this._logger.Log(LogLevel.Information, EventId, $"Blacklisted user {arg.User.Id} tried to execute command {arg.CommandName}");
 			}
 		}
 	}
