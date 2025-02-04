@@ -1,7 +1,7 @@
 ﻿using Discord;
 using PSLDiscordBot.Core.Command.Global.Base;
 
-namespace MessageManipulate.Commands;
+namespace AdminHelper.Commands;
 
 public abstract class AvailableEveryWhereAdminCommand : AdminCommandBase
 {

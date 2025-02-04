@@ -5,15 +5,15 @@ using PSLDiscordBot.Core.UserDatas;
 using PSLDiscordBot.Framework;
 using PSLDiscordBot.Framework.CommandBase;
 
-namespace MessageManipulate.Commands;
+namespace AdminHelper.Commands;
 
 [AddToGlobal]
-public class DmCommand : AvailableEveryWhereAdminCommand
+public class SendMessageCommand : AvailableEveryWhereAdminCommand
 {
 	private readonly HttpClient _httpClient = new();
 
-	public override string Name => "mm-dm";
-	public override string Description => "Try dm someone. [Admin command]";
+	public override string Name => "mm-send-message";
+	public override string Description => "Try send message. [Admin command]";
 
 	public override SlashCommandBuilder CompleteBuilder =>
 		this.BasicBuilder
@@ -28,9 +28,9 @@ public class DmCommand : AvailableEveryWhereAdminCommand
 			"Content of the message you want",
 			isRequired: true)
 		.AddOption(
-			"user",
-			ApplicationCommandOptionType.User,
-			"User you wish to dm",
+			"channel",
+			ApplicationCommandOptionType.Channel,
+			"Channel you wish to send",
 			isRequired: true)
 		.AddOption(
 			"attachment",
@@ -42,20 +42,14 @@ public class DmCommand : AvailableEveryWhereAdminCommand
 	{
 		try
 		{
-			string content = arg.Data.Options.First(x => x.Name == "content").Value
-				.Unbox<string>()
-				.Replace(@"\n", "\n")
-				.Replace("\\\n", @"\n");
-			content = $"{content}\n\n*Note: We cannot see your message sent in dm. Please use `/report-problem` to reply.*";
+			string content = arg.Data.Options.First(x => x.Name == "content").Value.Unbox<string>();
 			string? reply = arg.Data.Options.FirstOrDefault(x => x.Name == "reply")?.Value.Unbox<string>();
-			IUser user = arg.Data.Options.First(x => x.Name == "user").Value.Unbox<IUser>();
+			IMessageChannel channel = arg.Data.Options.First(x => x.Name == "channel").Value.Unbox<IMessageChannel>();
 			IAttachment? attachment = arg.Data.Options.FirstOrDefault(x => x.Name == "attachment")?.Value.Unbox<IAttachment>();
-			IDMChannel channel = await user.CreateDMChannelAsync();
 
-			IUserMessage message;
 			if (attachment is null)
 			{
-				message = await channel.SendMessageAsync(
+				await channel.SendMessageAsync(
 					content,
 					messageReference: reply is null ? null! : new(ulong.Parse(reply), channel.Id));
 			}
@@ -63,7 +57,7 @@ public class DmCommand : AvailableEveryWhereAdminCommand
 			{
 				Stream stream = await this._httpClient.GetStreamAsync(attachment.Url);
 
-				message = await channel.SendFileAsync(
+				await channel.SendFileAsync(
 					new FileAttachment(
 						stream,
 						attachment.Filename,
@@ -73,12 +67,12 @@ public class DmCommand : AvailableEveryWhereAdminCommand
 					messageReference: reply is null ? null! : new(ulong.Parse(reply), channel.Id));
 			}
 			await arg.ModifyOriginalResponseAsync(
-				x => x.Content = $"Sent! Sent message ID: `{message.Id}`");
+				x => x.Content = $"Sent!");
 		}
 		catch (Exception ex)
 		{
 			await arg.ModifyOriginalResponseAsync(
-				x => x.Content = ex.ToString());
+				x => x.Content = ex.Message);
 		}
 	}
 }

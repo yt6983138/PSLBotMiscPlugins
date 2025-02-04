@@ -5,7 +5,7 @@ using PSLDiscordBot.Core.UserDatas;
 using PSLDiscordBot.Framework;
 using PSLDiscordBot.Framework.CommandBase;
 
-namespace MessageManipulate.Commands;
+namespace AdminHelper.Commands;
 
 [AddToGlobal]
 public class DeleteMessageCommand : AvailableEveryWhereAdminCommand
