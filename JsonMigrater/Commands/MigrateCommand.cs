@@ -4,8 +4,10 @@ using Newtonsoft.Json;
 using PSLDiscordBot.Core.Command.Global.Base;
 using PSLDiscordBot.Core.Services;
 using PSLDiscordBot.Core.UserDatas;
+using PSLDiscordBot.Core.Utility;
 using PSLDiscordBot.Framework;
 using PSLDiscordBot.Framework.CommandBase;
+using PSLDiscordBot.Framework.Localization;
 
 namespace JsonMigrater.Commands;
 
@@ -14,8 +16,8 @@ file record class OldUserData(string Token, string ShowFormat, List<string> Tags
 [AddToGlobal]
 public class MigrateAdminCommand : AdminCommandBase
 {
-	public override string Name => "migrate";
-	public override string Description => "Migrate json data to sqlite database. [Admin command]";
+	public override OneOf<string, LocalizedString> PSLName => "migrate";
+	public override OneOf<string, LocalizedString> PSLDescription => "Migrate json data to sqlite database. [Admin command]";
 
 	public override SlashCommandBuilder CompleteBuilder =>
 		this.BasicBuilder

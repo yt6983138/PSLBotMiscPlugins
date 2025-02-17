@@ -4,16 +4,18 @@ using Discord.WebSocket;
 using PSLDiscordBot.Core.Command.Global.Base;
 using PSLDiscordBot.Core.Services;
 using PSLDiscordBot.Core.UserDatas;
+using PSLDiscordBot.Core.Utility;
 using PSLDiscordBot.Framework;
 using PSLDiscordBot.Framework.CommandBase;
+using PSLDiscordBot.Framework.Localization;
 
 namespace AdminHelper.Commands;
 
 [AddToGlobal]
 public class BlackListCommand : AdminCommandBase
 {
-	public override string Name => "blacklist-add";
-	public override string Description => "black someone";
+	public override OneOf<string, LocalizedString> PSLName => "blacklist-add";
+	public override OneOf<string, LocalizedString> PSLDescription => "black someone";
 
 	public override SlashCommandBuilder CompleteBuilder
 		=> this.BasicBuilder

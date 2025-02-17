@@ -2,16 +2,18 @@
 using Discord.WebSocket;
 using PSLDiscordBot.Core.Services;
 using PSLDiscordBot.Core.UserDatas;
+using PSLDiscordBot.Core.Utility;
 using PSLDiscordBot.Framework;
 using PSLDiscordBot.Framework.CommandBase;
+using PSLDiscordBot.Framework.Localization;
 
 namespace AdminHelper.Commands;
 
 [AddToGlobal]
 public class DeleteMessageCommand : AvailableEveryWhereAdminCommand
 {
-	public override string Name => "mm-delete-message";
-	public override string Description => "Try delete message. [Admin command]";
+	public override OneOf<string, LocalizedString> PSLName => "mm-delete-message";
+	public override OneOf<string, LocalizedString> PSLDescription => "Try delete message. [Admin command]";
 
 	public override SlashCommandBuilder CompleteBuilder =>
 		this.BasicBuilder

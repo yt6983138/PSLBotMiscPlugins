@@ -4,9 +4,11 @@ using Discord.WebSocket;
 using PSLDiscordBot.Core.Command.Global.Base;
 using PSLDiscordBot.Core.Services;
 using PSLDiscordBot.Core.UserDatas;
+using PSLDiscordBot.Core.Utility;
 using PSLDiscordBot.Framework;
 using PSLDiscordBot.Framework.CommandBase;
 using PSLDiscordBot.Framework.DependencyInjection;
+using PSLDiscordBot.Framework.Localization;
 using System.Text;
 
 namespace CommandStatistics.Commands;
@@ -14,8 +16,8 @@ namespace CommandStatistics.Commands;
 [AddToGlobal]
 public class CommandStatisticsCommand : GuestCommandBase
 {
-	public override string Name => "command-statistics";
-	public override string Description => "Show all command statistics, including all global/guild/user/message commands.";
+	public override OneOf<string, LocalizedString> PSLName => "command-statistics";
+	public override OneOf<string, LocalizedString> PSLDescription => "Show all command statistics, including all global/guild/user/message commands.";
 	public override bool IsEphemeral => false;
 
 	public override SlashCommandBuilder CompleteBuilder

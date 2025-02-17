@@ -2,8 +2,10 @@
 using Discord.WebSocket;
 using PSLDiscordBot.Core.Services;
 using PSLDiscordBot.Core.UserDatas;
+using PSLDiscordBot.Core.Utility;
 using PSLDiscordBot.Framework;
 using PSLDiscordBot.Framework.CommandBase;
+using PSLDiscordBot.Framework.Localization;
 
 namespace AdminHelper.Commands;
 
@@ -12,8 +14,8 @@ public class SendMessageCommand : AvailableEveryWhereAdminCommand
 {
 	private readonly HttpClient _httpClient = new();
 
-	public override string Name => "mm-send-message";
-	public override string Description => "Try send message. [Admin command]";
+	public override OneOf<string, LocalizedString> PSLName => "mm-send-message";
+	public override OneOf<string, LocalizedString> PSLDescription => "Try send message. [Admin command]";
 
 	public override SlashCommandBuilder CompleteBuilder =>
 		this.BasicBuilder

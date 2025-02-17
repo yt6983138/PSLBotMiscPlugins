@@ -3,16 +3,18 @@ using Discord.Rest;
 using Discord.WebSocket;
 using PSLDiscordBot.Core.Services;
 using PSLDiscordBot.Core.UserDatas;
+using PSLDiscordBot.Core.Utility;
 using PSLDiscordBot.Framework;
 using PSLDiscordBot.Framework.CommandBase;
+using PSLDiscordBot.Framework.Localization;
 
 namespace AdminHelper.Commands;
 
 [AddToGlobal]
 public class EditMessageCommand : AvailableEveryWhereAdminCommand
 {
-	public override string Name => "mm-edit-message";
-	public override string Description => "Try edit message. [Admin command]";
+	public override OneOf<string, LocalizedString> PSLName => "mm-edit-message";
+	public override OneOf<string, LocalizedString> PSLDescription => "Try edit message. [Admin command]";
 
 	public override SlashCommandBuilder CompleteBuilder =>
 		this.BasicBuilder

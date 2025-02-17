@@ -1,10 +1,12 @@
-﻿using PSLDiscordBot.Framework.CommandBase;
+﻿using PSLDiscordBot.Core.Utility;
+using PSLDiscordBot.Framework.CommandBase;
+using PSLDiscordBot.Framework.Localization;
 
 namespace FunPlugin.Commands;
 
 [AddToGlobal]
 public class BonkCommand : PokeCommand
 {
-	public override string Name => "bonk";
-	public override string Description => "Bonk me";
+	public override OneOf<string, LocalizedString> PSLName => "bonk";
+	public override OneOf<string, LocalizedString> PSLDescription => "Bonk me";
 }
