@@ -1,6 +1,7 @@
-﻿using Newtonsoft.Json;
+﻿using Microsoft.Extensions.DependencyInjection;
+using Newtonsoft.Json;
 using PSLDiscordBot.Framework.BuiltInServices;
-using PSLDiscordBot.Framework.DependencyInjection;
+using PSLDiscordBot.Framework.CommandBase;
 using PSLDiscordBot.Framework.ServiceBase;
 
 namespace CommandStatistics.Services;
@@ -14,16 +15,14 @@ public class CommandStatisticInfo(int useCount)
 }
 public class CommandStatisticsService : FileManagementServiceBase<Dictionary<string, CommandStatisticInfo>>
 {
-	[Inject]
-	public CommandResolveService CommandResolveService { get; set; }
+	private readonly CommandResolveService _commandResolveService;
 
-#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring as nullable.
-	public CommandStatisticsService()
+	public CommandStatisticsService(CommandResolveService commandResolveService)
 		: base("./MiscPlugins/CommandStatistics.json")
 	{
 		this.AutoSaveIntervalMs = 1000 * 60 * 5; // 5min
+		this._commandResolveService = commandResolveService;
 	}
-#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring as nullable.
 
 	public CommandStatisticInfo GetOrAddNew(string name)
 	{
@@ -37,7 +36,7 @@ public class CommandStatisticsService : FileManagementServiceBase<Dictionary<str
 
 	public override Dictionary<string, CommandStatisticInfo> Generate()
 	{
-		return new();
+		return [];
 	}
 
 	protected override bool Load(out Dictionary<string, CommandStatisticInfo> data)
@@ -49,10 +48,10 @@ public class CommandStatisticsService : FileManagementServiceBase<Dictionary<str
 
 		foreach (KeyValuePair<string, CommandStatisticInfo> item in rawData)
 		{
-			if (this.CommandResolveService.GlobalCommands.ContainsKey(item.Key)
-				|| this.CommandResolveService.GuildCommands.ContainsKey(item.Key)
-				|| this.CommandResolveService.UserCommands.ContainsKey(item.Key)
-				|| this.CommandResolveService.MessageCommands.ContainsKey(item.Key))
+			if (this._commandResolveService.GlobalCommands.GetServices<BasicCommandBase>().Any(x => x.Name == item.Key)
+				//|| this._commandResolveService.GuildCommands.GetServices<BasicCommandBase>().Any(x => x.Name == item.Key)
+				|| this._commandResolveService.UserCommands.GetServices<BasicUserCommandBase>().Any(x => x.Name == item.Key)
+				|| this._commandResolveService.MessageCommands.GetServices<BasicMessageCommandBase>().Any(x => x.Name == item.Key))
 			{
 				continue;
 			}

@@ -1,6 +1,7 @@
-﻿using FunPlugin.Services;
+﻿using Microsoft.AspNetCore.Builder;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using PSLDiscordBot.Framework;
-using PSLDiscordBot.Framework.DependencyInjection;
 
 namespace FunPlugin;
 
@@ -15,12 +16,14 @@ public class FunPlugin : IPlugin
 	bool IPlugin.CanBeDynamicallyLoaded => false;
 	bool IPlugin.CanBeDynamicallyUnloaded => false;
 
-	void IPlugin.Load(Program program, bool isDynamicLoading)
+	public void Load(WebApplicationBuilder hostBuilder, bool isDynamicLoading)
 	{
-		InjectableBase.AddSingleton(new FPConfigService());
+		hostBuilder.Services.Configure<FPConfig>(hostBuilder.Configuration.GetSection("FPConfig"));
 	}
-
-	void IPlugin.Unload(Program program, bool isDynamicUnloading)
+	public void Setup(IHost host)
+	{
+	}
+	public void Unload(IHost host, bool isDynamicUnloading)
 	{
 	}
 }

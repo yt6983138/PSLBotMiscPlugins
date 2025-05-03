@@ -3,8 +3,8 @@
 public record class PokeRandomShowInfo(float Weight, string Message, string? AttachmentPath = null);
 public class FPConfig
 {
-	public List<PokeRandomShowInfo> PokeRandoms { get; set; } = new()
-	{
+	public List<PokeRandomShowInfo> PokeRandoms { get; set; } =
+	[
 		new(1, "Huh? (●´π`●)"),
 		new(1, "Sup?"),
 		new(1, @"*sleeping\*"),
@@ -27,5 +27,5 @@ public class FPConfig
 		new(1, " ", "./MiscPlugins/FPAssets/slownet.gif"),
 		new(1, " ", "./MiscPlugins/FPAssets/sus_carl.gif"),
 		new(1, " ", "./MiscPlugins/FPAssets/miku_light.jpg"),
-	};
+	];
 }

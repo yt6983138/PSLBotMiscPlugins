@@ -1,33 +1,22 @@
 ﻿using Discord;
-using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Options;
 using PSLDiscordBot.Framework;
 using PSLDiscordBot.Framework.BuiltInServices;
-using PSLDiscordBot.Framework.DependencyInjection;
 
 namespace MinimalDependency;
-public class MinimalPlugin : InjectableBase, IPlugin
+public class MinimalPlugin : IPlugin
 {
 	private const string ConfigLocation = "./MiscPlugins/Minimal.json";
 
-	#region Injection
-	[Inject]
-	public DiscordClientService DiscordClientService { get; set; }
-	#endregion
+	private DiscordClientService _discordClientService = null!;
 
 	public bool Initialized { get; private set; }
-	public Config Config { get; set; }
+	public IOptions<Config> Config { get; set; } = null!;
 
-#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
-	public MinimalPlugin()
-		: base()
-	{
-	}
-#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
 
-	#region Interface
-
-	#region Properties
 	string IPlugin.Name => "PSLDiscordBot Minimal";
 	string IPlugin.Description => "Minimal implementation for PSLDiscord bot";
 	Version IPlugin.Version => new(1, 0, 0, 0);
@@ -36,40 +25,18 @@ public class MinimalPlugin : InjectableBase, IPlugin
 	bool IPlugin.CanBeDynamicallyLoaded => false;
 	bool IPlugin.CanBeDynamicallyUnloaded => false;
 	int IPlugin.Priority => -1;
-	#endregion
 
-	void IPlugin.Load(Program program, bool isDynamicLoading)
+	public void Load(WebApplicationBuilder hostBuilder, bool isDynamicLoading)
 	{
-		try
-		{
-			this.Config = JsonConvert.DeserializeObject<Config>(File.ReadAllText(ConfigLocation))!;
-			if (this.Config is null)
-				throw new NullReferenceException();
-		}
-		catch
-		{
-			this.Config = new();
-			File.WriteAllText(ConfigLocation, JsonConvert.SerializeObject(this.Config));
-			throw;
-		}
-
-		program.AfterMainInitialize += this.Program_AfterMainInitialize;
-
-		this.DiscordClientService.SocketClient.Ready += this.Client_Ready;
-		this.DiscordClientService.SocketClient.Log += this.Log;
+		hostBuilder.Services.Configure<Config>(
+			hostBuilder.Configuration.GetSection("MinimalPlugin"));
 	}
-
-	void IPlugin.Unload(Program program, bool isDynamicUnloading)
+	public void Setup(IHost host)
 	{
+		host.Services.GetRequiredService<Program>().AfterMainInitialize += this.MinimalPlugin_AfterMainInitialize;
 	}
-	#endregion
-
-	#region Event Handler
-	private void Program_AfterMainInitialize(object? sender, EventArgs e)
+	public void Unload(IHost host, bool isDynamicUnloading)
 	{
-		this.DiscordClientService.SocketClient.LoginAsync(TokenType.Bot, this.Config.Token).Wait();
-		this.DiscordClientService.RestClient.LoginAsync(TokenType.Bot, this.Config.Token).Wait();
-		this.DiscordClientService.SocketClient.StartAsync().Wait();
 	}
 
 	private Task Client_Ready()
@@ -85,5 +52,13 @@ public class MinimalPlugin : InjectableBase, IPlugin
 
 		return Task.CompletedTask;
 	}
-	#endregion
+	private void MinimalPlugin_AfterMainInitialize(object? sender, EventArgs e)
+	{
+		this._discordClientService.SocketClient.LoginAsync(TokenType.Bot, this.Config.Value.Token).Wait();
+		this._discordClientService.RestClient.LoginAsync(TokenType.Bot, this.Config.Value.Token).Wait();
+		this._discordClientService.SocketClient.StartAsync().Wait();
+
+		this._discordClientService.SocketClient.Log += this.Log;
+		this._discordClientService.SocketClient.Ready += this.Client_Ready;
+	}
 }

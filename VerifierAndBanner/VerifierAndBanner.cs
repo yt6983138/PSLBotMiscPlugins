@@ -1,31 +1,25 @@
 ﻿using Discord;
 using Discord.WebSocket;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Options;
 using PSLDiscordBot.Framework;
 using PSLDiscordBot.Framework.BuiltInServices;
-using PSLDiscordBot.Framework.DependencyInjection;
 using VerifierAndBanner.Config;
 
 namespace VerifierAndBanner;
 public class VerifierAndBanner : IPlugin
 {
-	#region Injection
-#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring as nullable.
-	private DiscordClientService _discordClientService;
-	private VABConfigService _configService;
-#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring as nullable.
-	#endregion
+	private IDiscordClientService _discordClientService = null!;
+	private IOptions<VABConfig> _config = null!;
 
-	#region Converted Properties
-#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring as nullable.
-	public SocketGuild Guild { get; set; }
+	public SocketGuild Guild { get; set; } = null!;
 
-	public SocketTextChannel OperationAnnouncementChannel { get; set; }
-	public SocketTextChannel AntiRaidChannel { get; set; }
-	public SocketTextChannel VerifyChannel { get; set; }
-#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring as nullable.
-	#endregion
+	public SocketTextChannel OperationAnnouncementChannel { get; set; } = null!;
+	public SocketTextChannel AntiRaidChannel { get; set; } = null!;
+	public SocketTextChannel VerifyChannel { get; set; } = null!;
 
-	#region Interface
 	string IPlugin.Name => "Verifer And Banner";
 	string IPlugin.Description => "Verify new members for my server; Also banning raiders";
 	Version IPlugin.Version => new(1, 0, 0, 0);
@@ -35,12 +29,15 @@ public class VerifierAndBanner : IPlugin
 	bool IPlugin.CanBeDynamicallyLoaded => false;
 	bool IPlugin.CanBeDynamicallyUnloaded => false;
 
-	void IPlugin.Load(Program program, bool isDynamicLoading)
+	public void Load(WebApplicationBuilder hostBuilder, bool isDynamicLoading)
 	{
-		this._discordClientService = InjectableBase.GetSingleton<DiscordClientService>();
-
-		this._configService = new();
-		InjectableBase.AddSingleton(this._configService);
+		hostBuilder.Services.Configure<VABConfig>(
+			hostBuilder.Configuration.GetSection("VABConfig"));
+	}
+	public void Setup(IHost host)
+	{
+		this._discordClientService = host.Services.GetRequiredService<IDiscordClientService>();
+		this._config = host.Services.GetRequiredService<IOptions<VABConfig>>();
 
 		this._discordClientService.SocketClient = new(new()
 		{
@@ -51,26 +48,22 @@ public class VerifierAndBanner : IPlugin
 		this._discordClientService.SocketClient.MessageReceived += this.SocketClient_MessageReceived;
 		this._discordClientService.SocketClient.Ready += this.SocketClient_Ready;
 	}
-	void IPlugin.Unload(Program program, bool isDynamicUnloading)
+	public void Unload(IHost host, bool isDynamicUnloading)
 	{
 	}
-	#endregion
 
 	private Task SocketClient_Ready()
 	{
-		this.Guild = this._discordClientService.SocketClient.GetGuild(this._configService.Data.GuildId);
-		this.OperationAnnouncementChannel = this.Guild.GetTextChannel(this._configService.Data.OperationAnnouncementChannelId);
-		this.VerifyChannel = this.Guild.GetTextChannel(this._configService.Data.VerifyChannelId);
-		this.AntiRaidChannel = this.Guild.GetTextChannel(this._configService.Data.AntiRaidChannelId);
+		this.Guild = this._discordClientService.SocketClient.GetGuild(this._config.Value.GuildId);
+		this.OperationAnnouncementChannel = this.Guild.GetTextChannel(this._config.Value.OperationAnnouncementChannelId);
+		this.VerifyChannel = this.Guild.GetTextChannel(this._config.Value.VerifyChannelId);
+		this.AntiRaidChannel = this.Guild.GetTextChannel(this._config.Value.AntiRaidChannelId);
 
-		if (this.OperationAnnouncementChannel is null
+		return this.OperationAnnouncementChannel is null
 			|| this.VerifyChannel is null
-			|| this.AntiRaidChannel is null)
-		{
-			throw new NullReferenceException();
-		}
-
-		return Task.CompletedTask;
+			|| this.AntiRaidChannel is null
+			? throw new NullReferenceException()
+			: Task.CompletedTask;
 	}
 	private async Task SocketClient_MessageReceived(SocketMessage arg)
 	{
@@ -85,10 +78,10 @@ public class VerifierAndBanner : IPlugin
 
 		if (channel.Id == this.VerifyChannel.Id)
 		{
-			if (arg.CleanContent.Trim() != this._configService.Data.VerifyKeyword)
+			if (arg.CleanContent.Trim() != this._config.Value.VerifyKeyword)
 			{
 				Discord.Rest.RestUserMessage sent = await channel.SendMessageAsync($"Sorry, you failed to verify, type " +
-					$"`{this._configService.Data.VerifyKeyword}` to verify.", messageReference: new(arg.Id));
+					$"`{this._config.Value.VerifyKeyword}` to verify.", messageReference: new(arg.Id));
 
 				_ = Task.Run(async () =>
 				{
@@ -99,15 +92,16 @@ public class VerifierAndBanner : IPlugin
 			}
 
 			await arg.DeleteAsync();
-			await guildUser.AddRolesAsync(this._configService.Data.RolesToAdd);
+			await guildUser.AddRolesAsync(this._config.Value.RolesToAdd);
 			return;
 		}
 		if (channel.Id == this.AntiRaidChannel.Id)
 		{
-			await this.Guild.AddBanAsync(guildUser, this._configService.Data.BanPruneDays, "Triggered anti raid");
+			await this.Guild.AddBanAsync(guildUser, this._config.Value.BanPruneDays, "Triggered anti raid");
 			await this.OperationAnnouncementChannel.SendMessageAsync(
 				$"User `{guildUser.Id}` aka {guildUser.GlobalName} triggered anti raid and was banned.");
 			return;
 		}
 	}
+
 }

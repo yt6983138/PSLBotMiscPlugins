@@ -1,28 +1,27 @@
 ﻿using Discord.WebSocket;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using PSLDiscordBot.Framework.BuiltInServices;
-using PSLDiscordBot.Framework.DependencyInjection;
-using yt6983138.Common;
 
 namespace AdminHelper.Services;
-public class BlackListService : InjectableBase // TODO: implement save function
+public class BlackListService // TODO: implement save function
 {
 	public delegate bool ShouldDenyDelegate(SocketSlashCommand arg);
 
 	private static readonly EventId EventId = new(114514191, nameof(BlackListService));
 
-	private readonly CommandResolveService _commandResolveService;
-	public AdminConfigService _adminConfigService = null!;
-	public Logger _logger = null!;
+	private readonly ICommandResolveService _commandResolveService;
+	private readonly IOptions<AdminConfig> _adminConfig = null!;
+	private readonly ILogger<BlackListService> _logger = null!;
 
-	public Dictionary<ulong, ShouldDenyDelegate> BlackListedUsers { get; set; } = new();
+	public Dictionary<ulong, ShouldDenyDelegate> BlackListedUsers { get; set; } = [];
 
-	public BlackListService(CommandResolveService service, AdminConfigService config, Logger logger)
+	public BlackListService(ICommandResolveService commandResolveService, IOptions<AdminConfig> config, ILogger<BlackListService> logger)
 	{
-		this._commandResolveService = service;
-		this._adminConfigService = config;
+		this._commandResolveService = commandResolveService;
+		this._adminConfig = config;
 		this._logger = logger;
-		service.BeforeSlashCommandExecutes += this.Service_BeforeSlashCommandExecutes;
+		commandResolveService.BeforeSlashCommandExecutes += this.Service_BeforeSlashCommandExecutes;
 	}
 	~BlackListService()
 	{
@@ -42,8 +41,8 @@ public class BlackListService : InjectableBase // TODO: implement save function
 			if (this.BlackListedUsers[arg.User.Id].Invoke(arg))
 			{
 				e.Canceled = true;
-				await e.SocketSlashCommand.RespondAsync(this._adminConfigService.Data.BlackListedUserMessage[arg.UserLocale]);
-				this._logger.Log(LogLevel.Information, EventId, $"Blacklisted user {arg.User.Id} tried to execute command {arg.CommandName}");
+				await e.SocketSlashCommand.RespondAsync(this._adminConfig.Value.BlackListedUserMessage[arg.UserLocale]);
+				this._logger.LogInformation(EventId, "Blacklisted user {id} tried to execute command {commandName}", arg.User.Id, arg.CommandName);
 			}
 		}
 	}

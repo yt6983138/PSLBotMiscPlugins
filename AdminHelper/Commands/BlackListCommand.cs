@@ -1,8 +1,12 @@
 ﻿using AdminHelper.Services;
 using Discord;
 using Discord.WebSocket;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
+using PSLDiscordBot.Core;
 using PSLDiscordBot.Core.Command.Global.Base;
 using PSLDiscordBot.Core.Services;
+using PSLDiscordBot.Core.Services.Phigros;
 using PSLDiscordBot.Core.UserDatas;
 using PSLDiscordBot.Core.Utility;
 using PSLDiscordBot.Framework;
@@ -14,6 +18,14 @@ namespace AdminHelper.Commands;
 [AddToGlobal]
 public class BlackListCommand : AdminCommandBase
 {
+	private readonly BlackListService _blackListService;
+
+	public BlackListCommand(IOptions<Config> config, DataBaseService database, LocalizationService localization, PhigrosDataService phigrosData, ILoggerFactory loggerFactory, BlackListService blackListService)
+		: base(config, database, localization, phigrosData, loggerFactory)
+	{
+		this._blackListService = blackListService;
+	}
+
 	public override OneOf<string, LocalizedString> PSLName => "blacklist-add";
 	public override OneOf<string, LocalizedString> PSLDescription => "black someone";
 
@@ -36,7 +48,7 @@ public class BlackListCommand : AdminCommandBase
 	{
 		IUser who = arg.GetOption<IUser>("who");
 		double chance = arg.GetOption<double>("chance");
-		GetSingleton<BlackListService>().BlockUser(
+		this._blackListService.BlockUser(
 			who.Id,
 			_ => Random.Shared.NextDouble() < chance);
 		await arg.QuickReply("done");

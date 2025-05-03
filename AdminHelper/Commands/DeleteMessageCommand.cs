@@ -1,6 +1,10 @@
 ﻿using Discord;
 using Discord.WebSocket;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
+using PSLDiscordBot.Core;
 using PSLDiscordBot.Core.Services;
+using PSLDiscordBot.Core.Services.Phigros;
 using PSLDiscordBot.Core.UserDatas;
 using PSLDiscordBot.Core.Utility;
 using PSLDiscordBot.Framework;
@@ -12,6 +16,10 @@ namespace AdminHelper.Commands;
 [AddToGlobal]
 public class DeleteMessageCommand : AvailableEveryWhereAdminCommand
 {
+	public DeleteMessageCommand(IOptions<Config> config, DataBaseService database, LocalizationService localization, PhigrosDataService phigrosData, ILoggerFactory loggerFactory) : base(config, database, localization, phigrosData, loggerFactory)
+	{
+	}
+
 	public override OneOf<string, LocalizedString> PSLName => "mm-delete-message";
 	public override OneOf<string, LocalizedString> PSLDescription => "Try delete message. [Admin command]";
 

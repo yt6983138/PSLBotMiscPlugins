@@ -1,7 +1,9 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Microsoft.AspNetCore.Builder;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using PSLDiscordBot.Framework;
-using PSLDiscordBot.Framework.DependencyInjection;
-using yt6983138.Common;
 
 namespace AutoBackup;
 
@@ -19,53 +21,52 @@ public class AutoBackupPlugin : IPlugin
 	bool IPlugin.CanBeDynamicallyUnloaded => false;
 
 	public Timer? BackupTimer { get; set; }
-	public Logger Logger { get; set; } = null!;
-	public ConfigService ConfigService { get; set; } = null!;
+	public ILogger<AutoBackupPlugin> Logger { get; set; } = null!;
+	public IOptions<Config> Config { get; set; } = null!;
 
 	public string FormattedTimedDestination =>
-		string.Format(this.ConfigService.Data.TimedBackupDestination, DateTime.Now.ToString("s")).Replace(':', '_');
+		string.Format(this.Config.Value.TimedBackupDestination, DateTime.Now.ToString("s")).Replace(':', '_');
 	public string FormattedStartupDestination =>
-		string.Format(this.ConfigService.Data.StartupBackupDestination, DateTime.Now.ToString("s")).Replace(':', '_');
+		string.Format(this.Config.Value.StartupBackupDestination, DateTime.Now.ToString("s")).Replace(':', '_');
 
-	void IPlugin.Load(Program program, bool isDynamicLoading)
+	public void Load(WebApplicationBuilder hostBuilder, bool isDynamicLoading)
 	{
-		program.AfterMainInitialize += this.Program_AfterMainInitialize;
+		hostBuilder.Services.Configure<Config>(
+			hostBuilder.Configuration.GetSection("AutoBackupConfig"));
 	}
-	void IPlugin.Unload(Program program, bool isDynamicUnloading)
+	public void Setup(IHost host)
 	{
-	}
+		this.Logger = host.Services.GetRequiredService<ILogger<AutoBackupPlugin>>();
+		this.Config = host.Services.GetRequiredService<IOptions<Config>>();
 
-	private void Program_AfterMainInitialize(object? sender, EventArgs e)
-	{
-		this.Logger = InjectableBase.GetSingleton<Logger>();
-		this.ConfigService = new();
-		InjectableBase.AddSingleton(this.ConfigService);
-
-		if (this.ConfigService.Data.TimedBackupInterval != TimeSpan.Zero)
+		if (this.Config.Value.TimedBackupInterval != TimeSpan.Zero)
 		{
 			this.BackupTimer = new(
 				this.TimedSave,
 				null,
-				this.ConfigService.Data.TimedBackupInterval, // prevent being started immediately
-				this.ConfigService.Data.TimedBackupInterval);
+				this.Config.Value.TimedBackupInterval, // prevent being started immediately
+				this.Config.Value.TimedBackupInterval);
 		}
-		if (this.ConfigService.Data.DoStartupBackup)
+		if (this.Config.Value.DoStartupBackup)
 		{
-			this.Logger.Log(LogLevel.Information, "Startup backup begin.", EventId, this);
-			this.SaveThings(this.FormattedStartupDestination, this.ConfigService.Data.StartupBackupSources);
-			this.Logger.Log(LogLevel.Information, "Startup backup ended.", EventId, this);
+			this.Logger.LogInformation(EventId, "Startup backup begin.");
+			this.SaveThings(this.FormattedStartupDestination, this.Config.Value.StartupBackupSources);
+			this.Logger.LogInformation(EventId, "Startup backup ended.");
 		}
+	}
+	public void Unload(IHost host, bool isDynamicUnloading)
+	{
 	}
 
 	private void TimedSave(object? state)
 	{
-		this.Logger.Log(LogLevel.Information, "Timed backup begin.", EventId, this);
-		this.SaveThings(this.FormattedTimedDestination, this.ConfigService.Data.TimedBackupSources);
-		this.Logger.Log(LogLevel.Information, "Timed backup ended.", EventId, this);
+		this.Logger.LogInformation(EventId, "Timed backup begin.");
+		this.SaveThings(this.FormattedTimedDestination, this.Config.Value.TimedBackupSources);
+		this.Logger.LogInformation(EventId, "Timed backup ended.");
 	}
 	private void SaveThings(string dest, List<string> things)
 	{
-		List<FileSystemInfo> files = new();
+		List<FileSystemInfo> files = [];
 		foreach (string item in things)
 		{
 			if (File.Exists(item))
@@ -78,7 +79,7 @@ public class AutoBackupPlugin : IPlugin
 			}
 			else
 			{
-				this.Logger.Log(LogLevel.Warning, $"Source backup file/folder '{item}' do not exist. Skipping.", EventId, this);
+				this.Logger.LogWarning(EventId, "Source backup file/folder '{item}' do not exist. Skipping.", item);
 			}
 		}
 
@@ -96,11 +97,14 @@ public class AutoBackupPlugin : IPlugin
 					Directory.CreateDirectory(folder);
 					fi.CopyTo(folder, true);
 				}
-				else throw new ApplicationException("This should not happen");
+				else
+				{
+					throw new ApplicationException("This should not happen");
+				}
 			}
 			catch (Exception ex)
 			{
-				this.Logger.Log(LogLevel.Error, $"Failed to backup file/folder '{file.FullName}'.", EventId, this, ex);
+				this.Logger.LogError(EventId, ex, "Failed to backup file/folder '{path}'.", file.FullName);
 			}
 		}
 

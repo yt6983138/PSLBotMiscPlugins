@@ -1,12 +1,12 @@
 ﻿using AdminHelper.Services;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using PSLDiscordBot.Framework;
-using PSLDiscordBot.Framework.BuiltInServices;
-using PSLDiscordBot.Framework.DependencyInjection;
-using yt6983138.Common;
 
 namespace AdminHelper;
 
-public class AdminHelperPlugin : InjectableBase, IPlugin
+public class AdminHelperPlugin : IPlugin
 {
 	string IPlugin.Name => "Admin helper";
 	string IPlugin.Description => "Help admins do shit";
@@ -17,15 +17,18 @@ public class AdminHelperPlugin : InjectableBase, IPlugin
 	bool IPlugin.CanBeDynamicallyLoaded => false;
 	bool IPlugin.CanBeDynamicallyUnloaded => false;
 
-	private AdminConfigService _config = new();
-
-	void IPlugin.Load(Program program, bool isDynamicLoading)
+	void IPlugin.Load(WebApplicationBuilder hostBuilder, bool isDynamicLoading)
 	{
-		InjectableBase.AddSingleton(this._config);
-		program.AfterArgParse += (_, _2) =>
-			AddSingleton(new BlackListService(GetSingleton<CommandResolveService>(), this._config, GetSingleton<Logger>()));
+		hostBuilder.Services.Configure<AdminConfig>(
+			hostBuilder.Configuration.GetSection("AdminConfig"));
+		hostBuilder.Services.AddSingleton<BlackListService>();
 	}
-	void IPlugin.Unload(Program program, bool isDynamicUnloading)
+
+	void IPlugin.Setup(IHost host)
+	{
+	}
+
+	void IPlugin.Unload(IHost host, bool isDynamicUnloading)
 	{
 	}
 }
