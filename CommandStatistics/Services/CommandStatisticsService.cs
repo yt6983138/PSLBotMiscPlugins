@@ -15,9 +15,9 @@ public class CommandStatisticInfo(int useCount)
 }
 public class CommandStatisticsService : FileManagementServiceBase<Dictionary<string, CommandStatisticInfo>>
 {
-	private readonly CommandResolveService _commandResolveService;
+	private readonly ICommandResolveService _commandResolveService;
 
-	public CommandStatisticsService(CommandResolveService commandResolveService)
+	public CommandStatisticsService(ICommandResolveService commandResolveService)
 		: base("./MiscPlugins/CommandStatistics.json")
 	{
 		this.AutoSaveIntervalMs = 1000 * 60 * 5; // 5min

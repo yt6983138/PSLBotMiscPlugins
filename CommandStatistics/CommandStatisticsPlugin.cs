@@ -9,7 +9,7 @@ namespace CommandStatistics;
 public class CommandStatisticsPlugin : IPlugin
 {
 	private CommandStatisticsService _commandStatisticsService = null!;
-	private CommandResolveService _commandResolveService = null!;
+	private ICommandResolveService _commandResolveService = null!;
 
 	string IPlugin.Name => "Command Statistics";
 	string IPlugin.Description => "Save command statistics and provide a command to see it";
@@ -36,7 +36,7 @@ public class CommandStatisticsPlugin : IPlugin
 	public void Setup(IHost host)
 	{
 		this._commandStatisticsService = host.Services.GetRequiredService<CommandStatisticsService>();
-		this._commandResolveService = host.Services.GetRequiredService<CommandResolveService>();
+		this._commandResolveService = host.Services.GetRequiredService<ICommandResolveService>();
 	}
 
 	public void Unload(IHost host, bool isDynamicUnloading)

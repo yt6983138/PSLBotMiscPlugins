@@ -11,7 +11,7 @@ public class MinimalPlugin : IPlugin
 {
 	private const string ConfigLocation = "./MiscPlugins/Minimal.json";
 
-	private DiscordClientService _discordClientService = null!;
+	private IDiscordClientService _discordClientService = null!;
 
 	public bool Initialized { get; private set; }
 	public IOptions<Config> Config { get; set; } = null!;
