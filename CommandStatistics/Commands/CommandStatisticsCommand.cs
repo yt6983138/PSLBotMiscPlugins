@@ -36,19 +36,17 @@ public class CommandStatisticsCommand : GuestCommandBase
 
 	public override async Task Callback(SocketSlashCommand arg, UserData? data, DataBaseService.DbDataRequester requester, object executer)
 	{
-		List<KeyValuePair<string, CommandStatisticInfo>> filtered = this._commandStatisticsService.Data
-			.Where(x => x.Value.ExistsAnymore)
-			.ToList();
-		filtered.Sort((x, y) => y.Value.UseCount.CompareTo(x.Value.UseCount));
+		List<CommandStatisticInfo> filtered = await this._commandStatisticsService.GetAllExistingReadonly();
+		filtered.Sort((x, y) => y.UseCount.CompareTo(x.UseCount));
 
 		StringBuilder sb = new("Use count | Command name\n");
-		foreach (KeyValuePair<string, CommandStatisticInfo> item in filtered)
+		foreach (CommandStatisticInfo item in filtered)
 		{
-			string useCount = item.Value.UseCount.ToString();
+			string useCount = item.UseCount.ToString();
 			sb.Append(useCount);
 			sb.Append(' ', 10 - useCount.Length);
 			sb.Append("| ");
-			sb.AppendLine(item.Key);
+			sb.AppendLine(item.CommandName);
 		}
 
 		await arg.QuickReplyWithAttachments(

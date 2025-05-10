@@ -6,14 +6,14 @@ public class Config
 
 	public List<string> TimedBackupSources { get; set; } =
 	[
-		"./PSL/",
-		"./MiscPlugins/"
+		//"./PSL/",
+		//"./MiscPlugins/"
 	];
 	public List<string> StartupBackupSources { get; set; } =
 	[
-		"./PSL/",
-		"./MiscPlugins/",
-		"./Plugins/"
+		//"./PSL/",
+		//"./MiscPlugins/",
+		//"./Plugins/"
 	];
 
 	public TimeSpan TimedBackupInterval { get; set; } = new(6, 0, 0); // set to 0 to disable

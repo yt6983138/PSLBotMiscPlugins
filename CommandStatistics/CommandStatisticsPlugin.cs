@@ -20,27 +20,27 @@ public class CommandStatisticsPlugin : IPlugin
 	bool IPlugin.CanBeDynamicallyLoaded => false;
 	bool IPlugin.CanBeDynamicallyUnloaded => false;
 
-	private void CommandResolveService_BeforeSlashCommandExecutes(object? sender, PSLDiscordBot.Framework.MiscEventArgs.SlashCommandEventArgs e)
+	private async void CommandResolveService_BeforeSlashCommandExecutes(object? sender, PSLDiscordBot.Framework.MiscEventArgs.SlashCommandEventArgs e)
 	{
 		if (e.Canceled) return;
 
-		CommandStatisticInfo info = this._commandStatisticsService.GetOrAddNew(e.SocketSlashCommand.CommandName);
+		CommandStatisticInfo info = await this._commandStatisticsService.GetOrAddNew(e.SocketSlashCommand.CommandName);
 		info.UseCount++;
 	}
 
 	public void Load(WebApplicationBuilder hostBuilder, bool isDynamicLoading)
 	{
-		this._commandResolveService.BeforeSlashCommandExecutes += this.CommandResolveService_BeforeSlashCommandExecutes;
 		hostBuilder.Services.AddSingleton<CommandStatisticsService>();
 	}
 	public void Setup(IHost host)
 	{
 		this._commandStatisticsService = host.Services.GetRequiredService<CommandStatisticsService>();
 		this._commandResolveService = host.Services.GetRequiredService<ICommandResolveService>();
+
+		this._commandResolveService.BeforeSlashCommandExecutes += this.CommandResolveService_BeforeSlashCommandExecutes;
 	}
 
 	public void Unload(IHost host, bool isDynamicUnloading)
 	{
-		this._commandStatisticsService.Save();
 	}
 }
