@@ -1,72 +1,56 @@
-﻿using Newtonsoft.Json;
+﻿using Microsoft.EntityFrameworkCore;
 using PSLDiscordBot.Framework.BuiltInServices;
-using PSLDiscordBot.Framework.DependencyInjection;
-using PSLDiscordBot.Framework.ServiceBase;
+using PSLDiscordBot.Framework.CommandBase;
 
 namespace CommandStatistics.Services;
 
-public class CommandStatisticInfo(int useCount)
+[PrimaryKey(nameof(CommandName))]
+public class CommandStatisticInfo
 {
-	public int UseCount { get; set; } = useCount;
-
-	[JsonIgnore]
-	public bool ExistsAnymore { get; set; } = true;
+	public string CommandName { get; set; } = string.Empty;
+	public int UseCount { get; set; }
 }
-public class CommandStatisticsService : FileManagementServiceBase<Dictionary<string, CommandStatisticInfo>>
+public class CommandStatisticsService : DbContext
 {
-	[Inject]
-	public CommandResolveService CommandResolveService { get; set; }
+	private readonly ICommandResolveService _commandResolveService;
+	private List<BasicCommandBase>? _commands;
 
-#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring as nullable.
-	public CommandStatisticsService()
-		: base("./MiscPlugins/CommandStatistics.json")
+	private DbSet<CommandStatisticInfo> CommandStatistic { get; set; }
+
+	public CommandStatisticsService(ICommandResolveService commandResolveService)
 	{
-		this.AutoSaveIntervalMs = 1000 * 60 * 5; // 5min
-	}
-#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring as nullable.
-
-	public CommandStatisticInfo GetOrAddNew(string name)
-	{
-		if (this.Data.TryGetValue(name, out CommandStatisticInfo? result))
-			return result;
-
-		CommandStatisticInfo newOne = new(0);
-		this.Data.Add(name, newOne);
-		return newOne;
+		this._commandResolveService = commandResolveService;
+		this.Database.EnsureCreated();
 	}
 
-	public override Dictionary<string, CommandStatisticInfo> Generate()
+	protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 	{
-		return new();
+		optionsBuilder.UseSqlite("Data Source=./MiscPlugins/CommandStatistics.db")
+			.UseQueryTrackingBehavior(QueryTrackingBehavior.TrackAll);
 	}
-
-	protected override bool Load(out Dictionary<string, CommandStatisticInfo> data)
+	public async Task<CommandStatisticInfo> GetOrAddNew(string commandName)
 	{
-		bool result = this.TryLoadJsonAs(this.InfoOfFile, out Dictionary<string, CommandStatisticInfo> rawData);
-
-		if (!result)
-			goto BypassExistsCheck;
-
-		foreach (KeyValuePair<string, CommandStatisticInfo> item in rawData)
+		CommandStatisticInfo? value = await this.CommandStatistic.FindAsync(commandName);
+		if (value is null)
 		{
-			if (this.CommandResolveService.GlobalCommands.ContainsKey(item.Key)
-				|| this.CommandResolveService.GuildCommands.ContainsKey(item.Key)
-				|| this.CommandResolveService.UserCommands.ContainsKey(item.Key)
-				|| this.CommandResolveService.MessageCommands.ContainsKey(item.Key))
-			{
-				continue;
-			}
-
-			item.Value.ExistsAnymore = false;
+			value = new CommandStatisticInfo() { CommandName = commandName };
+			await this.CommandStatistic.AddAsync(value);
+			await this.SaveChangesAsync();
 		}
 
-	BypassExistsCheck:
-		data = rawData;
-		return result;
+		return value;
 	}
-
-	protected override void Save(Dictionary<string, CommandStatisticInfo> data)
+	public async Task<List<CommandStatisticInfo>> GetAllReadonly()
 	{
-		this.WriteJsonToFile(this.InfoOfFile, data);
+		return await this.CommandStatistic.AsNoTracking().ToListAsync();
+	}
+	public async Task<List<CommandStatisticInfo>> GetAllExistingReadonly()
+	{
+		this._commands ??= this._commandResolveService.GetAllGlobalCommands();
+
+		List<CommandStatisticInfo> stats = await this.GetAllReadonly();
+		return stats
+			.Where(x => this._commands.Any(y => y.Name == x.CommandName))
+			.ToList();
 	}
 }

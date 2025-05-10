@@ -1,7 +1,11 @@
 ﻿using Discord;
 using Discord.Rest;
 using Discord.WebSocket;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
+using PSLDiscordBot.Core;
 using PSLDiscordBot.Core.Services;
+using PSLDiscordBot.Core.Services.Phigros;
 using PSLDiscordBot.Core.UserDatas;
 using PSLDiscordBot.Core.Utility;
 using PSLDiscordBot.Framework;
@@ -13,6 +17,10 @@ namespace AdminHelper.Commands;
 [AddToGlobal]
 public class EditMessageCommand : AvailableEveryWhereAdminCommand
 {
+	public EditMessageCommand(IOptions<Config> config, DataBaseService database, LocalizationService localization, PhigrosDataService phigrosData, ILoggerFactory loggerFactory) : base(config, database, localization, phigrosData, loggerFactory)
+	{
+	}
+
 	public override OneOf<string, LocalizedString> PSLName => "mm-edit-message";
 	public override OneOf<string, LocalizedString> PSLDescription => "Try edit message. [Admin command]";
 

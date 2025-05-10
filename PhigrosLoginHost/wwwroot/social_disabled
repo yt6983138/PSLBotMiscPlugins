@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Social Login Disabled</title>
+		<style>
+			body {
+				background-color: #1a1c1e; /* Dark background */
+				color: #ffffff; /* Light text color */
+				font-family: Arial, Helvetica, sans-serif;
+				display: flex; /* Enable flexbox */
+				justify-content: center; /* Center horizontally */
+				align-items: center; /* Center vertically */
+				height: 100vh; /* Full viewport height */
+				margin: 0; /* Remove default margin */
+				text-align: center; /* Center text */
+			}
+
+			h2 {
+				margin: 10px 0; /* Add vertical spacing between the h2 elements */
+			}
+		</style>
+	</head>
+	<body>
+		<div>
+			<h2>Social login cannot be done due to restrictions.</h2>
+			<h2>社交登录因限制无法完成。</h2>
+			<h2>社交登入因限制無法完成。</h2>
+		</div>
+	</body>
+</html>

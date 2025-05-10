@@ -1,6 +1,10 @@
 ﻿using Discord;
 using Discord.WebSocket;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
+using PSLDiscordBot.Core;
 using PSLDiscordBot.Core.Services;
+using PSLDiscordBot.Core.Services.Phigros;
 using PSLDiscordBot.Core.UserDatas;
 using PSLDiscordBot.Core.Utility;
 using PSLDiscordBot.Framework;
@@ -13,6 +17,10 @@ namespace AdminHelper.Commands;
 public class SendMessageCommand : AvailableEveryWhereAdminCommand
 {
 	private readonly HttpClient _httpClient = new();
+
+	public SendMessageCommand(IOptions<Config> config, DataBaseService database, LocalizationService localization, PhigrosDataService phigrosData, ILoggerFactory loggerFactory) : base(config, database, localization, phigrosData, loggerFactory)
+	{
+	}
 
 	public override OneOf<string, LocalizedString> PSLName => "mm-send-message";
 	public override OneOf<string, LocalizedString> PSLDescription => "Try send message. [Admin command]";
