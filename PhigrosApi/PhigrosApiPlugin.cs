@@ -8,7 +8,6 @@ namespace PhigrosApi;
 public class PhigrosApiPlugin : IPlugin
 {
 	private bool _hasOtherRegisteredMvc = false;
-	private bool _hasOtherRegisteredCors = false;
 
 	public string Name => "Phigros Api Host";
 	public string Description => "A plugin wrapper for the wrapper of PhigrosLibraryCSharp";
@@ -28,16 +27,13 @@ public class PhigrosApiPlugin : IPlugin
 			hostBuilder.Services.AddControllers()
 				.AddJsonOptions(x => x.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower);
 		}
-		if (!this._hasOtherRegisteredCors)
-		{
-			hostBuilder.Services.AddCors(options => options.AddPolicy("Everything",
+		hostBuilder.Services.AddCors(options => options.AddPolicy("Everything",
 			policy =>
 			{
 				policy.AllowAnyHeader()
 					.AllowAnyMethod()
 					.AllowAnyOrigin();
 			}));
-		}
 		hostBuilder.Services.GetApplicationPartManager()
 			.ApplicationParts.Add(new AssemblyPart(typeof(PhigrosApiPlugin).Assembly));
 	}
@@ -54,10 +50,8 @@ public class PhigrosApiPlugin : IPlugin
 			app.UseRouting();
 			app.UseAuthorization();
 		}
-		if (!this._hasOtherRegisteredCors)
-		{
-			app.UseCors("Everything");
-		}
+
+		app.UseCors("Everything");
 	}
 	public void Unload(IHost host, bool isDynamicUnloading)
 	{
