@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Close whatever shit coming to this page</title>
+		<script>
+			window.onload = function () {
+				//window.close();
+			};
+		</script>
+		<style>
+			body {
+				background-color: #1a1c1e; /* Dark background */
+				color: #ffffff; /* Light text color */
+				font-family: Arial, Helvetica, sans-serif;
+                display: flex; /* Enable flexbox */
+                justify-content: center; /* Center horizontally */
+                align-items: center; /* Center vertically */
+                height: 100vh; /* Full viewport height */
+                margin: 0; /* Remove default margin */
+                text-align: center; /* Center text */
+			}
+
+            h2 {
+                margin: 10px 0; /* Add vertical spacing between the h2 elements */
+            }
+		</style>
+	</head>
+	<body>
+		<div>
+            <h2>Login complete. Please return to Discord now.</h2>
+            <h2>登入完成。請回到Discord。</h2>
+            <h2>登录完成。请回到Discord。</h2>
+            <h2>The page may be closed in 3 seconds.</h2>
+            <h2>此頁面將在3秒後關閉。</h2>
+            <h2>此页面将在3秒后关闭。</h2>
+        </div>
+	</body>
+</html>
