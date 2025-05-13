@@ -1,4 +1,5 @@
-﻿using Discord;
+﻿using CsvHelper.Configuration;
+using Discord;
 using Discord.WebSocket;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -18,9 +19,9 @@ using CsvReader = CsvHelper.CsvReader;
 namespace LocalizationTranslatorHelper.Commands;
 
 [AddToGlobal]
-public class JsonToCsv : AdminCommandBase
+public class CsvToLocalization : AdminCommandBase
 {
-	public JsonToCsv(
+	public CsvToLocalization(
 		IOptions<Config> config,
 		DataBaseService database,
 		LocalizationService localization,
@@ -45,7 +46,10 @@ public class JsonToCsv : AdminCommandBase
 		HttpResponseMessage response = await httpClient.GetAsync(attachment.Url);
 		string csv = await response.Content.ReadAsStringAsync();
 
-		CsvReader csvReader = new(new StringReader(csv), CultureInfo.InvariantCulture);
+		CsvReader csvReader = new(new StringReader(csv), new CsvConfiguration(CultureInfo.InvariantCulture)
+		{
+			MissingFieldFound = null
+		});
 		csvReader.Read();
 		csvReader.ReadHeader();
 

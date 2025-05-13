@@ -18,9 +18,9 @@ using System.Text;
 namespace LocalizationTranslatorHelper.Commands;
 
 [AddToGlobal]
-public class CsvToJson : AdminCommandBase
+public class LocalizationToCsv : AdminCommandBase
 {
-	public CsvToJson(
+	public LocalizationToCsv(
 		IOptions<Config> config,
 		DataBaseService database,
 		LocalizationService localization,
