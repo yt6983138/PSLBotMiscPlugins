@@ -26,6 +26,7 @@ public class CommandStatisticsPlugin : IPlugin
 
 		CommandStatisticInfo info = await this._commandStatisticsService.GetOrAddNew(e.SocketSlashCommand.CommandName);
 		info.UseCount++;
+		await this._commandStatisticsService.SaveChangesAsync();
 	}
 
 	public void Load(WebApplicationBuilder hostBuilder, bool isDynamicLoading)
