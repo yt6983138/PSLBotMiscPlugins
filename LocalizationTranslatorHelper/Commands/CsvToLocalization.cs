@@ -55,7 +55,7 @@ public class CsvToLocalization : AdminCommandBase
 
 		List<string> headers = [];
 		string? current;
-		for (int i = 0; (current = csvReader.GetField(i)) is not null; i++)
+		for (int i = 0; (current = csvReader.GetField(i)) is not null && !current.StartsWith("__"); i++)
 			headers.Add(current);
 
 		LocalizationManager localizationManager = this._localization.Data.DeepClone();
@@ -71,7 +71,7 @@ public class CsvToLocalization : AdminCommandBase
 			for (int i = 1; i < headers.Count; i++)
 			{
 				string language = headers[i];
-				string value = csvReader.GetField(i).EnsureNotNull();
+				string value = csvReader.GetField(i) ?? "";
 
 				if (string.IsNullOrWhiteSpace(value))
 					continue;
@@ -92,6 +92,6 @@ public class CsvToLocalization : AdminCommandBase
 
 		await arg.QuickReplyWithAttachments("e done",
 			PSLUtils.ToAttachment(
-				File.ReadAllText(this._config.Value.LocalizationLocation), "localization.csv"));
+				File.ReadAllText(this._config.Value.LocalizationLocation), "localization.json"));
 	}
 }
