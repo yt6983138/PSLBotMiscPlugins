@@ -54,9 +54,10 @@ public class LocalizationToCsv : AdminCommandBase
 			csvBuilder.WriteField(strings.Key);
 			foreach (string? lang in headers.Skip(1))
 			{
-				if (strings.Value.TryGetValue(lang, out string? value))
+				KeyValuePair<string, string> val = strings.Value.FirstOrDefault(x => x.Key == lang);
+				if (val.Key is not null)
 				{
-					csvBuilder.WriteField(value);
+					csvBuilder.WriteField(val.Value);
 				}
 				else
 				{
