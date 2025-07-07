@@ -1,0 +1,75 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" type="text/css" href="/personal/css/10css.min.css" />
+    <title id="title">[missing]</title>
+    <style>
+        body {
+            padding: 40px 5px;
+        }
+
+        .content {
+            width: 100%;
+        }
+
+        #markdown-content {
+            width: 100%;
+            display: block;
+        }
+        #return {
+            position: absolute;
+            
+            bottom: 16px;
+            right: 16px;
+        }
+    </style>
+    <script src="/personal/js/blog.js"></script>
+    <script type="module" src="https://md-block.verou.me/md-block.js"></script>
+</head>
+<body>
+    <header>
+        <nav>
+            <a href="/personal/index.html">Index</a>
+            <a href="/personal/blog.html" id="blog-link" class="is-active">Blog</a>
+            <a href="/personal/tools.html">Tools</a>
+            <a href="/personal/experiment.html">Experiment</a>
+        </nav>
+    </header>
+    <dialog open id="blogMain" class="dialog fixed-dialog is-xl content">
+        <div class="dialog-header">
+            <h2 id="blog-title">[unassigned]</h2>
+        </div>
+        <div class="dialog-body" id="markdown-main">
+            <md-block id="markdown-content">
+            </md-block>
+            <button id="return" onclick="document.getElementById('blog-link').click()">Return</button>
+        </div>
+    </dialog>
+    <script type="module">
+        import { MarkdownBlock, MarkdownSpan, MarkdownElement } from "https://md-block.verou.me/md-block.js";
+
+        let info = null;
+        let content = null;
+
+        async function Init() {
+            const name = window.location.pathname.split('/').slice(-1)[0];
+
+            const infoPromise = GetBlogInfoByName(name);
+            const contentPromise = GetBlogByName(name);
+
+            info = await infoPromise;
+
+            document.getElementById("title").innerText = `static_void - ${info.summary.title}`;
+            const date = new Date(info.created);
+            document.getElementById("blog-title").innerText = `${info.summary.title} - ${date.getFullYear()}/${date.getMonth() + 1}/${date.getDate()}`;
+
+            content = await contentPromise;
+
+            const md = document.getElementById("markdown-content");
+            md.mdContent = content;
+        }
+        Init();
+    </script>
+</body>
+</html>

@@ -1,0 +1,13 @@
+{
+  "profiles": {
+    "PersonalWebsite": {
+      "commandName": "Project",
+      "launchBrowser": true,
+      "launchUrl": "personal/index.html",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      },
+      "applicationUrl": "https://localhost:42579;http://localhost:42580"
+    }
+  }
+}
