@@ -100,15 +100,15 @@
         function UpdatePage() {
             pageNumberInput.value = currentPage.toString(); 
 
-            if (currentPage === 1) {
-                nextButton.disabled = true;
-            } else {
-                nextButton.disabled = false;
-            }
-            if (currentPage === GetMaxPageCount()) {
+            if (currentPage <= 1) {
                 previousButton.disabled = true;
             } else {
                 previousButton.disabled = false;
+            }
+            if (currentPage >= GetMaxPageCount()) {
+                nextButton.disabled = true;
+            } else {
+                nextButton.disabled = false;
             }
 
             const list = document.getElementById("blog-list");
