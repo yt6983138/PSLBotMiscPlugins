@@ -1,0 +1,79 @@
+* {
+    /* Add reference to this css if dark mode is enabled */
+
+    --color-global-background: var(--color-accent);
+    --color-global-foreground: white;
+    --color-global-frame: var(--color-accent);
+
+    --color-accent: #4c4a48; /* Using this as dark accent */
+
+    /*--color-selected-control-frame: #0078d7;*/
+    /*--color-unselected-control-frame: #7a7a7a;*/
+    /*--color-unselected-control-frame-hover: #171717;*/
+    --color-disabled-control-background: #2f2f2f; /* I cannot find a disabled input control in my system, will just make it look normal */
+    --color-disabled-control-foreground: #6d6d6d; /* Same as above*/
+    --color-disabled-control-frame: #cccccc;
+    --color-control-background: #202020;
+
+    /*--color-selected-background: #0078d7;*/
+    /*--color-selected-foregroud: white;*/
+
+    --color-input-background: #323232;
+
+    --color-button-background-gradient: linear-gradient(#333333, #333333);
+    --color-button-background: #333333;
+    --color-button-foreground: white;
+    --color-button-frame: #f0f0f0;
+    --color-button-clicked-background: #666666;
+    --color-button-clicked-frame: #f0f0f0;
+    --color-button-hovered-background: #454545;
+    --color-button-hovered-frame: #f0f0f0;
+    --color-button-disabled-frame: var(--color-disabled-control-frame); /* Cannot find either */
+    --color-button-disabled-background: var(--color-disabled-control-background);
+    --color-button-disabled-foreground: var(--color-disabled-control-foreground);
+
+    --color-number-button-frame: var(--color-disabled-control-frame);
+    --color-number-button-frame-outer: var(--color-disabled-control-frame);
+
+    /*--color-range-border: #d6d6d6;*/
+    /*--color-range-background: #e7eaea;*/
+
+    /*--color-groupbox-border: #dcdcdc;*/
+
+    /*--color-progressbar-border: #dcdcdc;*/
+    /*--color-progressbar-background: #e6e6e6;*/
+    /*--color-progressbar-foreground: #06b025;*/
+    /*--color-progressbar-flash: #90ee8d;*/
+
+    --color-scrollbar-background: #171717;
+    --color-scrollbar-body: #4d4d4d;
+    --color-scrollbar-body-hovered: #7a7a7a;
+    --color-scrollbar-arrow-foreground: #7a7a7a;
+    --color-scrollbar-arrow-hovered: #363636;
+    --color-scrollbar-arrow-clicked: #a6a6a6;
+    --color-scrollbar-arrow-clicked-foreground: #171717;
+
+    --color-tab-active-background: #202020;
+    --color-tab-active-foreground: #white;
+    --color-tab-hovered-background: #4d4d4d;
+    --color-tab-background: black;
+    --color-tab-foreground: white;
+    --color-tab-frame: #2b2b2b;
+
+    --color-header-background: var(--color-tab-background);
+    --color-header-foreground: var(--color-tab-foreground);
+
+    --color-footer-background: var(--color-header-background);
+    --color-footer-foreground: var(--color-header-foreground);
+
+    --color-table-background: #202020;
+    --color-table-frame: #828790;
+
+    --color-th-frame: #636363;
+    --color-th-hovered-background: #434343;
+    --color-th-clicked-background: #838383;
+    --color-th-foreground: white;
+}
+mark {
+    background-color: #0404fc;
+}

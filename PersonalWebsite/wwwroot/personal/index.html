@@ -3,6 +3,8 @@
 <head>
     <meta charset="utf-8" />
     <link rel="stylesheet" type="text/css" href="/personal/css/10css.min.css" />
+    <link rel="stylesheet" type="text/css" href="/personal/css/common.css" />
+    <script src="/personal/js/common.js"></script>
     <title>static_void - yt6983138</title>
     <style>
         body {
@@ -22,6 +24,10 @@
             <a href="/personal/tools.html">Tools</a>
             <a href="/personal/experiment.html">Experiment</a>
         </nav>
+        <div class="toggle-dark-mode-div">
+            <label for="">Dark Mode</label>
+            <input type="checkbox" onchange="SetDarkMode(event.target.checked)" />
+        </div>
     </header>
     <dialog open id="main" class="dialog fixed-dialog is-xl">
         <div class="dialog-header">
