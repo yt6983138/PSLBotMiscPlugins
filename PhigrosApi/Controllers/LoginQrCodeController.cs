@@ -1,99 +1,95 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using PhigrosLibraryCSharp.Cloud.Login;
-using PhigrosLibraryCSharp.Cloud.Login.DataStructure;
 
 namespace PhigrosApi.Controllers;
 
 [ApiController]
-public class LoginQrCodeController : Controller
+public class LoginQrCodeController : CustomControllerBase
 {
-	private ILogger<LoginQrCodeController> _logger;
-	public LoginQrCodeController(ILogger<LoginQrCodeController> logger)
-	{
-		this._logger = logger;
-	}
+	public LoginQrCodeController(ILoggerFactory logger) : base(logger) { }
 
 	[HttpGet]
 	[Route("phiApi/[controller]/GetNewQRCode")]
-	public async Task<IActionResult> GetNewQRCode()
+	public async Task<IActionResult> GetNewQRCode(bool useChinaEndpoint)
 	{
-		CompleteQRCodeData qrcode = await TapTapHelper.RequestLoginQrCode();
-		this._logger.LogDebug("{ip} requested a login QrCode. Url: {url}", this.HttpContext.GetIP(), qrcode.Url);
+		CompleteQRCodeData qrcode = await TapTapHelper.RequestLoginQrCode(useChinaEndpoint: useChinaEndpoint);
+		this._logger.LogDebug("{ip} requested a login QrCode. Url: {url}", this.IP, qrcode.Url);
 
 		return this.Json(qrcode);
 	}
 
-	[HttpPost]
+	[HttpGet]
 	[Route("phiApi/[controller]/CheckQRCode")]
-	public async Task<IActionResult> CheckQRCode()
+	public async Task<IActionResult> CheckQRCode(bool useChinaEndpoint)
 	{
-		(IActionResult? action, CompleteQRCodeData? body) = await this.ReadBodyAs<CompleteQRCodeData, LoginQrCodeController>(this._logger);
-		if (body is null)
-			return action!;
+		(CompleteQRCodeData? result, IActionResult? error) = await this.ReadRequestBodyAs<CompleteQRCodeData>();
+		if (error is not null)
+			return error;
 
-		TapTapTokenData? result;
+		TapTapTokenData? token;
 		try
 		{
-			result = await TapTapHelper.CheckQRCodeResult(body);
+			token = await TapTapHelper.CheckQRCodeResult(result, useChinaEndpoint);
 		}
 		catch (Exception ex)
 		{
-			return this.Error(this._logger, ex.Message, code: ErrorCode.LoginOtherError);
+			return this.Error(ex, code: ErrorCode.LoginOtherError);
 		}
-		if (result is null)
-			return this.Error(this._logger, "", "Login progress not done", code: ErrorCode.LoginProcessNotDone);
-		this._logger.LogDebug("{ip} checked successfully.", this.HttpContext.GetIP());
-		return this.Json(result);
+		if (token is null)
+			return this.Error("Login progress not done", code: ErrorCode.LoginProcessNotDone);
+
+		this._logger.LogDebug("{ip} checked successfully.", this.IP);
+		return this.Json(token);
 	}
 
-	[HttpPost]
+	[HttpGet]
 	[Route("phiApi/[controller]/GetTapTapProfile")]
-	public async Task<IActionResult> GetTapTapProfile()
+	public async Task<IActionResult> GetTapTapProfile(bool useChinaEndpoint)
 	{
-		(IActionResult? action, TapTapTokenData? body) = await this.ReadBodyAs<TapTapTokenData, LoginQrCodeController>(this._logger);
-		if (body is null)
-			return action!;
+		(TapTapTokenData result, IActionResult? error) = await this.ReadRequestBodyAs<TapTapTokenData>();
+		if (error is not null)
+			return error;
 
-		TapTapProfileData? result;
+		TapTapProfileData? profile;
 		try
 		{
-			result = await TapTapHelper.GetProfile(body.Data);
+			profile = await TapTapHelper.GetProfile(result.Data, useChinaEndpoint: useChinaEndpoint);
 		}
 		catch (Exception ex)
 		{
-			return this.Error(this._logger, ex.Message, code: ErrorCode.GetProfileError);
+			return this.Error(ex, code: ErrorCode.GetProfileError);
 		}
-		this._logger.LogDebug("{ip} got profile successfully.", this.HttpContext.GetIP());
-		return this.Json(result);
+		this._logger.LogDebug("{ip} got profile successfully.", this.IP);
+		return this.Json(profile);
 	}
 
-	[HttpPost]
+	[HttpGet]
 	[Route("phiApi/[controller]/GetPhigrosToken")]
-	public async Task<IActionResult> GetPhigrosToken()
+	public async Task<IActionResult> GetPhigrosToken(bool useChinaEndpoint)
 	{
-		(IActionResult? action, TapTapTokenData? body) = await this.ReadBodyAs<TapTapTokenData, LoginQrCodeController>(this._logger);
-		if (body is null)
-			return action!;
+		(TapTapTokenData result, IActionResult? error) = await this.ReadRequestBodyAs<TapTapTokenData>();
+		if (error is not null)
+			return error;
 
-		TapTapProfileData result;
+		TapTapProfileData profile;
 		try
 		{
-			result = await TapTapHelper.GetProfile(body.Data);
+			profile = await TapTapHelper.GetProfile(result.Data, useChinaEndpoint: useChinaEndpoint);
 		}
 		catch (Exception ex)
 		{
-			return this.Error(this._logger, ex.Message, code: ErrorCode.GetProfileError);
+			return this.Error(ex, code: ErrorCode.GetProfileError);
 		}
 		string token;
 		try
 		{
-			token = await LCHelper.LoginAndGetToken(new(result.Data, body.Data));
+			token = await LCHelper.LoginAndGetToken(new(profile.Data, result.Data), useChinaEndpoint);
 		}
 		catch (Exception ex)
 		{
-			return this.Error(this._logger, ex.Message, code: ErrorCode.LCLoginError);
+			return this.Error(ex, code: ErrorCode.LCLoginError);
 		}
-		this._logger.LogDebug("{ip} got token successfully. Token: {token}", this.HttpContext.GetIP(), token);
-		return this.Content(token);
+		this._logger.LogDebug("{ip} got token successfully. Token: {token}", this.IP, token);
+		return this.Json(token);
 	}
 }

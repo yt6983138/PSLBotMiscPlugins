@@ -18,7 +18,7 @@ public class DmCommand : AvailableEveryWhereAdminCommand
 {
 	private readonly HttpClient _httpClient = new();
 
-	public DmCommand(IOptions<Config> config, DataBaseService database, LocalizationService localization, PhigrosDataService phigrosData, ILoggerFactory loggerFactory) : base(config, database, localization, phigrosData, loggerFactory)
+	public DmCommand(IOptions<Config> config, DataBaseService database, LocalizationService localization, PhigrosService phigrosData, ILoggerFactory loggerFactory) : base(config, database, localization, phigrosData, loggerFactory)
 	{
 	}
 

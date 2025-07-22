@@ -21,7 +21,7 @@ public class CommandStatisticsCommand : GuestCommandBase
 {
 	private readonly CommandStatisticsService _commandStatisticsService;
 
-	public CommandStatisticsCommand(IOptions<Config> config, DataBaseService database, LocalizationService localization, PhigrosDataService phigrosData, ILoggerFactory loggerFactory, CommandStatisticsService commandStatisticsService)
+	public CommandStatisticsCommand(IOptions<Config> config, DataBaseService database, LocalizationService localization, PhigrosService phigrosData, ILoggerFactory loggerFactory, CommandStatisticsService commandStatisticsService)
 		: base(config, database, localization, phigrosData, loggerFactory)
 	{
 		this._commandStatisticsService = commandStatisticsService;

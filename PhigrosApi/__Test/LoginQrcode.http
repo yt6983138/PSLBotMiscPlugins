@@ -1,0 +1,41 @@
+GET http://localhost:5015/phiApi/LoginQrCode/GetNewQRCode?useChinaEndpoint=false
+
+###
+GET http://localhost:5015/phiApi/LoginQrCode/CheckQRCode?useChinaEndpoint=false
+Content-Type: application/json
+
+{
+    "deviceID": "PhigrosLibraryCSharp-3.0.0.0-1753076893326.156-45,530.00",
+    "deviceCode": "Qzo94re9z7UfxejRE0wa24naqggv3mpj7tyJb355",
+    "expiresInSeconds": 300,
+    "url": "https://accounts.taptap.io/device?qrcode=1&user_code=xj4yy",
+    "interval": 1
+}
+###
+GET http://localhost:5015/phiApi/LoginQrCode/GetTapTapProfile?useChinaEndpoint=false
+Content-Type: application/json
+
+{
+    "data": {
+        "kid": "1/DcPI7KMPIgoF2qjWYkGoFNp30qlDKmwT-9lWCW7RpHSPYwaVYhGj4DxkwvoWTDpGZ-KnVLFaU3CTRXVB-i2YvA_89GuNH8oPTWi5lJpX3iMFh4iT1oZ_q4sb379feM6Rcfu-CjoTZaxhKAaE4xUo2VEP-1H8UyoGVy5suUy84XP-5VOmvyT6hPwrpFkuRFTKCEkctOHQSK54V6U3MCLGY9wXyE3mV-IVlFlRsHR_NI5m720ndop2vgIAd6CfqLkgSHESONIPFvZbDIVtkUtt7GhiuhRjdJFEoJSMYtPZaZwzeHRcSiZNkg6ehyK0eEhSJlQAo0_lXm4CXEKIaUmxnw",
+        "access_token": "1/DcPI7KMPIgoF2qjWYkGoFNp30qlDKmwT-9lWCW7RpHSPYwaVYhGj4DxkwvoWTDpGZ-KnVLFaU3CTRXVB-i2YvA_89GuNH8oPTWi5lJpX3iMFh4iT1oZ_q4sb379feM6Rcfu-CjoTZaxhKAaE4xUo2VEP-1H8UyoGVy5suUy84XP-5VOmvyT6hPwrpFkuRFTKCEkctOHQSK54V6U3MCLGY9wXyE3mV-IVlFlRsHR_NI5m720ndop2vgIAd6CfqLkgSHESONIPFvZbDIVtkUtt7GhiuhRjdJFEoJSMYtPZaZwzeHRcSiZNkg6ehyK0eEhSJlQAo0_lXm4CXEKIaUmxnw",
+        "token_type": "mac",
+        "mac_key": "bsDmUUwytFfKsRffeBKnWb8fg2mnJ1C4rrXsuFx2",
+        "mac_algorithm": "hmac-sha-1",
+        "scope": "public_profile"
+    }
+}
+###
+GET http://localhost:5015/phiApi/LoginQrCode/GetPhigrosToken?useChinaEndpoint=false
+Content-Type: application/json
+
+{
+    "data": {
+        "kid": "1/DcPI7KMPIgoF2qjWYkGoFNp30qlDKmwT-9lWCW7RpHSPYwaVYhGj4DxkwvoWTDpGZ-KnVLFaU3CTRXVB-i2YvA_89GuNH8oPTWi5lJpX3iMFh4iT1oZ_q4sb379feM6Rcfu-CjoTZaxhKAaE4xUo2VEP-1H8UyoGVy5suUy84XP-5VOmvyT6hPwrpFkuRFTKCEkctOHQSK54V6U3MCLGY9wXyE3mV-IVlFlRsHR_NI5m720ndop2vgIAd6CfqLkgSHESONIPFvZbDIVtkUtt7GhiuhRjdJFEoJSMYtPZaZwzeHRcSiZNkg6ehyK0eEhSJlQAo0_lXm4CXEKIaUmxnw",
+        "access_token": "1/DcPI7KMPIgoF2qjWYkGoFNp30qlDKmwT-9lWCW7RpHSPYwaVYhGj4DxkwvoWTDpGZ-KnVLFaU3CTRXVB-i2YvA_89GuNH8oPTWi5lJpX3iMFh4iT1oZ_q4sb379feM6Rcfu-CjoTZaxhKAaE4xUo2VEP-1H8UyoGVy5suUy84XP-5VOmvyT6hPwrpFkuRFTKCEkctOHQSK54V6U3MCLGY9wXyE3mV-IVlFlRsHR_NI5m720ndop2vgIAd6CfqLkgSHESONIPFvZbDIVtkUtt7GhiuhRjdJFEoJSMYtPZaZwzeHRcSiZNkg6ehyK0eEhSJlQAo0_lXm4CXEKIaUmxnw",
+        "token_type": "mac",
+        "mac_key": "bsDmUUwytFfKsRffeBKnWb8fg2mnJ1C4rrXsuFx2",
+        "mac_algorithm": "hmac-sha-1",
+        "scope": "public_profile"
+    }
+}

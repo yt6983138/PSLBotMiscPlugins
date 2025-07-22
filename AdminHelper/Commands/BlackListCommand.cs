@@ -20,7 +20,7 @@ public class BlackListCommand : AdminCommandBase
 {
 	private readonly BlackListService _blackListService;
 
-	public BlackListCommand(IOptions<Config> config, DataBaseService database, LocalizationService localization, PhigrosDataService phigrosData, ILoggerFactory loggerFactory, BlackListService blackListService)
+	public BlackListCommand(IOptions<Config> config, DataBaseService database, LocalizationService localization, PhigrosService phigrosData, ILoggerFactory loggerFactory, BlackListService blackListService)
 		: base(config, database, localization, phigrosData, loggerFactory)
 	{
 		this._blackListService = blackListService;

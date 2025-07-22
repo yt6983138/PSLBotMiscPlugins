@@ -2,32 +2,27 @@
 using PhigrosLibraryCSharp;
 
 namespace PhigrosApi.Controllers;
-public class LocalSaveController : Controller
+public class LocalSaveController : CustomControllerBase
 {
-	private ILogger<LocalSaveController> _logger;
-
-	public LocalSaveController(ILogger<LocalSaveController> logger)
-	{
-		this._logger = logger;
-	}
+	public LocalSaveController(ILoggerFactory logger) : base(logger) { }
 
 	[HttpPost]
 	[Route("phiApi/[controller]/DecryptNew")]
 	public async Task<IActionResult> DecryptNew()
 	{
-		string data = await this.Request.ReadBodyAsString();
+		string data = await this.ReadRequestBodyAsString();
 
 		string decrypted;
 		try
 		{
-			decrypted = Save.DecryptLocalSaveStringNew(System.Net.WebUtility.UrlDecode(data));
+			decrypted = LocalSave.DecryptLocalSaveStringNew(System.Net.WebUtility.UrlDecode(data));
 		}
-		catch (Exception ex)
+		catch
 		{
-			return this.Error(this._logger, ex.Message, "Failed to decrypt data", ErrorCode.DecryptingError);
+			return this.Error("Failed to decrypt data", ErrorCode.DecryptingError);
 		}
 
-		this._logger.LogDebug("{ip} decrypted {from} to {to}", this.HttpContext.GetIP(), data, decrypted);
+		this._logger.LogDebug("{ip} decrypted {from} to {to}", this.IP, data, decrypted);
 		return this.Content(decrypted);
 	}
 }

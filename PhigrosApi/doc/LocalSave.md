@@ -13,7 +13,7 @@ The url encoded base64 string to decrypt. (example: xaHiFItVgoS6CBFNHTR2%2BA%3D%
 < Date: Sat, 10 Aug 2024 05:26:57 GMT
 < Server: Kestrel
 <
-[Data decrypted, as from example it's 1keyzhanshi2]
+[Data decrypted, from example it's 1keyzhanshi2]
 ```
 ### Failure
 ```
@@ -24,9 +24,11 @@ The url encoded base64 string to decrypt. (example: xaHiFItVgoS6CBFNHTR2%2BA%3D%
 < Transfer-Encoding: chunked
 <
 {
-    "message": "Failed to decrypt data",
-    "error": "[message]",
-    "code": [Error code],
-    "codeName": "[Error code's name]"
+    "success": false,
+    "data": {
+        "code": 114514,
+        "codeName": "DecryptingError",
+        "message": "Failed to decrypt data"
+    }
 }
 ```

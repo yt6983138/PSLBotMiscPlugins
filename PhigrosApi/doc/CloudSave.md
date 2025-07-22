@@ -1,44 +1,7 @@
 # POST /phiApi/CloudSave/GetSaveIndexes
 ## Requirements
-### Headers
-Content-Type: text/plain
-### Body
-User's phigros token.
-## Responses
-### Success
-```
-< HTTP/1.1 200 OK
-< Content-Type: application/json; charset=utf-8
-< Date: Sat, 10 Aug 2024 13:22:37 GMT
-< Server: Kestrel
-< Transfer-Encoding: chunked
-<
-[
-    {
-        "modificationTime": "2024-06-07T07:29:56.697Z",
-        "index": 0
-    },
-    ...
-]
-```
-### Failure
-```
-< HTTP/1.1 422 Unprocessable Entity
-< Content-Type: application/json; charset=utf-8
-< Date: Sat, 10 Aug 2024 03:32:58 GMT
-< Server: Kestrel
-< Transfer-Encoding: chunked
-<
-{
-    "message": "Error processing request",
-    "error": "[message]",
-    "code": [Error code],
-    "codeName": "[Error code's name]"
-}
-```
-# POST /phiApi/CloudSave/GetGameUserInfo/[id\]
-Id is the id got from POST /api/CloudSave/GetSaveIndexes. 0 is always latest and the default value.
-## Requirements
+### Query
+isInternational=[true/false], depends on player save server location.
 ### Headers
 Content-Type: text/plain
 ### Body
@@ -53,10 +16,14 @@ User's phigros token.
 < Transfer-Encoding: chunked
 <
 {
-    "showUserId": true,
-    "intro": "amongus sus\n\n69420",
-    "avatarId": "\u3082\u307A\u3082\u307A1",
-    "backgroundId": "Aleph-0"
+    "success": true,
+    "data": [
+        {
+            "modificationTime": "2025-07-13T01:39:07.313Z",
+            "index": 0
+        },
+        ...
+    ]
 }
 ```
 ### Failure
@@ -68,60 +35,19 @@ User's phigros token.
 < Transfer-Encoding: chunked
 <
 {
-    "message": "Error processing request",
-    "error": "[message]",
-    "code": [Error code],
-    "codeName": "[Error code's name]"
+    "success": false,
+    "data": {
+        "code": [error code in int],
+        "codeName": [error code name],
+        "message": [error message]
+    }
 }
 ```
-# POST /phiApi/CloudSave/GetGameSettings/[id\]
-Id is the id got from POST /api/CloudSave/GetSaveIndexes. 0 is always latest and the default value.
+# POST /phiApi/CloudSave/GetSaveData
 ## Requirements
-### Headers
-Content-Type: text/plain
-### Body
-User's phigros token.
-## Responses
-### Success
-```
-< HTTP/1.1 200 OK
-< Content-Type: application/json; charset=utf-8
-< Date: Sat, 10 Aug 2024 13:30:54 GMT
-< Server: Kestrel
-< Transfer-Encoding: chunked
-<
-{
-    "chordSupport": true,
-    "fcApIndicatorOn": true,
-    "enableHitSound": false,
-    "lowResolutionModeOn": false,
-    "deviceName": "[Redacted]",
-    "backgroundBrightness": 0.5454732,
-    "musicVolume": 0.3261604,
-    "effectVolume": 0.2909569,
-    "hitSoundVolume": 1,
-    "soundOffset": 0.045,
-    "noteScale": 1
-}
-```
-### Failure
-```
-< HTTP/1.1 422 Unprocessable Entity
-< Content-Type: application/json; charset=utf-8
-< Date: Sat, 10 Aug 2024 03:32:58 GMT
-< Server: Kestrel
-< Transfer-Encoding: chunked
-<
-{
-    "message": "Error processing request",
-    "error": "[message]",
-    "code": [Error code],
-    "codeName": "[Error code's name]"
-}
-```
-# POST /phiApi/CloudSave/GetGameProgress/[id\]
-Id is the id got from POST /api/CloudSave/GetSaveIndexes. 0 is always latest and the default value.
-## Requirements
+### Query
+isInternational=[true/false], depends on player save server location. <br/>
+index=[0..], this option is the index got from POST /api/CloudSave/GetSaveIndexes. 0 is always latest and the default value.
 ### Headers
 Content-Type: text/plain
 ### Body
@@ -136,29 +62,97 @@ User's phigros token.
 < Transfer-Encoding: chunked
 <
 {
-    "isFirstRun": true,
-    "legacyChapterFinished": true,
-    "alreadyShowCollectionTip": true,
-    "alreadyShowAutoUnlockINTip": true,
-    "completed": "3.0",
-    "songUpdateInfo": 4,
-    "challengeModeRank": 444,
-    "money": {
-        "kiB": 61,
-        "miB": 180,
-        "giB": 1,
+  "success": true,
+  "data": {
+    "progress": {
+      "version": 4,
+      "isFirstRun": true,
+      "legacyChapterFinished": false,
+      "alreadyShowCollectionTip": true,
+      "alreadyShowAutoUnlockINTip": false,
+      "completed": "",
+      "songUpdateInfo": 4,
+      "challengeModeRank": {
+        "rank": 0,
+        "level": 0,
+        "done": false
+      },
+      "money": {
+        "kiB": 0,
+        "miB": 32,
+        "giB": 0,
         "tiB": 0,
         "piB": 0
+      },
+      "unlockFlagOfSpasmodic": 0,
+      "unlockFlagOfIgallta": 0,
+      "unlockFlagOfRrharil": 0,
+      "flagOfSongRecordKey": 0,
+      "node2": {
+        "randomVersionUnlocked": 0,
+        "node3": {
+          "chapter8UnlockBegin": false,
+          "chapter8UnlockSecondPhase": false,
+          "chapter8Passed": false,
+          "chapter8SongUnlockFlag": 0,
+          "node4": {
+            "flagOfSongRecordKeyTakumi": 0
+          }
+        }
+      }
     },
-    "unlockFlagOfSpasmodic": 15,
-    "unlockFlagOfIgallta": 15,
-    "unlockFlagOfRrharil": 14,
-    "flagOfSongRecordKey": 127,
-    "randomVersionUnlocked": 1,
-    "chapter8UnlockBegin": true,
-    "chapter8UnlockSecondPhase": true,
-    "chapter8Passed": true,
-    "chapter8SongUnlockFlag": 63
+    "settings": {
+      "version": 1,
+      "chordSupport": true,
+      "fcApIndicatorOn": false,
+      "enableHitSound": true,
+      "lowResolutionModeOn": false,
+      "deviceName": "Galaxy S21 5G",
+      "backgroundBrightness": 0.75,
+      "musicVolume": 1,
+      "effectVolume": 1,
+      "hitSoundVolume": 1,
+      "soundOffset": 0.09,
+      "noteScale": 1
+    },
+    "gameUserInfo": {
+      "version": 1,
+      "showUserId": false,
+      "intro": "There is a self-introduction, write something just like:\r\nTwitter: @Phigros_PGS\r\nYouTube: Pigeon Games\r\n\r\nHope you have fun in Phigros.\r\nBest regards,\r\nPigeon Games",
+      "avatarId": "Introduction",
+      "backgroundId": "Introduction"
+    },
+    "userInfo": {
+      "nickName": "static_void3",
+      "userName": "2qpwxg81m3uxku0q94tp9vzlo",
+      "creationTime": "2025-07-13T01:28:09.067Z",
+      "modificationTime": "2025-07-16T07:26:42.298Z"
+    },
+    "summary": {
+      "saveVersion": 6,
+      "gameVersion": 129,
+      "challenge": {
+        "rank": 0,
+        "level": 0,
+        "done": false
+      },
+      "avatar": "\u0000",
+      "clears": [
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    }
+  }
 }
 ```
 ### Failure
@@ -170,15 +164,19 @@ User's phigros token.
 < Transfer-Encoding: chunked
 <
 {
-    "message": "Error processing request",
-    "error": "[message]",
-    "code": [Error code],
-    "codeName": "[Error code's name]"
+    "success": false,
+    "data": {
+        "code": [error code in int],
+        "codeName": [error code name],
+        "message": [error message]
+    }
 }
 ```
-# POST /phiApi/CloudSave/GetSaveAndSummary/[id\]
-Id is the id got from POST /api/CloudSave/GetSaveIndexes. 0 is always latest and the default value.
+# POST /phiApi/CloudSave/GetRecords
 ## Requirements
+### Query
+isInternational=[true/false], depends on player save server location. <br/>
+index=[0..], this option is the index got from POST /api/CloudSave/GetSaveIndexes. 0 is always latest and the default value.
 ### Headers
 Content-Type: text/plain
 ### Body
@@ -193,43 +191,23 @@ User's phigros token.
 < Transfer-Encoding: chunked
 <
 {
-    "summary": {
-        "saveVersion": 5,
-        "gameVersion": 104,
-        "challengeCode": 444,
-        "avatar": "\u3082\u307A\u3082\u307A1",
-        "clears": [
-            7,
-            1,
-            0,
-            111,
-            27,
-            0,
-            190,
-            64,
-            16,
-            23,
-            4,
-            0
-        ]
-    },
-    "gameSave": {
-        "creationDate": "2023-04-29T13:16:47.811Z",
-        "modificationTime": "2024-06-07T07:29:59.251Z",
-        "records": [
-            {
-                "id": "Glaciaxion.SunsetRay",
-                "name": "Glaciaxion",
-                "difficulty": "HD",
-                "chartConstant": 6.5,
-                "score": 958301,
-                "acc": 99.59329986572266,
-                "rksGiven": 6.383039779724785,
-                "stat": "S" // can be the following: Bugged (should never happen), Phi, Fc, Vu, S, A, B, C, False.
-            },
-            // ...
-        ]
-    }
+  "success": true,
+  "data": {
+    "version": 1,
+    "records": [
+      {
+        "score": 882009,
+        "accuracy": 95.31896209716797,
+        "chartConstant": 11.5,
+        "id": "ENERGYSYNERGYMATRIX.Tanchiky",
+        "difficulty": 1,
+        "status": 5,
+        "rks": 9.231908692749615
+      },
+      ...
+    ],
+    "summary": "BgAA1I6dPoEBAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAAAA=="
+  }
 }
 ```
 ### Failure
@@ -241,15 +219,19 @@ User's phigros token.
 < Transfer-Encoding: chunked
 <
 {
-    "message": "Error processing request",
-    "error": "[message]",
-    "code": [Error code],
-    "codeName": "[Error code's name]"
+    "success": false,
+    "data": {
+        "code": [error code in int],
+        "codeName": [error code name],
+        "message": [error message]
+    }
 }
 ```
-# POST /phiApi/CloudSave/GetDecryptedZip/[id\]
-Id is the id got from POST /api/CloudSave/GetSaveIndexes. 0 is always latest and the default value.
+# POST /phiApi/CloudSave/GetDecryptedZip
 ## Requirements
+### Query
+isInternational=[true/false], depends on player save server location. <br/>
+index=[0..], this option is the index got from POST /api/CloudSave/GetSaveIndexes. 0 is always latest and the default value.
 ### Headers
 Content-Type: text/plain
 ### Body
@@ -275,9 +257,11 @@ The zip contains following files: user, settings, gameProgress, gameRecord, and 
 < Transfer-Encoding: chunked
 <
 {
-    "message": "Error processing request",
-    "error": "[message]",
-    "code": [Error code],
-    "codeName": "[Error code's name]"
+    "success": false,
+    "data": {
+        "code": [error code in int],
+        "codeName": [error code name],
+        "message": [error message]
+    }
 }
 ```

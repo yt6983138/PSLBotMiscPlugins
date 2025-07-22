@@ -361,3 +361,9 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+
+# testing files
+__[Tt]est*/**
+
+# PhigrosApi copied Files
+PhigrosApi/PSL*/**

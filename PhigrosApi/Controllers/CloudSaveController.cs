@@ -1,63 +1,62 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using PhigrosLibraryCSharp;
-using PhigrosLibraryCSharp.Cloud.DataStructure;
-using PhigrosLibraryCSharp.Cloud.DataStructure.Raw;
+using PhigrosLibraryCSharp.Cloud.RawData;
+using PhigrosLibraryCSharp.GameRecords;
 using PSLDiscordBot.Core.Services.Phigros;
 using System.Collections.Concurrent;
 using System.IO.Compression;
 
 namespace PhigrosApi.Controllers;
-public class CloudSaveController : Controller
+public class CloudSaveController : CustomControllerBase
 {
 	public static ConcurrentDictionary<string, Save> TokenSaveCache { get; set; } = new();
 
-	private ILogger<CloudSaveController> _logger;
-	private PhigrosDataService _phigrosData;
+	private PhigrosService _phigrosData;
 
-	public CloudSaveController(ILogger<CloudSaveController> logger, PhigrosDataService data)
+	public CloudSaveController(ILoggerFactory logger, PhigrosService data)
+		: base(logger)
 	{
-		this._logger = logger;
 		this._phigrosData = data;
 	}
 
-	private async Task<Save> GetSaveOrAdd(string token)
+	private async Task<Save> GetSaveOrAdd(string token, bool isInternational)
 	{
 		if (TokenSaveCache.TryGetValue(token, out Save? save))
 			return save;
 
-		Save newSave = new(token); // will throw if invalid token
+		Save newSave = new(token, isInternational); // will throw if invalid token
 		await newSave.GetUserInfoAsync();
 		this._logger.LogDebug("Adding token {token} to cache", token);
-		return !TokenSaveCache.TryAdd(token, newSave) ? throw new Exception("Failed to add to cache") : newSave;
+		return !TokenSaveCache.TryAdd(token, newSave) ? throw new ApplicationException("Failed to add to cache") : newSave;
 	}
-	private async Task<(IActionResult?, Save?)> GetSaveAndHandleError(string token)
+	private async Task<(IActionResult?, Save?)> GetSaveAndHandleError(string token, bool isInternational)
 	{
 		Save save;
 		try
 		{
-			save = await this.GetSaveOrAdd(token);
+			save = await this.GetSaveOrAdd(token, isInternational);
 		}
 		catch (ArgumentException argEx)
 		{
-			return (this.Error(this._logger, argEx.Message, code: ErrorCode.PhigrosTokenError), null);
+			return (this.Error(argEx, code: ErrorCode.PhigrosTokenError), null);
 		}
 		catch (HttpRequestException argEx)
 		{
-			return (this.Error(this._logger, argEx.Message, code: ErrorCode.PhigrosTokenError), null);
+			return (this.Error(argEx, code: ErrorCode.PhigrosTokenError), null);
 		}
 		catch (Exception ex)
 		{
-			return (this.Error(this._logger, ex.Message, code: ErrorCode.PhigrosLibraryInternalError), null);
+			return (this.Error(ex, code: ErrorCode.PhigrosLibraryInternalError), null);
 		}
 
 		return (null, save);
 	}
 
-	[HttpPost]
+	[HttpGet]
 	[Route("phiApi/[controller]/GetSaveIndexes")]
-	public async Task<IActionResult> GetSaveIndexes()
+	public async Task<IActionResult> GetSaveIndexes(bool isInternational)
 	{
-		(IActionResult? action, Save? save) = await this.GetSaveAndHandleError(await this.Request.ReadBodyAsString());
+		(IActionResult? action, Save? save) = await this.GetSaveAndHandleError(await this.ReadRequestBodyAsString(), isInternational);
 		if (save is null)
 			return action!;
 
@@ -74,96 +73,60 @@ public class CloudSaveController : Controller
 		}
 		catch (Exception ex)
 		{
-			return this.Error(this._logger, ex.Message, code: ErrorCode.PhigrosLibraryInternalError);
+			return this.Error(ex, code: ErrorCode.PhigrosLibraryInternalError);
 		}
 
-		this._logger.LogDebug("{ip} requested save index successfully.", this.Request.HttpContext.GetIP());
+		this._logger.LogDebug("{ip} requested save index successfully.", this.IP);
 		return this.Json(timeList);
 	}
 
-	[HttpPost]
-	[Route("phiApi/[controller]/GetGameUserInfo/{id=0}")]
-	public async Task<IActionResult> GetGameUserInfo(int id)
+	[HttpGet]
+	[Route("phiApi/[controller]/GetSaveData")]
+	public async Task<IActionResult> GetSaveData(int index, bool isInternational)
 	{
-		(IActionResult? action, Save? save) = await this.GetSaveAndHandleError(await this.Request.ReadBodyAsString());
+		(IActionResult? action, Save? save) = await this.GetSaveAndHandleError(await this.ReadRequestBodyAsString(), isInternational);
 		if (save is null)
 			return action!;
 
+		GameProgress progress;
+		GameSettings settings;
 		GameUserInfo userInfo;
+		Summary summary;
+		UserInfo outterUserInfo;
 		try
 		{
-			userInfo = await save.GetGameUserInfoAsync(id);
+			SaveContext context = await save.GetSaveContextAsync(index);
+			outterUserInfo = await save.GetUserInfoAsync();
+			summary = context.ReadSummary();
+			progress = context.ReadGameProgress();
+			settings = context.ReadGameSettings();
+			userInfo = context.ReadGameUserInfo();
 		}
 		catch (ArgumentOutOfRangeException ex)
 		{
-			return this.Error(this._logger, ex.Message, code: ErrorCode.ArgumentOutOfRange);
+			return this.Error(ex, code: ErrorCode.ArgumentOutOfRange);
 		}
 		catch (Exception ex)
 		{
-			return this.Error(this._logger, ex.Message, code: ErrorCode.PhigrosLibraryInternalError);
+			return this.Error(ex, code: ErrorCode.PhigrosLibraryInternalError);
 		}
 
-		this._logger.LogDebug("{ip} requested game user info successfully.", this.Request.HttpContext.GetIP());
-		return this.Json(userInfo);
+		this._logger.LogDebug("{ip} requested game user info successfully.", this.IP);
+		return this.Json(new
+		{
+			Progress = progress,
+			Settings = settings,
+			GameUserInfo = userInfo,
+			UserInfo = outterUserInfo,
+			Summary = summary
+		});
 	}
 
-	[HttpPost]
-	[Route("phiApi/[controller]/GetGameSettings/{id=0}")]
-	public async Task<IActionResult> GetGameSettings(int id)
+	[HttpGet]
+	[Route("phiApi/[controller]/GetDecryptedZip")]
+	public async Task<IActionResult> GetDecryptedZip(int index, bool isInternational)
 	{
-		(IActionResult? action, Save? save) = await this.GetSaveAndHandleError(await this.Request.ReadBodyAsString());
-		if (save is null)
-			return action!;
-
-		GameSettings data;
-		try
-		{
-			data = await save.GetGameSettingsAsync(id);
-		}
-		catch (ArgumentOutOfRangeException ex)
-		{
-			return this.Error(this._logger, ex.Message, code: ErrorCode.ArgumentOutOfRange);
-		}
-		catch (Exception ex)
-		{
-			return this.Error(this._logger, ex.Message, code: ErrorCode.PhigrosLibraryInternalError);
-		}
-
-		this._logger.LogDebug("{ip} requested game settings successfully.", this.Request.HttpContext.GetIP());
-		return this.Json(data);
-	}
-
-	[HttpPost]
-	[Route("phiApi/[controller]/GetGameProgress/{id=0}")]
-	public async Task<IActionResult> GetGameProgress(int id)
-	{
-		(IActionResult? action, Save? save) = await this.GetSaveAndHandleError(await this.Request.ReadBodyAsString());
-		if (save is null)
-			return action!;
-
-		GameProgress data;
-		try
-		{
-			data = await save.GetGameProgressAsync(id);
-		}
-		catch (ArgumentOutOfRangeException ex)
-		{
-			return this.Error(this._logger, ex.Message, code: ErrorCode.ArgumentOutOfRange);
-		}
-		catch (Exception ex)
-		{
-			return this.Error(this._logger, ex.Message, code: ErrorCode.PhigrosLibraryInternalError);
-		}
-
-		this._logger.LogDebug("{ip} requested game progress successfully.", this.Request.HttpContext.GetIP());
-		return this.Json(data);
-	}
-
-	[HttpPost]
-	[Route("phiApi/[controller]/GetDecryptedZip/{id=0}")]
-	public async Task<IActionResult> GetDecryptedZip(int id)
-	{
-		(IActionResult? action, Save? save) = await this.GetSaveAndHandleError(await this.Request.ReadBodyAsString());
+		(IActionResult? action, Save? save) = await this.GetSaveAndHandleError(await this.ReadRequestBodyAsString(), isInternational);
 		if (save is null)
 			return action!;
 
@@ -171,7 +134,7 @@ public class CloudSaveController : Controller
 		ZipArchive newZip = new(newStream, ZipArchiveMode.Create);
 		try
 		{
-			byte[] d = await save.GetSaveRawZipAsync((await save.GetRawSaveFromCloudAsync()).GetParsedSaves()[id]);
+			byte[] d = await save.GetSaveRawZipAsync((await save.GetRawSaveFromCloudAsync()).GetParsedSaves()[index]);
 
 			foreach (ZipArchiveEntry entry in new ZipArchive(new MemoryStream(d), ZipArchiveMode.Read).Entries)
 			{
@@ -190,54 +153,40 @@ public class CloudSaveController : Controller
 		}
 		catch (ArgumentOutOfRangeException ex)
 		{
-			return this.Error(this._logger, ex.Message, code: ErrorCode.ArgumentOutOfRange);
+			return this.Error(ex, code: ErrorCode.ArgumentOutOfRange);
 		}
 		catch (Exception ex)
 		{
-			return this.Error(this._logger, ex.Message, code: ErrorCode.PhigrosLibraryInternalError);
+			return this.Error(ex, code: ErrorCode.PhigrosLibraryInternalError);
 		}
 
-		this._logger.LogDebug("{ip} requested decrypted zip successfully.", this.Request.HttpContext.GetIP());
+		this._logger.LogDebug("{ip} requested decrypted zip successfully.", this.IP);
 		return this.File(newStream.ToArray(), "application/zip");
 	}
 
-	[HttpPost]
-	[Route("phiApi/[controller]/GetSaveAndSummary/{id=0}")]
-	public async Task<IActionResult> GetSaveAndSummary(int id)
+	[HttpGet]
+	[Route("phiApi/[controller]/GetRecords")]
+	public async Task<IActionResult> GetRecords(int index, bool isInternational)
 	{
-		(IActionResult? action, Save? save) = await this.GetSaveAndHandleError(await this.Request.ReadBodyAsString());
+		(IActionResult? action, Save? save) = await this.GetSaveAndHandleError(await this.ReadRequestBodyAsString(), isInternational);
 		if (save is null)
 			return action!;
 
-		Summary summary;
-		GameSave gameSave;
-
-		object converted;
 		try
 		{
-			(summary, gameSave) = await save.GetGameSaveAsync(this._phigrosData.DifficultiesMap, id);
+			SaveContext context = await save.GetSaveContextAsync(index);
+			GameRecord gameRecords = context.ReadGameRecord(this._phigrosData.DifficultiesMap);
 
-			converted = new
-			{
-				Summary = summary,
-				GameSave = new
-				{
-					gameSave.CreationDate,
-					gameSave.ModificationTime,
-					Records = gameSave.Records.Select(r => r.Export(this._phigrosData.IdNameMap[r.Id]))
-				}
-			};
+			this._logger.LogDebug("{ip} requested summary and save successfully.", this.IP);
+			return this.Json(gameRecords);
 		}
 		catch (ArgumentOutOfRangeException ex)
 		{
-			return this.Error(this._logger, ex.Message, code: ErrorCode.ArgumentOutOfRange);
+			return this.Error(ex, code: ErrorCode.ArgumentOutOfRange);
 		}
 		catch (Exception ex)
 		{
-			return this.Error(this._logger, ex.Message, code: ErrorCode.PhigrosLibraryInternalError);
+			return this.Error(ex, code: ErrorCode.PhigrosLibraryInternalError);
 		}
-
-		this._logger.LogDebug("{ip} requested summary and save successfully.", this.Request.HttpContext.GetIP());
-		return this.Json(converted);
 	}
 }

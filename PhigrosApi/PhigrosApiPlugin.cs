@@ -1,5 +1,6 @@
-using Microsoft.AspNetCore.Cors.Infrastructure;
 using Microsoft.AspNetCore.Mvc.ApplicationParts;
+using PSLDiscordBot.Core.Services;
+using PSLDiscordBot.Core.Services.Phigros;
 using PSLDiscordBot.Framework;
 using System.Text.Json;
 
@@ -20,27 +21,40 @@ public class PhigrosApiPlugin : IPlugin
 	public void Load(WebApplicationBuilder hostBuilder, bool isDynamicLoading)
 	{
 		this._hasOtherRegisteredMvc = hostBuilder.Services.Any(x => x.ServiceType == typeof(IMvcBuilder));
-		this._hasOtherRegisteredCors = hostBuilder.Services.Any(x => x.ServiceType == typeof(ICorsPolicyProvider));
 
-		if (!this._hasOtherRegisteredMvc)
+		CommonLoad(hostBuilder, this._hasOtherRegisteredMvc);
+	}
+	public void Setup(IHost host)
+	{
+		WebApplication app = host.Unbox<WebApplication>();
+		CommonSetup(app, this._hasOtherRegisteredMvc);
+	}
+	public void Unload(IHost host, bool isDynamicUnloading)
+	{
+	}
+
+	private static void CommonLoad(WebApplicationBuilder builder, bool hasOtherRegisteredMvc)
+	{
+		if (!hasOtherRegisteredMvc)
 		{
-			hostBuilder.Services.AddControllers()
+			builder.Services.AddControllers()
 				.AddJsonOptions(x => x.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower);
 		}
-		hostBuilder.Services.AddCors(options => options.AddPolicy("Everything",
+		builder.Services.AddCors(options => options.AddPolicy("Everything",
 			policy =>
 			{
 				policy.AllowAnyHeader()
 					.AllowAnyMethod()
 					.AllowAnyOrigin();
 			}));
-		hostBuilder.Services.GetApplicationPartManager()
+		builder.Services.AddExceptionHandler<ExceptionHandler>();
+		builder.Services.AddProblemDetails();
+		builder.Services.GetApplicationPartManager()
 			.ApplicationParts.Add(new AssemblyPart(typeof(PhigrosApiPlugin).Assembly));
 	}
-	public void Setup(IHost host)
+	private static void CommonSetup(WebApplication app, bool hasOtherRegisteredMvc)
 	{
-		WebApplication app = host.Unbox<WebApplication>();
-		if (!this._hasOtherRegisteredMvc)
+		if (!hasOtherRegisteredMvc)
 		{
 			app.MapControllers().AllowAnonymous();
 			app.UseStaticFiles(new StaticFileOptions()
@@ -51,10 +65,8 @@ public class PhigrosApiPlugin : IPlugin
 			app.UseAuthorization();
 		}
 
+		app.UseExceptionHandler();
 		app.UseCors("Everything");
-	}
-	public void Unload(IHost host, bool isDynamicUnloading)
-	{
 	}
 
 #if DEBUG
@@ -62,21 +74,10 @@ public class PhigrosApiPlugin : IPlugin
 	{
 		WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
-		// Add services to the container.
-		builder.Services.AddCors(options => options.AddPolicy("Everything",
-			policy =>
-			{
-				policy.AllowAnyHeader()
-					.AllowAnyMethod()
-					.AllowAnyOrigin();
-			}));
+		CommonLoad(builder, false);
 
-		builder.Services.AddControllersWithViews();
-
-		builder.Services.Configure<PhigrosApiConfig>(
-			builder.Configuration.GetSection("PhigrosDataConfig"));
-
-		builder.Services.AddSingleton<PhigrosData>();
+		builder.Services.AddSingleton<PhigrosService>();
+		builder.Services.AddSingleton<LocalizationService>();
 
 		WebApplication app = builder.Build();
 
@@ -85,23 +86,8 @@ public class PhigrosApiPlugin : IPlugin
 			// app.UseExceptionHandler("/Index");
 			// The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
 			app.UseHsts();
-		app.MapControllers().AllowAnonymous();
 
-		//app.UseHttpsRedirection();
-		app.UseStaticFiles(new StaticFileOptions()
-		{
-			ServeUnknownFileTypes = true
-		});
-
-		app.UseRouting();
-
-		app.UseCors("Everything");
-
-		app.UseAuthorization();
-
-		//app.MapControllerRoute(
-		//	name: "default",
-		//	pattern: "{controller=Home}/{action=GetNewQrcode}");
+		CommonSetup(app, false);
 
 		app.Run();
 	}

@@ -1,0 +1,16 @@
+GET http://localhost:5015/phiApi/CloudSave/GetSaveIndexes?isInternational=true
+
+gbdlj3f4tpq577agbnd2bco1e
+
+###
+GET http://localhost:5015/phiApi/CloudSave/GetSaveData?isInternational=true
+
+gbdlj3f4tpq577agbnd2bco1e
+###
+GET http://localhost:5015/phiApi/CloudSave/GetRecords?isInternational=true
+
+gbdlj3f4tpq577agbnd2bco1e
+###
+GET http://localhost:5015/phiApi/CloudSave/GetDecryptedZip?isInternational=true
+
+gbdlj3f4tpq577agbnd2bco1e

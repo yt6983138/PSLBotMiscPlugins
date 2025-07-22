@@ -25,7 +25,7 @@ public class CsvToLocalization : AdminCommandBase
 		IOptions<Config> config,
 		DataBaseService database,
 		LocalizationService localization,
-		PhigrosDataService phigrosData,
+		PhigrosService phigrosData,
 		ILoggerFactory loggerFactory) : base(config, database, localization, phigrosData, loggerFactory)
 	{
 	}

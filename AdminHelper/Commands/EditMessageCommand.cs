@@ -17,7 +17,7 @@ namespace AdminHelper.Commands;
 [AddToGlobal]
 public class EditMessageCommand : AvailableEveryWhereAdminCommand
 {
-	public EditMessageCommand(IOptions<Config> config, DataBaseService database, LocalizationService localization, PhigrosDataService phigrosData, ILoggerFactory loggerFactory) : base(config, database, localization, phigrosData, loggerFactory)
+	public EditMessageCommand(IOptions<Config> config, DataBaseService database, LocalizationService localization, PhigrosService phigrosData, ILoggerFactory loggerFactory) : base(config, database, localization, phigrosData, loggerFactory)
 	{
 	}
 

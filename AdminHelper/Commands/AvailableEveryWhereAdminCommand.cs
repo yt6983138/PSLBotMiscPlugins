@@ -10,7 +10,7 @@ namespace AdminHelper.Commands;
 
 public abstract class AvailableEveryWhereAdminCommand : AdminCommandBase
 {
-	protected AvailableEveryWhereAdminCommand(IOptions<Config> config, DataBaseService database, LocalizationService localization, PhigrosDataService phigrosData, ILoggerFactory loggerFactory) : base(config, database, localization, phigrosData, loggerFactory)
+	protected AvailableEveryWhereAdminCommand(IOptions<Config> config, DataBaseService database, LocalizationService localization, PhigrosService phigrosData, ILoggerFactory loggerFactory) : base(config, database, localization, phigrosData, loggerFactory)
 	{
 	}
 

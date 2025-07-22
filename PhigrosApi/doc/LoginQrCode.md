@@ -5,7 +5,8 @@ Typically you'd do this in following order:
 
 # GET /phiApi/LoginQrCode/GetNewQrCode
 ## Requirements
-No headers/body are needed.
+### Query
+isInternational=[true/false], depends on player save server location.
 
 ## Responses
 In any scenario:
@@ -17,21 +18,26 @@ In any scenario:
 < Transfer-Encoding: chunked
 <
 {
-    "deviceID": "80492fe21eab44ebb7ce27649748bfa6",
-    "deviceCode": "bdK9qxspDeBrbM2OUu4M0EBloEVR9App6Xh9buXD",
-    "expiresInSeconds": 300,
-    "url": "https://accounts.taptap.cn/device?qrcode=1\u0026user_code=lyhtp",
-    "interval": 2
+    "success": true,
+    "data": {
+        "deviceID": "PhigrosLibraryCSharp-3.0.0.0-1753182692902.4153-17,757.00",
+        "deviceCode": "jF9IoSMvZiiizqJyAOxW1vIq8LdK2sabjaSARv2o",
+        "expiresInSeconds": 300,
+        "url": "https://accounts.taptap.io/device?qrcode=1&user_code=5smix",
+        "interval": 1
+    }
 }
 ```
 Response body from this request is needed.
 
 # POST /phiApi/LoginQrCode/CheckQRCode
 ## Requirements
+### Query
+isInternational=[true/false], depends on player save server location.
 ### Headers
 Content-Type: application/json
 ### Body
-Response body from `GET /api/LoginQrCode/GetNewQrCode`.
+Response body (the data field) from `GET /api/LoginQrCode/GetNewQrCode`.
 ### Other
 Once you request new qrcode, you should do this request every [interval\] seconds, until code expires (expires in [expiresInSeconds\] seconds after requested).
 ## Responses
@@ -44,13 +50,16 @@ Once you request new qrcode, you should do this request every [interval\] second
 < Transfer-Encoding: chunked
 <
 {
+    "success": true,
     "data": {
-        "kid": "[Redacted]",
-        "token": "[Redacted]",
-        "tokenType": "mac",
-        "macKey": "[Redacted]",
-        "macAlgorithm": "hmac-sha-1",
-        "scope": "public_profile"
+        "data": {
+            "kid": "[Redacted]",
+            "token": "[Redacted]",
+            "tokenType": "mac",
+            "macKey": "[Redacted]",
+            "macAlgorithm": "hmac-sha-1",
+            "scope": "public_profile"
+        }
     }
 }
 ```
@@ -65,10 +74,12 @@ Response body from this request is needed.
 < Transfer-Encoding: chunked
 <
 {
-    "message": "Login progress not done",
-    "error": "",
-    "code": 1,
-    "codeName": "LoginProcessNotDone"
+    "success": false,
+    "data": {
+        "code": 1,
+        "codeName": "LoginProcessNotDone",
+        "message": "Login progress not done"
+    }
 }
 ```
 ### When expired/invalid code was sent to server
@@ -80,18 +91,22 @@ Response body from this request is needed.
 < Transfer-Encoding: chunked
 <
 {
-    "message": "Error processing request",
-    "error": "{\"data\":{\"code\":-1,\"msg\":\"请求错误\",\"error\":\"invalid_grant_code\",\"error_description\":\"oauth2.tapapis.com.INVALID_GRANT_CODE: InvalidArgument: the provided access grant is invalid, expired, or revoked\"},\"now\":1723259060,\"success\":false}",
-    "code": 11,
-    "codeName": "LoginOtherError"
+    "success": false,
+    "data": {
+        "code": 11,
+        "codeName": "LoginOtherError",
+        "message": "{\"data\":{\"code\":-1,\"msg\":\"请求错误\",\"error\":\"invalid_grant_code\",\"error_description\":\"oauth2.tapapis.com.INVALID_GRANT_CODE: InvalidArgument: the provided access grant is invalid, expired, or revoked\"},\"now\":1723259060,\"success\":false}"
+    }
 }
 ```
 # POST /phiApi/LoginQrCode/GetTapTapProfile
 ## Requirements
+### Query
+isInternational=[true/false], depends on player save server location.
 ### Headers
 Content-Type: application/json
 ### Body
-Response body from `POST /api/LoginQrCode/CheckQRCode`.
+Response body (the data field) from `POST /api/LoginQrCode/CheckQRCode`.
 ## Responses
 ### When correct data was sent
 ```
@@ -102,12 +117,15 @@ Response body from `POST /api/LoginQrCode/CheckQRCode`.
 < Transfer-Encoding: chunked
 <
 {
+    "success": true,
     "data": {
-        "openId": "[Redacted]",
-        "unionId": "[Redacted]",
-        "name": "static-void2",
-        "gender": "",
-        "avatar": "https://img3.tapimg.com/default_avatars/384aa197eceba6322c9af740d008e65e.jpg?imageMogr2/auto-orient/strip/thumbnail/!270x270r/gravity/Center/crop/270x270/format/jpg/interlace/1/quality/80"
+        "data": {
+            "openId": "[Redacted]",
+            "unionId": "[Redacted]",
+            "name": "static-void2",
+            "gender": "",
+            "avatar": "https://img3.tapimg.com/default_avatars/384aa197eceba6322c9af740d008e65e.jpg?imageMogr2/auto-orient/strip/thumbnail/!270x270r/gravity/Center/crop/270x270/format/jpg/interlace/1/quality/80"
+        }
     }
 }
 ```
@@ -120,18 +138,22 @@ Response body from `POST /api/LoginQrCode/CheckQRCode`.
 < Transfer-Encoding: chunked
 <
 {
-    "message": "Error processing request",
-    "error": "[message]",
-    "code": [Error code],
-    "codeName": "[Error code's name]"
+    "success": false,
+    "data": {
+        "code": [error code in int],
+        "codeName": [error code name],
+        "message": [error message]
+    }
 }
 ```
 # POST /phiApi/LoginQrCode/GetPhigrosToken
 ## Requirements
+### Query
+isInternational=[true/false], depends on player save server location.
 ### Headers
 Content-Type: application/json
 ### Body
-Response body from `POST /api/LoginQrCode/CheckQRCode`.
+Response body (the data field) from `POST /api/LoginQrCode/CheckQRCode`.
 ## Responses
 ### When correct data was sent
 ```
@@ -152,9 +174,11 @@ f5knk52e8o[Redacted]s7zx
 < Transfer-Encoding: chunked
 <
 {
-    "message": "Error processing request",
-    "error": "[message]",
-    "code": [Error code],
-    "codeName": "[Error code's name]"
+    "success": false,
+    "data": {
+        "code": [error code in int],
+        "codeName": [error code name],
+        "message": [error message]
+    }
 }
 ```
