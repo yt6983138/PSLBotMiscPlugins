@@ -9,7 +9,7 @@ public class PersonalWebsitePlugin : IPlugin
 {
 	private bool _hasOtherRegisteredMvc = false;
 
-	public string Name => "Personal Webiste";
+	public string Name => "Personal Website";
 	public string Description => "My personal website.";
 	public Version Version => new(1, 0, 0, 0);
 	public string Author => "yt6983138 aka static_void (yt6983138@gmail.com)";

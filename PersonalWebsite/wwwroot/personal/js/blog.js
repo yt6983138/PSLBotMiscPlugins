@@ -19,3 +19,6 @@ async function RedirectToBlogView(name) {
 async function GetBlogInfoByName(name) {
     return await (await fetch(`/personal/api/blog/InfoByName/${name}`)).json();
 }
+async function RefreshBlogs(adminPass) {
+    await fetch("/personal/api/blog/RefreshBlogs", { method: "PATCH", body: adminPass.toString() });
+}

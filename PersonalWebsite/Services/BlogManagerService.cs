@@ -25,6 +25,7 @@ public class BlogManagerService
 	{
 		this._logger.LogInformation("Refreshing blogs in {BlogDirectory}", this.BlogDirectory.FullName);
 
+		this.BlogFiles.Clear();
 		foreach (FileInfo file in this.BlogDirectory.GetFiles().Where(x => x.Extension == ".md" && !x.Name.StartsWith("__")))
 		{
 			this._logger.LogDebug("Found blog file: {FileName}", file.Name);
