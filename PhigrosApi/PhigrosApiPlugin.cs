@@ -69,7 +69,7 @@ public class PhigrosApiPlugin : IPlugin
 		app.UseCors("Everything");
 	}
 
-#if DEBUG
+	//#if DEBUG
 	public static void Main(string[] args)
 	{
 		WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
@@ -91,5 +91,5 @@ public class PhigrosApiPlugin : IPlugin
 
 		app.Run();
 	}
-#endif
+	//#endif
 }
