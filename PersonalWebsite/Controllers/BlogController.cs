@@ -4,7 +4,7 @@ using PersonalWebsite.Services;
 using System.Text;
 
 namespace PersonalWebsite.Controllers;
-public class BlogController : Controller
+public class BlogController : CustomControllerBase
 {
 	private readonly IOptions<Config> _config;
 	private readonly BlogManagerService _blogManager;
@@ -31,7 +31,7 @@ public class BlogController : Controller
 	[HttpGet("personal/api/blog/Blogs")]
 	public IActionResult GetBlogs()
 	{
-		return this.Ok(this._blogManager.BlogFiles.Select(x => new
+		return this.Json(this._blogManager.BlogFiles.Select(x => new
 		{
 			x.MainContent.Name,
 			LastModified = x.MainContent.LastWriteTimeUtc,
@@ -57,7 +57,7 @@ public class BlogController : Controller
 		{
 			return this.NotFound();
 		}
-		return this.Ok(new
+		return this.Json(new
 		{
 			info.MainContent.Name,
 			LastModified = info.MainContent.LastWriteTimeUtc,

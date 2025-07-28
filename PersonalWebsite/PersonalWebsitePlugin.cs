@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc.ApplicationParts;
 using PersonalWebsite.Services;
 using PSLDiscordBot.Framework;
-using System.Text.Json;
 
 namespace PersonalWebsite;
 
@@ -23,12 +22,11 @@ public class PersonalWebsitePlugin : IPlugin
 		hostBuilder.Services.Configure<Config>(
 			hostBuilder.Configuration.GetSection("PersonalWebsiteConfig"));
 
-		this._hasOtherRegisteredMvc = hostBuilder.Services.Any(x => x.ServiceType == typeof(IMvcBuilder));
+		this._hasOtherRegisteredMvc = hostBuilder.Services.HasMvcRegistered();
 
 		if (!this._hasOtherRegisteredMvc)
 		{
-			hostBuilder.Services.AddControllers()
-				.AddJsonOptions(x => x.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower);
+			hostBuilder.Services.AddControllers();
 		}
 		hostBuilder.Services.GetApplicationPartManager()
 			.ApplicationParts.Add(new AssemblyPart(typeof(PersonalWebsitePlugin).Assembly));

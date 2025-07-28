@@ -22,7 +22,7 @@ public class PhigrosLoginHostPlugin : IPlugin
 		hostBuilder.Services.Configure<LoginHostConfig>(
 			hostBuilder.Configuration.GetSection("LoginHostConfig"));
 
-		this._hasOtherRegisteredMvc = hostBuilder.Services.Any(x => x.ServiceType == typeof(IMvcBuilder));
+		this._hasOtherRegisteredMvc = hostBuilder.Services.HasMvcRegistered();
 
 		if (!this._hasOtherRegisteredMvc)
 		{

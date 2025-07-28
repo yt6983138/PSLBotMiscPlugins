@@ -2,7 +2,6 @@ using Microsoft.AspNetCore.Mvc.ApplicationParts;
 using PSLDiscordBot.Core.Services;
 using PSLDiscordBot.Core.Services.Phigros;
 using PSLDiscordBot.Framework;
-using System.Text.Json;
 
 namespace PhigrosApi;
 
@@ -20,7 +19,7 @@ public class PhigrosApiPlugin : IPlugin
 
 	public void Load(WebApplicationBuilder hostBuilder, bool isDynamicLoading)
 	{
-		this._hasOtherRegisteredMvc = hostBuilder.Services.Any(x => x.ServiceType == typeof(IMvcBuilder));
+		this._hasOtherRegisteredMvc = hostBuilder.Services.HasMvcRegistered();
 
 		CommonLoad(hostBuilder, this._hasOtherRegisteredMvc);
 	}
@@ -37,8 +36,7 @@ public class PhigrosApiPlugin : IPlugin
 	{
 		if (!hasOtherRegisteredMvc)
 		{
-			builder.Services.AddControllers()
-				.AddJsonOptions(x => x.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower);
+			builder.Services.AddControllers();
 		}
 		builder.Services.AddCors(options => options.AddPolicy("Everything",
 			policy =>
