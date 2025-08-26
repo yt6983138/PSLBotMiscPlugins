@@ -51,7 +51,6 @@ public class PersonalWebsitePlugin : IPlugin
 	{
 	}
 
-#if DEBUG
 	// for debug only
 	public static void Main(string[] args)
 	{
@@ -73,5 +72,4 @@ public class PersonalWebsitePlugin : IPlugin
 
 		app.Run();
 	}
-#endif
 }
