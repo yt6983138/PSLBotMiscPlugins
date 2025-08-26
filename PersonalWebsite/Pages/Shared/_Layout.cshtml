@@ -1,0 +1,39 @@
+﻿@{
+    string GetActiveTabTag(string compareName)
+    {
+        var activeTab = (string?)this.ViewData["ActiveTab"] ?? "";
+        return activeTab == compareName ? "is-active" : "";
+    }
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" type="text/css" href="https://raw.githack.com/yt6983138/10CSS/main/css/10css.min.css" />
+    <link rel="stylesheet" type="text/css" href="/personal/css/common.css" />
+    <script src="/personal/js/common.js"></script>
+
+    <title>@ViewData["Title"]</title>
+    
+    @RenderSection("Headers", false)
+</head>
+<body>
+    <header>
+        <nav>
+            <a href="/personal/index.html" id="index-link" class="@GetActiveTabTag("Index")">Index</a>
+            <a href="/personal/blog.html" id="blog-link" class="@GetActiveTabTag("Blog")" >Blog</a>
+            <a href="/personal/tools.html" id="tools-link" class="@GetActiveTabTag("Tools")">Tools</a>
+            <a href="/personal/experiment.html" id="experiment-link" class="@GetActiveTabTag("Experiment")">Experiment</a>
+        </nav>
+        <div class="toggle-dark-mode-div">
+            <label for="">Dark Mode</label>
+            <input type="checkbox" onchange="SetDarkMode(event.target.checked)" />
+        </div>
+    </header>
+
+    <main>
+        @RenderBody()
+    </main>
+</body>
+</html>

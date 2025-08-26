@@ -66,8 +66,8 @@ public class BlogController : CustomControllerBase
 		});
 	}
 	[HttpGet("personal/blogView/{blogName}")]
-	public VirtualFileResult BlogView(string blogName)
+	public IActionResult BlogView(string blogName)
 	{
-		return this.File("/personal/blogView.html", "text/html");
+		return this.View("BlogView");
 	}
 }

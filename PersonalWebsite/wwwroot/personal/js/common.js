@@ -12,7 +12,7 @@ function SetDarkMode(mode) {
             css.rel = "stylesheet";
             document.head.appendChild(css);
         }
-        css.href = "/personal/css/10css.dark.css";
+        css.href = "https://raw.githack.com/yt6983138/10CSS/main/css/10css.dark.css";
     } else {
         window.localStorage.removeItem("darkMode");
         let css = document.getElementById("dark-mode-css");

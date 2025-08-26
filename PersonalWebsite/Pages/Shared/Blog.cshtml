@@ -1,12 +1,13 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="utf-8" />
-    <link rel="stylesheet" type="text/css" href="/personal/css/10css.min.css" />
-    <link rel="stylesheet" type="text/css" href="/personal/css/common.css" />
-    <script src="/personal/js/common.js"></script>
+﻿@page "/personal/blog.html"
+@{
+    ViewData["Title"] = "Blogs - static_void";
+    ViewData["ActiveTab"] = "Blog";
+
+    Layout = "_Layout";
+}
+
+@section Headers {
     <script src="/personal/js/blog.js"></script>
-    <title>Blogs - static_void</title>
     <style>
         body {
             padding: 40px 5px;
@@ -62,13 +63,10 @@
             position: relative;
             margin: 0 0 20px;
             height: 160px;
-            & hr
-
-        {
-            position: absolute;
-            bottom: 0;
-        }
-
+            & hr {
+                position: absolute;
+                bottom: 0;
+            }
         }
 
         #footer {
@@ -98,9 +96,9 @@
             margin: 0 auto;
         }
 
-            #page-number::-webkit-inner-spin-button {
-                display: none;
-            }
+        #page-number::-webkit-inner-spin-button {
+            display: none;
+        }
     </style>
     <script type="text/javascript">
         let showCountPerPage = 10;
@@ -205,48 +203,24 @@
         }
         Init();
     </script>
-</head>
-<body>
-    <header>
-        <nav>
-            <a href="/personal/index.html">Index</a>
-            <a href="/personal/blog.html" id="blog-link" class="is-active">Blog</a>
-            <a href="/personal/tools.html">Tools</a>
-            <a href="/personal/experiment.html">Experiment</a>
-        </nav>
-        <div class="toggle-dark-mode-div">
-            <label for="">Dark Mode</label>
-            <input type="checkbox" onchange="SetDarkMode(event.target.checked)" />
-        </div>
-    </header>
-    <dialog open id="intro" class="dialog fixed-dialog is-xl contents">
-        <div class="dialog-header">
-            <h2>Intro</h2>
-        </div>
-        <div class="dialog-body">
-            <p>
-                I may post things randomly here.
-            </p>
-        </div>
-    </dialog>
-    <dialog open id="blogs" class="dialog fixed-dialog is-xl contents">
-        <div class="dialog-header">
-            <h2>Posts</h2>
-        </div>
-        <div class="dialog-body">
-            <div id="blog-list">
+}
 
-            </div>
-            <div id="footer">
-                <button id="previous-page" onclick="PreviousPage()">Previous</button>
-                <label for="page-number">Page: </label>
-                <input type="number" id="page-number" onchange="TryGoToPage(event.target.value)" value="1"/>
-                <button id="next-page" onclick="NextPage()">Next</button>
-            </div>
-        </div>
-    </dialog>
-    <div id="for-crawl" style="display: none">
+<win-dialog id="intro" title="Intro">
+    <p>
+        I may post things randomly here.
+    </p>
+</win-dialog>
 
+<win-dialog id="blogs" title="Posts">
+    <div id="blog-list">
     </div>
-</body>
-</html>
+    <div id="footer">
+        <button id="previous-page" onclick="PreviousPage()">Previous</button>
+        <label for="page-number">Page: </label>
+        <input type="number" id="page-number" onchange="TryGoToPage(event.target.value)" value="1" />
+        <button id="next-page" onclick="NextPage()">Next</button>
+    </div>
+</win-dialog>
+
+<div id="for-crawl" style="display: none">
+</div>

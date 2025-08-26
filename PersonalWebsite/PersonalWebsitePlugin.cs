@@ -28,14 +28,15 @@ public class PersonalWebsitePlugin : IPlugin
 		{
 			hostBuilder.Services.AddControllers();
 		}
+		hostBuilder.Services.AddRazorPages();
 		hostBuilder.Services.GetApplicationPartManager()
 			.ApplicationParts.Add(new AssemblyPart(typeof(PersonalWebsitePlugin).Assembly));
 	}
 	public void Setup(IHost host)
 	{
+		WebApplication app = host.Unbox<WebApplication>();
 		if (!this._hasOtherRegisteredMvc)
 		{
-			WebApplication app = host.Unbox<WebApplication>();
 			app.MapControllers().AllowAnonymous();
 			app.UseStaticFiles(new StaticFileOptions()
 			{
@@ -44,6 +45,7 @@ public class PersonalWebsitePlugin : IPlugin
 			app.UseRouting();
 			app.UseAuthorization();
 		}
+		app.MapRazorPages().AllowAnonymous();
 	}
 	public void Unload(IHost host, bool isDynamicUnloading)
 	{
@@ -55,13 +57,10 @@ public class PersonalWebsitePlugin : IPlugin
 	{
 		WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
-		// Add services to the container.
-		builder.Services.Configure<Config>(
-			builder.Configuration.GetSection("PersonalWebsiteConfig"));
+		PersonalWebsitePlugin self = new();
 
-		builder.Services.AddSingleton<BlogManagerService>();
-		builder.Services.AddControllersWithViews()
-			.AddJsonOptions(x => x.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower);
+		// Add services to the container.
+		self.Load(builder, false);
 
 		WebApplication app = builder.Build();
 
@@ -70,16 +69,7 @@ public class PersonalWebsitePlugin : IPlugin
 		{
 			app.UseExceptionHandler("/Home/Error");
 		}
-		app.MapControllers().AllowAnonymous();
-
-		app.UseStaticFiles(new StaticFileOptions()
-		{
-			ServeUnknownFileTypes = true
-		});
-
-		app.UseRouting();
-
-		app.UseAuthorization();
+		self.Setup(app);
 
 		app.Run();
 	}

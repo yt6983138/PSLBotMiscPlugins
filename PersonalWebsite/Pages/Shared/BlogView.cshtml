@@ -1,0 +1,65 @@
+﻿@*@page "/personal/blogView.html"*@
+@{
+    ViewData["Title"] = "[missing]";
+    ViewData["ActiveTab"] = "Blog";
+
+    Layout = "_Layout";
+}
+
+@section Headers {
+    <style>
+        body {
+            padding: 40px 5px;
+        }
+
+        .content {
+            width: 100%;
+        }
+
+        #markdown-content {
+            width: 100%;
+            display: block;
+        }
+
+        #return {
+            position: absolute;
+            bottom: 16px;
+            right: 16px;
+        }
+    </style>
+    <script src="/personal/js/blog.js"></script>
+    <script type="module" src="https://md-block.verou.me/md-block.js"></script>
+}
+
+<win-dialog id="blogMain" title="[unassigned]">
+    <md-block id="markdown-content">
+    </md-block>
+    <button id="return" onclick="document.getElementById('blog-link').click()">Return</button>
+</win-dialog>
+
+<script type="module">
+    import { MarkdownBlock, MarkdownSpan, MarkdownElement } from "https://md-block.verou.me/md-block.js";
+
+    let info = null;
+    let content = null;
+
+    async function Init() {
+        const name = window.location.pathname.split('/').slice(-1)[0];
+
+        const infoPromise = GetBlogInfoByName(name);
+        const contentPromise = GetBlogByName(name);
+
+        info = await infoPromise;
+
+        document.getElementsByTagName("title")[0].innerText = `static_void - ${info.summary.title}`;
+        const date = new Date(info.created);
+        document.getElementById("blogMain").getElementsByClassName("dialog-header")[0].innerText = 
+            `${info.summary.title} - ${date.getFullYear()}/${date.getMonth() + 1}/${date.getDate()}`;
+
+        content = await contentPromise;
+
+        const md = document.getElementById("markdown-content");
+        md.mdContent = content;
+    }
+    Init();
+</script>
