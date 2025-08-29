@@ -18,6 +18,8 @@ public enum ErrorCode
 	PhigrosLibraryInternalError = 11451419,
 	ArgumentOutOfRange = 114514191
 }
+public record class Response<T>(bool Success, T Data);
+public record class ErrorData(ErrorCode Code, string CodeName, string Message);
 public abstract class CustomControllerBase : Controller
 {
 	protected static readonly JsonSerializerOptions _jsonSettings = new()
@@ -51,11 +53,7 @@ public abstract class CustomControllerBase : Controller
 	[NonAction]
 	public JsonResult Json(object? data, bool successful, int statusCode = 200, object? options = null)
 	{
-		return new(new
-		{
-			Success = successful,
-			Data = data
-		}, options ?? _jsonSettings)
+		return new(new Response<object?>(successful, data), options ?? _jsonSettings)
 		{
 			StatusCode = statusCode
 		};
@@ -106,12 +104,7 @@ public abstract class CustomControllerBase : Controller
 	public JsonResult Error(string message, ErrorCode code = ErrorCode.Unspecified)
 	{
 		this._logger.LogError("{ip} encountered an error: {message} (Code: {code})", this.IP, message, code);
-		var errorResponse = new
-		{
-			Code = code,
-			CodeName = code.ToString(),
-			Message = message
-		};
+		ErrorData errorResponse = new(code, code.ToString(), message);
 		return this.Json(errorResponse, false, (int)ErrorCodeToHttpStatusCode[code]);
 	}
 	[NonAction]

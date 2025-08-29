@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ApplicationParts;
 using PSLDiscordBot.Core.Services;
 using PSLDiscordBot.Core.Services.Phigros;
@@ -49,6 +50,15 @@ public class PhigrosApiPlugin : IPlugin
 		builder.Services.AddProblemDetails();
 		builder.Services.GetApplicationPartManager()
 			.ApplicationParts.Add(new AssemblyPart(typeof(PhigrosApiPlugin).Assembly));
+
+		builder.Services.Configure<MvcOptions>(x =>
+		{
+			x.InputFormatters.Add(new PlainTextFormatter());
+			x.InputFormatters.Insert(0, new NoReadInputFormatter());
+		});
+		Program.Instance.SwaggerGenFilter.Add(Utils.SwaggerRequireInTypeAssembly<PhigrosApiPlugin>);
+		Program.Instance.SwaggerConfigurators += (_, config) =>
+			config.EnableAnnotations();
 	}
 	private static void CommonSetup(WebApplication app, bool hasOtherRegisteredMvc)
 	{
@@ -65,6 +75,7 @@ public class PhigrosApiPlugin : IPlugin
 
 		app.UseExceptionHandler();
 		app.UseCors("Everything");
+		app.UseSwagger();
 	}
 
 	//#if DEBUG
@@ -73,6 +84,9 @@ public class PhigrosApiPlugin : IPlugin
 		WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
 		CommonLoad(builder, false);
+#if DEBUG
+		Program.Instance.ConfigureSwagger(builder);
+#endif
 
 		builder.Services.AddSingleton<PhigrosService>();
 		builder.Services.AddSingleton<LocalizationService>();
@@ -81,11 +95,14 @@ public class PhigrosApiPlugin : IPlugin
 
 		// Configure the HTTP request pipeline.
 		if (!app.Environment.IsDevelopment())
+		{
 			// app.UseExceptionHandler("/Index");
 			// The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
 			app.UseHsts();
+		}
 
 		CommonSetup(app, false);
+		app.UseSwaggerUI();
 
 		app.Run();
 	}

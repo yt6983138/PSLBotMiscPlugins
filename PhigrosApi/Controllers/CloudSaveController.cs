@@ -5,8 +5,12 @@ using PhigrosLibraryCSharp.GameRecords;
 using PSLDiscordBot.Core.Services.Phigros;
 using System.Collections.Concurrent;
 using System.IO.Compression;
+using System.Net.Mime;
 
 namespace PhigrosApi.Controllers;
+
+public record class SaveTimeIndex(int Index, DateTime ModificationTime);
+public record class SaveData(GameProgress Progress, GameSettings Settings, GameUserInfo GameUserInfo, UserInfo UserInfo, Summary Summary);
 public class CloudSaveController : CustomControllerBase
 {
 	public static ConcurrentDictionary<string, Save> TokenSaveCache { get; set; } = new();
@@ -52,22 +56,25 @@ public class CloudSaveController : CustomControllerBase
 		return (null, save);
 	}
 
-	[HttpGet]
+	[HttpPost]
 	[Route("phiApi/[controller]/GetSaveIndexes")]
-	public async Task<IActionResult> GetSaveIndexes(bool isInternational)
+	[ProducesResponseType<Response<List<SaveTimeIndex>>>(StatusCodes.Status200OK)]
+	[ProducesErrorResponseType(typeof(Response<ErrorData>))]
+	[Consumes(MediaTypeNames.Text.Plain)]
+	public async Task<IActionResult> GetSaveIndexes(bool isInternational, [FromBody] string token)
 	{
-		(IActionResult? action, Save? save) = await this.GetSaveAndHandleError(await this.ReadRequestBodyAsString(), isInternational);
+		(IActionResult? action, Save? save) = await this.GetSaveAndHandleError(token, isInternational);
 		if (save is null)
 			return action!;
 
-		List<object> timeList = [];
+		List<SaveTimeIndex> timeList = [];
 		try
 		{
 			RawSaveContainer container = await save.GetRawSaveFromCloudAsync();
 			int index = 0;
 			foreach (RawSave item in container.results)
 			{
-				timeList.Add(new { ModificationTime = item.modifiedAt.iso, Index = index });
+				timeList.Add(new(index, item.modifiedAt.iso));
 				index++;
 			}
 		}
@@ -80,11 +87,14 @@ public class CloudSaveController : CustomControllerBase
 		return this.Json(timeList);
 	}
 
-	[HttpGet]
+	[HttpPost]
 	[Route("phiApi/[controller]/GetSaveData")]
-	public async Task<IActionResult> GetSaveData(int index, bool isInternational)
+	[ProducesResponseType<Response<SaveData>>(StatusCodes.Status200OK)]
+	[ProducesErrorResponseType(typeof(Response<ErrorData>))]
+	[Consumes(MediaTypeNames.Text.Plain)]
+	public async Task<IActionResult> GetSaveData(int index, bool isInternational, [FromBody] string token)
 	{
-		(IActionResult? action, Save? save) = await this.GetSaveAndHandleError(await this.ReadRequestBodyAsString(), isInternational);
+		(IActionResult? action, Save? save) = await this.GetSaveAndHandleError(token, isInternational);
 		if (save is null)
 			return action!;
 
@@ -112,21 +122,17 @@ public class CloudSaveController : CustomControllerBase
 		}
 
 		this._logger.LogDebug("{ip} requested game user info successfully.", this.IP);
-		return this.Json(new
-		{
-			Progress = progress,
-			Settings = settings,
-			GameUserInfo = userInfo,
-			UserInfo = outterUserInfo,
-			Summary = summary
-		});
+		return this.Json(new SaveData(progress, settings, userInfo, outterUserInfo, summary));
 	}
 
-	[HttpGet]
+	[HttpPost]
 	[Route("phiApi/[controller]/GetDecryptedZip")]
-	public async Task<IActionResult> GetDecryptedZip(int index, bool isInternational)
+	[ProducesResponseType<FileResult>(StatusCodes.Status200OK, MediaTypeNames.Application.Zip)]
+	[ProducesErrorResponseType(typeof(Response<ErrorData>))]
+	[Consumes(MediaTypeNames.Text.Plain)]
+	public async Task<IActionResult> GetDecryptedZip(int index, bool isInternational, [FromBody] string token)
 	{
-		(IActionResult? action, Save? save) = await this.GetSaveAndHandleError(await this.ReadRequestBodyAsString(), isInternational);
+		(IActionResult? action, Save? save) = await this.GetSaveAndHandleError(token, isInternational);
 		if (save is null)
 			return action!;
 
@@ -164,11 +170,14 @@ public class CloudSaveController : CustomControllerBase
 		return this.File(newStream.ToArray(), "application/zip");
 	}
 
-	[HttpGet]
+	[HttpPost]
 	[Route("phiApi/[controller]/GetRecords")]
-	public async Task<IActionResult> GetRecords(int index, bool isInternational)
+	[ProducesResponseType<Response<GameRecord>>(StatusCodes.Status200OK)]
+	[ProducesErrorResponseType(typeof(Response<ErrorData>))]
+	[Consumes(MediaTypeNames.Text.Plain)]
+	public async Task<IActionResult> GetRecords(int index, bool isInternational, [FromBody] string token)
 	{
-		(IActionResult? action, Save? save) = await this.GetSaveAndHandleError(await this.ReadRequestBodyAsString(), isInternational);
+		(IActionResult? action, Save? save) = await this.GetSaveAndHandleError(token, isInternational);
 		if (save is null)
 			return action!;
 

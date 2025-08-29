@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using PhigrosLibraryCSharp;
+using System.Net.Mime;
 
 namespace PhigrosApi.Controllers;
 public class LocalSaveController : CustomControllerBase
@@ -8,10 +9,11 @@ public class LocalSaveController : CustomControllerBase
 
 	[HttpPost]
 	[Route("phiApi/[controller]/DecryptNew")]
-	public async Task<IActionResult> DecryptNew()
+	[ProducesResponseType<string>(StatusCodes.Status200OK)]
+	[ProducesErrorResponseType(typeof(Response<ErrorData>))]
+	[Consumes(MediaTypeNames.Text.Plain)]
+	public IActionResult DecryptNew([FromBody] string data)
 	{
-		string data = await this.ReadRequestBodyAsString();
-
 		string decrypted;
 		try
 		{

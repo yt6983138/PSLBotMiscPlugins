@@ -10,6 +10,8 @@ public class LoginQrCodeController : CustomControllerBase
 
 	[HttpGet]
 	[Route("phiApi/[controller]/GetNewQRCode")]
+	[ProducesResponseType<Response<CompleteQRCodeData>>(StatusCodes.Status200OK)]
+	//[ProducesErrorResponseType(typeof(Response<ErrorData>))]
 	public async Task<IActionResult> GetNewQRCode(bool useChinaEndpoint)
 	{
 		CompleteQRCodeData qrcode = await TapTapHelper.RequestLoginQrCode(useChinaEndpoint: useChinaEndpoint);
@@ -18,9 +20,11 @@ public class LoginQrCodeController : CustomControllerBase
 		return this.Json(qrcode);
 	}
 
-	[HttpGet]
+	[HttpPost]
 	[Route("phiApi/[controller]/CheckQRCode")]
-	public async Task<IActionResult> CheckQRCode(bool useChinaEndpoint)
+	[ProducesResponseType<Response<TapTapTokenData>>(StatusCodes.Status200OK)]
+	[ProducesErrorResponseType(typeof(Response<ErrorData>))]
+	public async Task<IActionResult> CheckQRCode(bool useChinaEndpoint, [FromBody] NoRead<CompleteQRCodeData> _body) // im leaving _body here to make swagger generate the correct schema (im lazy to change code)
 	{
 		(CompleteQRCodeData? result, IActionResult? error) = await this.ReadRequestBodyAs<CompleteQRCodeData>();
 		if (error is not null)
@@ -42,9 +46,11 @@ public class LoginQrCodeController : CustomControllerBase
 		return this.Json(token);
 	}
 
-	[HttpGet]
+	[HttpPost]
 	[Route("phiApi/[controller]/GetTapTapProfile")]
-	public async Task<IActionResult> GetTapTapProfile(bool useChinaEndpoint)
+	[ProducesResponseType<Response<TapTapProfileData>>(StatusCodes.Status200OK)]
+	[ProducesErrorResponseType(typeof(Response<ErrorData>))]
+	public async Task<IActionResult> GetTapTapProfile(bool useChinaEndpoint, [FromBody] NoRead<TapTapTokenData> _)
 	{
 		(TapTapTokenData result, IActionResult? error) = await this.ReadRequestBodyAs<TapTapTokenData>();
 		if (error is not null)
@@ -63,9 +69,11 @@ public class LoginQrCodeController : CustomControllerBase
 		return this.Json(profile);
 	}
 
-	[HttpGet]
+	[HttpPost]
 	[Route("phiApi/[controller]/GetPhigrosToken")]
-	public async Task<IActionResult> GetPhigrosToken(bool useChinaEndpoint)
+	[ProducesResponseType<Response<string>>(StatusCodes.Status200OK)]
+	[ProducesErrorResponseType(typeof(Response<ErrorData>))]
+	public async Task<IActionResult> GetPhigrosToken(bool useChinaEndpoint, [FromBody] NoRead<TapTapTokenData> _)
 	{
 		(TapTapTokenData result, IActionResult? error) = await this.ReadRequestBodyAs<TapTapTokenData>();
 		if (error is not null)
