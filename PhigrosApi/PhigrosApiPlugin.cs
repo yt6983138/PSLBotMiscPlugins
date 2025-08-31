@@ -10,6 +10,8 @@ public class PhigrosApiPlugin : IPlugin
 {
 	private bool _hasOtherRegisteredMvc = false;
 
+	public const string GroupName = "PhigrosApi";
+
 	public string Name => "Phigros Api Host";
 	public string Description => "A plugin wrapper for the wrapper of PhigrosLibraryCSharp";
 	public Version Version => new(1, 0, 0, 0);
@@ -58,7 +60,15 @@ public class PhigrosApiPlugin : IPlugin
 		});
 		Program.Instance.SwaggerGenFilter.Add(Utils.SwaggerRequireInTypeAssembly<PhigrosApiPlugin>);
 		Program.Instance.SwaggerConfigurators += (_, config) =>
+		{
 			config.EnableAnnotations();
+			config.SwaggerDoc(GroupName, new()
+			{
+				Title = GroupName,
+				Description = "Phigros Api, a plugin wrapper for the wrapper of PhigrosLibraryCSharp",
+				Version = "v1"
+			});
+		};
 	}
 	private static void CommonSetup(WebApplication app, bool hasOtherRegisteredMvc)
 	{
@@ -102,7 +112,10 @@ public class PhigrosApiPlugin : IPlugin
 		}
 
 		CommonSetup(app, false);
-		app.UseSwaggerUI();
+		app.UseSwaggerUI(options =>
+		{
+			options.SwaggerEndpoint($"/swagger/{GroupName}/swagger.json", GroupName);
+		});
 
 		app.Run();
 	}

@@ -11,6 +11,8 @@ namespace PhigrosApi.Controllers;
 
 public record class SaveTimeIndex(int Index, DateTime ModificationTime);
 public record class SaveData(GameProgress Progress, GameSettings Settings, GameUserInfo GameUserInfo, UserInfo UserInfo, Summary Summary);
+
+[ApiExplorerSettings(GroupName = PhigrosApiPlugin.GroupName)]
 public class CloudSaveController : CustomControllerBase
 {
 	public static ConcurrentDictionary<string, Save> TokenSaveCache { get; set; } = new();

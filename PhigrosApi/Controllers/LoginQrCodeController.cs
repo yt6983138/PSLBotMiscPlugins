@@ -3,7 +3,7 @@ using PhigrosLibraryCSharp.Cloud.Login;
 
 namespace PhigrosApi.Controllers;
 
-[ApiController]
+[ApiExplorerSettings(GroupName = PhigrosApiPlugin.GroupName)]
 public class LoginQrCodeController : CustomControllerBase
 {
 	public LoginQrCodeController(ILoggerFactory logger) : base(logger) { }

@@ -13,12 +13,12 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<Folder Include="wwwroot\" />
+	  <PackageReference Include="Swashbuckle.AspNetCore" Version="9.0.4" />
+	  <PackageReference Include="Swashbuckle.AspNetCore.Annotations" Version="9.0.4" />
 	</ItemGroup>
 
 	<ItemGroup>
-	  <PackageReference Include="Swashbuckle.AspNetCore" Version="9.0.4" />
-	  <PackageReference Include="Swashbuckle.AspNetCore.Annotations" Version="9.0.4" />
+	  <Folder Include="wwwroot\" />
 	</ItemGroup>
 
 </Project>

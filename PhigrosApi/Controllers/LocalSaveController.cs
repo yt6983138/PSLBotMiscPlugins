@@ -3,6 +3,8 @@ using PhigrosLibraryCSharp;
 using System.Net.Mime;
 
 namespace PhigrosApi.Controllers;
+
+[ApiExplorerSettings(GroupName = PhigrosApiPlugin.GroupName)]
 public class LocalSaveController : CustomControllerBase
 {
 	public LocalSaveController(ILoggerFactory logger) : base(logger) { }
