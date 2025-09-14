@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.VisualStudio.JavaScript.Sdk/1.0.2752196">
+	<PropertyGroup>
+		<ShouldRunNpmInstall>true</ShouldRunNpmInstall>
+		<BuildCommand>
+			npm install --save-dev babelify
+			npx browserify src/index.js --standalone PSL -t [ babelify --extensions .js ] > ./out/PhigrosApi.bundled.js
+		</BuildCommand>
+	</PropertyGroup>
+	<ItemGroup>
+		<Folder Include="out\" />
+	</ItemGroup>
+	<Target Name="CodeGen" BeforeTargets="Build">
+		<!-- doing nothing here, hint: need to do it manually in those online codegen and select js 
+			TODO: make this automatic -->
+	</Target>
+</Project>

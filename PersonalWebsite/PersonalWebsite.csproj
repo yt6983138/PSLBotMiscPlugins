@@ -9,6 +9,7 @@
 
 	<ItemGroup>
 		<ProjectReference Include="..\..\PSLDiscordBot\PSLDiscordBot.Framework\PSLDiscordBot.Framework.csproj" />
+		<ProjectReference Include="..\PhigrosApi.Client.Javascript\PhigrosApi.Client.Javascript.esproj" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -16,4 +17,8 @@
 			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		</Content>
 	</ItemGroup>
+
+	<Target Name="CopyClient" BeforeTargets="Build">
+		<Copy SourceFiles="../PhigrosApi.Client.Javascript/out/PhigrosApi.bundled.js" DestinationFolder="./wwwroot/swagger/PhigrosApi/"></Copy>
+	</Target>
 </Project>

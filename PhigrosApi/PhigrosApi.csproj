@@ -10,15 +10,19 @@
 	<ItemGroup>
 		<ProjectReference Include="..\..\PhigrosLibraryCSharp\PhigrosLibraryCSharp\PhigrosLibraryCSharp.csproj" />
 		<ProjectReference Include="..\..\PSLDiscordBot\PSLDiscordBot.Core\PSLDiscordBot.Core.csproj" />
+		<ProjectReference Include="..\PhigrosApi.Client.Javascript\PhigrosApi.Client.Javascript.esproj" />
 	</ItemGroup>
 
 	<ItemGroup>
-	  <PackageReference Include="Swashbuckle.AspNetCore" Version="9.0.4" />
-	  <PackageReference Include="Swashbuckle.AspNetCore.Annotations" Version="9.0.4" />
+		<PackageReference Include="Swashbuckle.AspNetCore" Version="9.0.4" />
+		<PackageReference Include="Swashbuckle.AspNetCore.Annotations" Version="9.0.4" />
 	</ItemGroup>
 
 	<ItemGroup>
-	  <Folder Include="wwwroot\" />
+		<Folder Include="wwwroot\" />
 	</ItemGroup>
 
+	<Target Name="CopyClient" BeforeTargets="Build">
+		<Copy SourceFiles="../PhigrosApi.Client.Javascript/out/PhigrosApi.bundled.js" DestinationFolder="./wwwroot/swagger/PhigrosApi/"></Copy>
+	</Target>
 </Project>
