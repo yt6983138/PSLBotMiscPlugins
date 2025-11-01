@@ -50,7 +50,6 @@ public class PhigrosLoginHostPlugin : IPlugin
 	{
 	}
 
-#if DEBUG
 	// for debug only
 	public static void Main(string[] args)
 	{
@@ -84,5 +83,4 @@ public class PhigrosLoginHostPlugin : IPlugin
 
 		app.Run();
 	}
-#endif
 }

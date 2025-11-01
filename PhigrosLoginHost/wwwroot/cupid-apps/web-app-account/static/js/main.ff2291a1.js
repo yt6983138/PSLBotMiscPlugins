@@ -4156,7 +4156,7 @@
 					l = function (e) {
 						return (
 							a(e),
-							r.W.get("/api/oauth2/auth", {
+							r.W.get("/api/oauth2/auth/v2", {
 								params: e,
 								errorToast: !1,
 							})
@@ -4165,7 +4165,7 @@
 					c = function (e) {
 						var t = i.Z.getters.getQueryCtx;
 						return r.W.post(
-							"/api/oauth2/approve",
+							"/api/oauth2/approve/v2",
 							(0, o.Z)((0, o.Z)({}, t), a(e)),
 							{ errorToast: !1 }
 						);
@@ -4173,7 +4173,7 @@
 					u = function (e) {
 						var t = i.Z.getters.getQueryCtx;
 						return r.W.post(
-							"/api/oauth2/deny",
+							"/api/oauth2/deny/v2",
 							(0, o.Z)((0, o.Z)({}, t), a(e)),
 							{ errorToast: !1 }
 						);

@@ -244,19 +244,32 @@ public partial class MainController : Controller
 	public async Task FirstPartyLogin() => await this.ProxyTo(TaptapAccountHost);
 
 	[HttpGet]
-	[Route("api/oauth2/auth")]
+	[Route("api/oauth2/auth/v2")]
 	public async Task Oauth2Auth()
 	{
 		await this.ProxyAndModifyJsonSubData(TaptapAccountHost, node =>
 		{
 			node["client"].DoIfNotNull(x => x["icon_url"] = "/icon.png");
+			node["client"].DoIfNotNull(x => x["status"] = "IN_PRODUCTION");
 			node["user"].DoIfNotNull(x => x["avatar_url"] = "/avatar.png");
+			node["requested_scope"] = JsonNode.Parse("""
+				[
+				    {
+				        "scope": "public_profile",
+				        "intro": "Access to your profile picture, nickname and gender in TapTap",
+				        "allowed": true,
+				        "modifiable": false,
+				        "hidden": false
+				    }
+				]
+				""");
+			node["is_first_party"] = false;
 		});
 
 		//await this.ProxyTo(TaptapAccountHost);
 	}
 	[HttpPost]
-	[Route("api/oauth2/approve")]
+	[Route("api/oauth2/approve/v2")]
 	public async Task Oauth2Approve()
 	{
 		await this.ProxyAndModifyJsonSubData(TaptapAccountHost, x => x["redirect_uri"] = "/close");
