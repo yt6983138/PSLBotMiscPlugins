@@ -16,41 +16,36 @@ using PSLDiscordBot.Framework.Localization;
 namespace AdminHelper.Commands;
 
 [AddToGlobal]
-public class BlackListCommand : AdminCommandBase
+public class BlackListCommandCommand : AdminCommandBase
 {
 	private readonly BlackListService _blackListService;
 
-	public BlackListCommand(IOptions<Config> config, DataBaseService database, LocalizationService localization, PhigrosService phigrosData, ILoggerFactory loggerFactory, BlackListService blackListService)
+	public BlackListCommandCommand(IOptions<Config> config, DataBaseService database, LocalizationService localization, PhigrosService phigrosData, ILoggerFactory loggerFactory, BlackListService blackListService)
 		: base(config, database, localization, phigrosData, loggerFactory)
 	{
 		this._blackListService = blackListService;
 	}
 
-	public override OneOf<string, LocalizedString> PSLName => "blacklist-add";
-	public override OneOf<string, LocalizedString> PSLDescription => "blacklist someone";
+	public override OneOf<string, LocalizedString> PSLName => "blacklist-command-add";
+	public override OneOf<string, LocalizedString> PSLDescription => "blacklist command";
 
 	public override SlashCommandBuilder CompleteBuilder
 		=> this.BasicBuilder
 		.AddOption(
-			"who",
-			ApplicationCommandOptionType.User,
-			"Who to block",
-			isRequired: true)
-		.AddOption(
-			"chance",
-			ApplicationCommandOptionType.Number,
-			"chance to block command, 0 ~ 1",
-			isRequired: true,
-			minValue: 0,
-			maxValue: 1);
+			"command",
+			ApplicationCommandOptionType.String,
+			"What command to block",
+			isRequired: true);
+	//.AddOption( // not implemented yet
+	//	"path_matchers",
+	//	ApplicationCommandOptionType.String,
+	//	"Path matchers for the command to block, separated by ;",
+	//	isRequired: true);
 
 	public override async Task Callback(SocketSlashCommand arg, UserData? data, DataBaseService.DbDataRequester requester, object executer)
 	{
-		IUser who = arg.GetOption<IUser>("who");
-		double chance = arg.GetOption<double>("chance");
-		this._blackListService.BlockUser(
-			who.Id,
-			_ => Random.Shared.NextDouble() < chance);
+		string command = arg.GetOption<string>("command");
+		this._blackListService.BlockCommand(command);
 		await arg.QuickReply("done");
 	}
 }

@@ -15,6 +15,7 @@ public class BlackListService // TODO: implement save function
 	private readonly ILogger<BlackListService> _logger = null!;
 
 	public Dictionary<ulong, ShouldDenyDelegate> BlackListedUsers { get; set; } = [];
+	public List<string> BlackListedCommands { get; set; } = [];
 
 	public BlackListService(ICommandResolveService commandResolveService, IOptions<AdminConfig> config, ILogger<BlackListService> logger)
 	{
@@ -32,10 +33,20 @@ public class BlackListService // TODO: implement save function
 		=> this._commandResolveService.BeforeSlashCommandExecutes -= this.Service_BeforeSlashCommandExecutes;
 	public void BlockUser(ulong userId, ShouldDenyDelegate denyDelegate)
 		=> this.BlackListedUsers[userId] = denyDelegate;
+	public void BlockCommand(string commandName)
+		=> this.BlackListedCommands.Add(commandName);
 
 	private async void Service_BeforeSlashCommandExecutes(object? sender, PSLDiscordBot.Framework.MiscEventArgs.SlashCommandEventArgs e)
 	{
 		SocketSlashCommand arg = e.SocketSlashCommand;
+		if (this.BlackListedCommands.Contains(arg.CommandName))
+		{
+			e.Canceled = true;
+			await e.SocketSlashCommand.RespondAsync(this._adminConfig.Value.BlackListedCommandMessage[arg.UserLocale]);
+			this._logger.LogInformation(EventId, "Command {commandName} is blacklisted, canceling execution for user {id}", arg.CommandName, arg.User.Id);
+			return;
+		}
+
 		if (this.BlackListedUsers.ContainsKey(arg.User.Id))
 		{
 			if (this.BlackListedUsers[arg.User.Id].Invoke(arg))

@@ -4,4 +4,5 @@ namespace AdminHelper;
 public class AdminConfig
 {
 	public LocalizedString BlackListedUserMessage { get; set; } = LocalizedString.CreateDefault("Oops, something is wrong!");
+	public LocalizedString BlackListedCommandMessage { get; set; } = LocalizedString.CreateDefault("This command is currently disabled.");
 }
