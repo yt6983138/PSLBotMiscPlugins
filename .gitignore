@@ -367,3 +367,6 @@ __[Tt]est*/**
 
 # PhigrosApi copied Files
 PhigrosApi/PSL*/**
+
+# trying to make intellisense work
+PersonalWebsite/wwwroot/swagger/PhigrosApi/**

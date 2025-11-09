@@ -19,6 +19,6 @@
 	</ItemGroup>
 
 	<Target Name="CopyClient" BeforeTargets="Build">
-		<Copy SourceFiles="../PhigrosApi.Client.Javascript/out/PhigrosApi.bundled.js" DestinationFolder="./wwwroot/swagger/PhigrosApi/"></Copy>
+		<Copy SourceFolders="../PhigrosApi.Client.Javascript/out/" DestinationFolder="./wwwroot/swagger/PhigrosApi/"></Copy>
 	</Target>
 </Project>
