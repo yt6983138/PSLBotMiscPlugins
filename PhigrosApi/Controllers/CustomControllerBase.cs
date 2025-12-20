@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
+using System.Text;
 using System.Text.Json;
 
 namespace PhigrosApi.Controllers;
@@ -70,12 +71,29 @@ public abstract class CustomControllerBase : Controller
 	}
 
 	[NonAction]
+	public async Task<T?> ReadRequestBodyAsJson<T>(object? serializeSettings = null)
+	{
+		serializeSettings ??= _jsonSettings;
+		if (serializeSettings is Newtonsoft.Json.JsonSerializerSettings nSettings)
+		{
+			byte[] buffer = new byte[this.Request.Body.Length];
+			await this.Request.Body.ReadExactlyAsync(buffer);
+			return Newtonsoft.Json.JsonConvert.DeserializeObject<T>(Encoding.UTF8.GetString(buffer), nSettings);
+		}
+		else if (serializeSettings is JsonSerializerOptions sSettings)
+		{
+			return await JsonSerializer.DeserializeAsync<T>(this.Request.Body, sSettings);
+		}
+		throw new ArgumentException($"Unknown serializer type: {serializeSettings}", nameof(serializeSettings));
+	}
+
+	[NonAction]
 	public async Task<(T Value, IActionResult? Error)> ReadRequestBodyAs<T>()
 	{
 		T? body;
 		try
 		{
-			body = await this.Request.ReadFromJsonAsync<T>();
+			body = await this.ReadRequestBodyAsJson<T>();
 		}
 		catch (Exception ex)
 		{

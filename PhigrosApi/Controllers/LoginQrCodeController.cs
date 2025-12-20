@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using PhigrosLibraryCSharp.Cloud.Login;
+using System.Runtime.CompilerServices;
 
 namespace PhigrosApi.Controllers;
 
@@ -17,7 +18,15 @@ public class LoginQrCodeController : CustomControllerBase
 		CompleteQRCodeData qrcode = await TapTapHelper.RequestLoginQrCode(useChinaEndpoint: useChinaEndpoint);
 		this._logger.LogDebug("{ip} requested a login QrCode. Url: {url}", this.IP, qrcode.Url);
 
+		// for some reason they now respond with interval of 1 (it was 3), and if clients check the qrcode at the interval of 1
+		// they would be responded with client checking too frequently
+		if (qrcode.Interval < 3)
+			SetQRCodeInterval(qrcode, 3);
+
 		return this.Json(qrcode);
+
+		[UnsafeAccessor(UnsafeAccessorKind.Method, Name = "set_Interval")]
+		static extern void SetQRCodeInterval(CompleteQRCodeData self, int interval);
 	}
 
 	[HttpPost]
