@@ -365,8 +365,12 @@ FodyWeavers.xsd
 # testing files
 __[Tt]est*/**
 
-# PhigrosApi copied Files
+# debug files
 PhigrosApi/PSL*/**
+PersonalWebsite/PSL*/**
 
 # trying to make intellisense work
 PersonalWebsite/wwwroot/swagger/PhigrosApi/**
+
+# will be automatically generated upon build
+PhigrosApi/wwwroot/swagger/PhigrosApi/**

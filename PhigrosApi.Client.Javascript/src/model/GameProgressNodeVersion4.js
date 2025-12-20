@@ -38,8 +38,8 @@ export default class GameProgressNodeVersion4 {
   static constructFromObject(data, obj) {
     if (data) {
       obj = obj || new GameProgressNodeVersion4();
-      if (data.hasOwnProperty('flag_of_song_record_key_takumi'))
-        obj.flagOfSongRecordKeyTakumi = ApiClient.convertToType(data['flag_of_song_record_key_takumi'], 'Number');
+      if (data.hasOwnProperty('flagOfSongRecordKeyTakumi'))
+        obj.flagOfSongRecordKeyTakumi = ApiClient.convertToType(data['flagOfSongRecordKeyTakumi'], 'Number');
     }
     return obj;
   }

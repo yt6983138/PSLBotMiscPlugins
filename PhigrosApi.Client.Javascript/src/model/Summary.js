@@ -39,10 +39,10 @@ export default class Summary {
   static constructFromObject(data, obj) {
     if (data) {
       obj = obj || new Summary();
-      if (data.hasOwnProperty('save_version'))
-        obj.saveVersion = ApiClient.convertToType(data['save_version'], 'Number');
-      if (data.hasOwnProperty('game_version'))
-        obj.gameVersion = ApiClient.convertToType(data['game_version'], 'Number');
+      if (data.hasOwnProperty('saveVersion'))
+        obj.saveVersion = ApiClient.convertToType(data['saveVersion'], 'Number');
+      if (data.hasOwnProperty('gameVersion'))
+        obj.gameVersion = ApiClient.convertToType(data['gameVersion'], 'Number');
       if (data.hasOwnProperty('challenge'))
         obj.challenge = Challenge.constructFromObject(data['challenge']);
       if (data.hasOwnProperty('avatar'))

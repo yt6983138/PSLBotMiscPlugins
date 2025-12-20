@@ -43,30 +43,30 @@ export default class GameProgress {
       obj = obj || new GameProgress();
       if (data.hasOwnProperty('version'))
         obj.version = ApiClient.convertToType(data['version'], 'Number');
-      if (data.hasOwnProperty('is_first_run'))
-        obj.isFirstRun = ApiClient.convertToType(data['is_first_run'], 'Boolean');
-      if (data.hasOwnProperty('legacy_chapter_finished'))
-        obj.legacyChapterFinished = ApiClient.convertToType(data['legacy_chapter_finished'], 'Boolean');
-      if (data.hasOwnProperty('already_show_collection_tip'))
-        obj.alreadyShowCollectionTip = ApiClient.convertToType(data['already_show_collection_tip'], 'Boolean');
-      if (data.hasOwnProperty('already_show_auto_unlock_in_tip'))
-        obj.alreadyShowAutoUnlockInTip = ApiClient.convertToType(data['already_show_auto_unlock_in_tip'], 'Boolean');
+      if (data.hasOwnProperty('isFirstRun'))
+        obj.isFirstRun = ApiClient.convertToType(data['isFirstRun'], 'Boolean');
+      if (data.hasOwnProperty('legacyChapterFinished'))
+        obj.legacyChapterFinished = ApiClient.convertToType(data['legacyChapterFinished'], 'Boolean');
+      if (data.hasOwnProperty('alreadyShowCollectionTip'))
+        obj.alreadyShowCollectionTip = ApiClient.convertToType(data['alreadyShowCollectionTip'], 'Boolean');
+      if (data.hasOwnProperty('alreadyShowAutoUnlockINTip'))
+        obj.alreadyShowAutoUnlockINTip = ApiClient.convertToType(data['alreadyShowAutoUnlockINTip'], 'Boolean');
       if (data.hasOwnProperty('completed'))
         obj.completed = ApiClient.convertToType(data['completed'], 'String');
-      if (data.hasOwnProperty('song_update_info'))
-        obj.songUpdateInfo = ApiClient.convertToType(data['song_update_info'], 'Number');
-      if (data.hasOwnProperty('challenge_mode_rank'))
-        obj.challengeModeRank = Challenge.constructFromObject(data['challenge_mode_rank']);
+      if (data.hasOwnProperty('songUpdateInfo'))
+        obj.songUpdateInfo = ApiClient.convertToType(data['songUpdateInfo'], 'Number');
+      if (data.hasOwnProperty('challengeModeRank'))
+        obj.challengeModeRank = Challenge.constructFromObject(data['challengeModeRank']);
       if (data.hasOwnProperty('money'))
         obj.money = Money.constructFromObject(data['money']);
-      if (data.hasOwnProperty('unlock_flag_of_spasmodic'))
-        obj.unlockFlagOfSpasmodic = ApiClient.convertToType(data['unlock_flag_of_spasmodic'], 'Number');
-      if (data.hasOwnProperty('unlock_flag_of_igallta'))
-        obj.unlockFlagOfIgallta = ApiClient.convertToType(data['unlock_flag_of_igallta'], 'Number');
-      if (data.hasOwnProperty('unlock_flag_of_rrharil'))
-        obj.unlockFlagOfRrharil = ApiClient.convertToType(data['unlock_flag_of_rrharil'], 'Number');
-      if (data.hasOwnProperty('flag_of_song_record_key'))
-        obj.flagOfSongRecordKey = ApiClient.convertToType(data['flag_of_song_record_key'], 'Number');
+      if (data.hasOwnProperty('unlockFlagOfSpasmodic'))
+        obj.unlockFlagOfSpasmodic = ApiClient.convertToType(data['unlockFlagOfSpasmodic'], 'Number');
+      if (data.hasOwnProperty('unlockFlagOfIgallta'))
+        obj.unlockFlagOfIgallta = ApiClient.convertToType(data['unlockFlagOfIgallta'], 'Number');
+      if (data.hasOwnProperty('unlockFlagOfRrharil'))
+        obj.unlockFlagOfRrharil = ApiClient.convertToType(data['unlockFlagOfRrharil'], 'Number');
+      if (data.hasOwnProperty('flagOfSongRecordKey'))
+        obj.flagOfSongRecordKey = ApiClient.convertToType(data['flagOfSongRecordKey'], 'Number');
       if (data.hasOwnProperty('node2'))
         obj.node2 = GameProgressNodeVersion2.constructFromObject(data['node2']);
     }
@@ -95,9 +95,9 @@ GameProgress.prototype.legacyChapterFinished = undefined;
 GameProgress.prototype.alreadyShowCollectionTip = undefined;
 
 /**
- * @member {Boolean} alreadyShowAutoUnlockInTip
+ * @member {Boolean} alreadyShowAutoUnlockINTip
  */
-GameProgress.prototype.alreadyShowAutoUnlockInTip = undefined;
+GameProgress.prototype.alreadyShowAutoUnlockINTip = undefined;
 
 /**
  * @member {String} completed

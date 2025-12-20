@@ -38,16 +38,16 @@ export default class Money {
   static constructFromObject(data, obj) {
     if (data) {
       obj = obj || new Money();
-      if (data.hasOwnProperty('ki_b'))
-        obj.kiB = ApiClient.convertToType(data['ki_b'], 'Number');
-      if (data.hasOwnProperty('mi_b'))
-        obj.miB = ApiClient.convertToType(data['mi_b'], 'Number');
-      if (data.hasOwnProperty('gi_b'))
-        obj.giB = ApiClient.convertToType(data['gi_b'], 'Number');
-      if (data.hasOwnProperty('ti_b'))
-        obj.tiB = ApiClient.convertToType(data['ti_b'], 'Number');
-      if (data.hasOwnProperty('pi_b'))
-        obj.piB = ApiClient.convertToType(data['pi_b'], 'Number');
+      if (data.hasOwnProperty('kiB'))
+        obj.kiB = ApiClient.convertToType(data['kiB'], 'Number');
+      if (data.hasOwnProperty('miB'))
+        obj.miB = ApiClient.convertToType(data['miB'], 'Number');
+      if (data.hasOwnProperty('giB'))
+        obj.giB = ApiClient.convertToType(data['giB'], 'Number');
+      if (data.hasOwnProperty('tiB'))
+        obj.tiB = ApiClient.convertToType(data['tiB'], 'Number');
+      if (data.hasOwnProperty('piB'))
+        obj.piB = ApiClient.convertToType(data['piB'], 'Number');
     }
     return obj;
   }

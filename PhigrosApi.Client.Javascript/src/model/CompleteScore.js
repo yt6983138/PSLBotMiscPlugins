@@ -44,8 +44,8 @@ export default class CompleteScore {
         obj.score = ApiClient.convertToType(data['score'], 'Number');
       if (data.hasOwnProperty('accuracy'))
         obj.accuracy = ApiClient.convertToType(data['accuracy'], 'Number');
-      if (data.hasOwnProperty('chart_constant'))
-        obj.chartConstant = ApiClient.convertToType(data['chart_constant'], 'Number');
+      if (data.hasOwnProperty('chartConstant'))
+        obj.chartConstant = ApiClient.convertToType(data['chartConstant'], 'Number');
       if (data.hasOwnProperty('id'))
         obj.id = ApiClient.convertToType(data['id'], 'String');
       if (data.hasOwnProperty('difficulty'))

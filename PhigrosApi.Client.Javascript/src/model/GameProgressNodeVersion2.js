@@ -39,8 +39,8 @@ export default class GameProgressNodeVersion2 {
   static constructFromObject(data, obj) {
     if (data) {
       obj = obj || new GameProgressNodeVersion2();
-      if (data.hasOwnProperty('random_version_unlocked'))
-        obj.randomVersionUnlocked = ApiClient.convertToType(data['random_version_unlocked'], 'Number');
+      if (data.hasOwnProperty('randomVersionUnlocked'))
+        obj.randomVersionUnlocked = ApiClient.convertToType(data['randomVersionUnlocked'], 'Number');
       if (data.hasOwnProperty('node3'))
         obj.node3 = GameProgressNodeVersion3.constructFromObject(data['node3']);
     }

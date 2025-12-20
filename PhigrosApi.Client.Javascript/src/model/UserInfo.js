@@ -38,14 +38,14 @@ export default class UserInfo {
   static constructFromObject(data, obj) {
     if (data) {
       obj = obj || new UserInfo();
-      if (data.hasOwnProperty('nick_name'))
-        obj.nickName = ApiClient.convertToType(data['nick_name'], 'String');
-      if (data.hasOwnProperty('user_name'))
-        obj.userName = ApiClient.convertToType(data['user_name'], 'String');
-      if (data.hasOwnProperty('creation_time'))
-        obj.creationTime = ApiClient.convertToType(data['creation_time'], 'Date');
-      if (data.hasOwnProperty('modification_time'))
-        obj.modificationTime = ApiClient.convertToType(data['modification_time'], 'Date');
+      if (data.hasOwnProperty('nickName'))
+        obj.nickName = ApiClient.convertToType(data['nickName'], 'String');
+      if (data.hasOwnProperty('userName'))
+        obj.userName = ApiClient.convertToType(data['userName'], 'String');
+      if (data.hasOwnProperty('creationTime'))
+        obj.creationTime = ApiClient.convertToType(data['creationTime'], 'Date');
+      if (data.hasOwnProperty('modificationTime'))
+        obj.modificationTime = ApiClient.convertToType(data['modificationTime'], 'Date');
     }
     return obj;
   }

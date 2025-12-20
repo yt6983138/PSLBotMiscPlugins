@@ -38,12 +38,12 @@ export default class CompleteQRCodeData {
   static constructFromObject(data, obj) {
     if (data) {
       obj = obj || new CompleteQRCodeData();
-      if (data.hasOwnProperty('device_id'))
-        obj.deviceId = ApiClient.convertToType(data['device_id'], 'String');
-      if (data.hasOwnProperty('device_code'))
-        obj.deviceCode = ApiClient.convertToType(data['device_code'], 'String');
-      if (data.hasOwnProperty('expires_in_seconds'))
-        obj.expiresInSeconds = ApiClient.convertToType(data['expires_in_seconds'], 'Number');
+      if (data.hasOwnProperty('deviceID'))
+        obj.deviceID = ApiClient.convertToType(data['deviceID'], 'String');
+      if (data.hasOwnProperty('deviceCode'))
+        obj.deviceCode = ApiClient.convertToType(data['deviceCode'], 'String');
+      if (data.hasOwnProperty('expiresInSeconds'))
+        obj.expiresInSeconds = ApiClient.convertToType(data['expiresInSeconds'], 'Number');
       if (data.hasOwnProperty('url'))
         obj.url = ApiClient.convertToType(data['url'], 'String');
       if (data.hasOwnProperty('interval'))
@@ -54,9 +54,9 @@ export default class CompleteQRCodeData {
 }
 
 /**
- * @member {String} deviceId
+ * @member {String} deviceID
  */
-CompleteQRCodeData.prototype.deviceId = undefined;
+CompleteQRCodeData.prototype.deviceID = undefined;
 
 /**
  * @member {String} deviceCode

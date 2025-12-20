@@ -39,14 +39,14 @@ export default class GameProgressNodeVersion3 {
   static constructFromObject(data, obj) {
     if (data) {
       obj = obj || new GameProgressNodeVersion3();
-      if (data.hasOwnProperty('chapter8_unlock_begin'))
-        obj.chapter8UnlockBegin = ApiClient.convertToType(data['chapter8_unlock_begin'], 'Boolean');
-      if (data.hasOwnProperty('chapter8_unlock_second_phase'))
-        obj.chapter8UnlockSecondPhase = ApiClient.convertToType(data['chapter8_unlock_second_phase'], 'Boolean');
-      if (data.hasOwnProperty('chapter8_passed'))
-        obj.chapter8Passed = ApiClient.convertToType(data['chapter8_passed'], 'Boolean');
-      if (data.hasOwnProperty('chapter8_song_unlock_flag'))
-        obj.chapter8SongUnlockFlag = ApiClient.convertToType(data['chapter8_song_unlock_flag'], 'Number');
+      if (data.hasOwnProperty('chapter8UnlockBegin'))
+        obj.chapter8UnlockBegin = ApiClient.convertToType(data['chapter8UnlockBegin'], 'Boolean');
+      if (data.hasOwnProperty('chapter8UnlockSecondPhase'))
+        obj.chapter8UnlockSecondPhase = ApiClient.convertToType(data['chapter8UnlockSecondPhase'], 'Boolean');
+      if (data.hasOwnProperty('chapter8Passed'))
+        obj.chapter8Passed = ApiClient.convertToType(data['chapter8Passed'], 'Boolean');
+      if (data.hasOwnProperty('chapter8SongUnlockFlag'))
+        obj.chapter8SongUnlockFlag = ApiClient.convertToType(data['chapter8SongUnlockFlag'], 'Number');
       if (data.hasOwnProperty('node4'))
         obj.node4 = GameProgressNodeVersion4.constructFromObject(data['node4']);
     }

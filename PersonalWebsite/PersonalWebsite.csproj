@@ -10,6 +10,8 @@
 	<ItemGroup>
 		<ProjectReference Include="..\..\PSLDiscordBot\PSLDiscordBot.Framework\PSLDiscordBot.Framework.csproj" />
 		<ProjectReference Include="..\PhigrosApi.Client.Javascript\PhigrosApi.Client.Javascript.esproj" />
+
+		<ProjectReference Condition="'$(Configuration)' == 'Debug'" Include="..\PhigrosApi\PhigrosApi.csproj" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -18,7 +20,11 @@
 		</Content>
 	</ItemGroup>
 
-	<Target Name="CopyClient" BeforeTargets="Build">
-		<Copy SourceFolders="../PhigrosApi.Client.Javascript/out/" DestinationFolder="./wwwroot/swagger/PhigrosApi/"></Copy>
+	<Target Name="CopyClient" BeforeTargets="Build" Condition="'$(Configuration)' == 'Debug'">
+		<!--<Copy SourceFolders="../PhigrosApi.Client.Javascript/out/" DestinationFolder="./wwwroot/swagger/PhigrosApi/"></Copy>
+		<Copy SourceFolders="../PhigrosApi.Client.Javascript/src/" DestinationFolder="./wwwroot/swagger/PhigrosApi/"></Copy>-->
+	</Target>
+	<Target Name="CleanUp" BeforeTargets="Clean">
+		<RemoveDir Directories="./wwwroot/swagger/"></RemoveDir>
 	</Target>
 </Project>

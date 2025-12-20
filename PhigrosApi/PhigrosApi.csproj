@@ -18,11 +18,14 @@
 		<PackageReference Include="Swashbuckle.AspNetCore.Annotations" Version="9.0.4" />
 	</ItemGroup>
 
-	<ItemGroup>
-		<Folder Include="wwwroot\" />
-	</ItemGroup>
-
+	<Target Name="CleanUp" BeforeTargets="Clean">
+		<RemoveDir Directories="./wwwroot/swagger/"></RemoveDir>
+	</Target>
 	<Target Name="CopyClient" BeforeTargets="Build">
 		<Copy SourceFolders="../PhigrosApi.Client.Javascript/out/" DestinationFolder="./wwwroot/swagger/PhigrosApi/"></Copy>
+		
+		<Copy SourceFolders="../PhigrosApi.Client.Javascript/src/" 
+			  DestinationFolder="./wwwroot/swagger/PhigrosApi/"
+			  Condition="'$(Configuration)' == 'Debug'"></Copy>
 	</Target>
 </Project>

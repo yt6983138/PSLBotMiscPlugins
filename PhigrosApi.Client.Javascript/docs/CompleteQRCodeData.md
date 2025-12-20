@@ -3,7 +3,7 @@
 ## Properties
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**deviceId** | **String** |  | [optional] 
+**deviceID** | **String** |  | [optional] 
 **deviceCode** | **String** |  | [optional] 
 **expiresInSeconds** | **Number** |  | [optional] 
 **url** | **String** |  | [optional] 

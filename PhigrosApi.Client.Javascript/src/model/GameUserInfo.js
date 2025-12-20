@@ -40,14 +40,14 @@ export default class GameUserInfo {
       obj = obj || new GameUserInfo();
       if (data.hasOwnProperty('version'))
         obj.version = ApiClient.convertToType(data['version'], 'Number');
-      if (data.hasOwnProperty('show_user_id'))
-        obj.showUserId = ApiClient.convertToType(data['show_user_id'], 'Boolean');
+      if (data.hasOwnProperty('showUserId'))
+        obj.showUserId = ApiClient.convertToType(data['showUserId'], 'Boolean');
       if (data.hasOwnProperty('intro'))
         obj.intro = ApiClient.convertToType(data['intro'], 'String');
-      if (data.hasOwnProperty('avatar_id'))
-        obj.avatarId = ApiClient.convertToType(data['avatar_id'], 'String');
-      if (data.hasOwnProperty('background_id'))
-        obj.backgroundId = ApiClient.convertToType(data['background_id'], 'String');
+      if (data.hasOwnProperty('avatarId'))
+        obj.avatarId = ApiClient.convertToType(data['avatarId'], 'String');
+      if (data.hasOwnProperty('backgroundId'))
+        obj.backgroundId = ApiClient.convertToType(data['backgroundId'], 'String');
     }
     return obj;
   }

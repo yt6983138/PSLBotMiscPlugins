@@ -1,18 +1,25 @@
 <Project Sdk="Microsoft.VisualStudio.JavaScript.Sdk/1.0.2752196">
 	<PropertyGroup>
 		<ShouldRunNpmInstall>true</ShouldRunNpmInstall>
+		<!-- why cant i put it in 2 lines -->
 		<BuildCommand>
+			npm install --save-dev babelify &amp;&amp; npx browserify src/index.js --standalone PSL -t [ babelify --extensions .js ] -o out/PhigrosApi.bundled.js
 		</BuildCommand>
 	</PropertyGroup>
 	<ItemGroup>
 		<Folder Include="out\" />
 	</ItemGroup>
 	<Target Name="CopyEsModules" BeforeTargets="Build">
-		<Copy SourceFiles="node_modules\superagent\dist\superagent.min.js" DestinationFiles="out\superagent.js" />
-		<Copy SourceFolders="src\" DestinationFolder="out\" SkipUnchangedFiles="true" />
+		<!--<Copy SourceFiles="node_modules\superagent\dist\superagent.min.js" DestinationFiles="out\superagent.js" />-->
+		<!--<Copy SourceFolders="src\" DestinationFolder="out\" SkipUnchangedFiles="true" />-->
 	</Target>
-	<Target Name="CodeGen" BeforeTargets="CopyEsModules">
+	<Target Name="CodeGen" BeforeTargets="Build">
+		<MakeDir Directories="out" />
 		<!-- doing nothing here, hint: need to do it manually in those online codegen and select js 
 			TODO: make this automatic -->
+	</Target>
+
+	<Target Name="CleanUp" BeforeTargets="Clean">
+		<RemoveDir Directories="out" />
 	</Target>
 </Project>

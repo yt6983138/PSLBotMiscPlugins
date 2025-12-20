@@ -47,10 +47,10 @@ export default class SaveData {
         obj.progress = GameProgress.constructFromObject(data['progress']);
       if (data.hasOwnProperty('settings'))
         obj.settings = GameSettings.constructFromObject(data['settings']);
-      if (data.hasOwnProperty('game_user_info'))
-        obj.gameUserInfo = GameUserInfo.constructFromObject(data['game_user_info']);
-      if (data.hasOwnProperty('user_info'))
-        obj.userInfo = UserInfo.constructFromObject(data['user_info']);
+      if (data.hasOwnProperty('gameUserInfo'))
+        obj.gameUserInfo = GameUserInfo.constructFromObject(data['gameUserInfo']);
+      if (data.hasOwnProperty('userInfo'))
+        obj.userInfo = UserInfo.constructFromObject(data['userInfo']);
       if (data.hasOwnProperty('summary'))
         obj.summary = Summary.constructFromObject(data['summary']);
     }

@@ -40,28 +40,28 @@ export default class GameSettings {
       obj = obj || new GameSettings();
       if (data.hasOwnProperty('version'))
         obj.version = ApiClient.convertToType(data['version'], 'Number');
-      if (data.hasOwnProperty('chord_support'))
-        obj.chordSupport = ApiClient.convertToType(data['chord_support'], 'Boolean');
-      if (data.hasOwnProperty('fc_ap_indicator_on'))
-        obj.fcApIndicatorOn = ApiClient.convertToType(data['fc_ap_indicator_on'], 'Boolean');
-      if (data.hasOwnProperty('enable_hit_sound'))
-        obj.enableHitSound = ApiClient.convertToType(data['enable_hit_sound'], 'Boolean');
-      if (data.hasOwnProperty('low_resolution_mode_on'))
-        obj.lowResolutionModeOn = ApiClient.convertToType(data['low_resolution_mode_on'], 'Boolean');
-      if (data.hasOwnProperty('device_name'))
-        obj.deviceName = ApiClient.convertToType(data['device_name'], 'String');
-      if (data.hasOwnProperty('background_brightness'))
-        obj.backgroundBrightness = ApiClient.convertToType(data['background_brightness'], 'Number');
-      if (data.hasOwnProperty('music_volume'))
-        obj.musicVolume = ApiClient.convertToType(data['music_volume'], 'Number');
-      if (data.hasOwnProperty('effect_volume'))
-        obj.effectVolume = ApiClient.convertToType(data['effect_volume'], 'Number');
-      if (data.hasOwnProperty('hit_sound_volume'))
-        obj.hitSoundVolume = ApiClient.convertToType(data['hit_sound_volume'], 'Number');
-      if (data.hasOwnProperty('sound_offset'))
-        obj.soundOffset = ApiClient.convertToType(data['sound_offset'], 'Number');
-      if (data.hasOwnProperty('note_scale'))
-        obj.noteScale = ApiClient.convertToType(data['note_scale'], 'Number');
+      if (data.hasOwnProperty('chordSupport'))
+        obj.chordSupport = ApiClient.convertToType(data['chordSupport'], 'Boolean');
+      if (data.hasOwnProperty('fcApIndicatorOn'))
+        obj.fcApIndicatorOn = ApiClient.convertToType(data['fcApIndicatorOn'], 'Boolean');
+      if (data.hasOwnProperty('enableHitSound'))
+        obj.enableHitSound = ApiClient.convertToType(data['enableHitSound'], 'Boolean');
+      if (data.hasOwnProperty('lowResolutionModeOn'))
+        obj.lowResolutionModeOn = ApiClient.convertToType(data['lowResolutionModeOn'], 'Boolean');
+      if (data.hasOwnProperty('deviceName'))
+        obj.deviceName = ApiClient.convertToType(data['deviceName'], 'String');
+      if (data.hasOwnProperty('backgroundBrightness'))
+        obj.backgroundBrightness = ApiClient.convertToType(data['backgroundBrightness'], 'Number');
+      if (data.hasOwnProperty('musicVolume'))
+        obj.musicVolume = ApiClient.convertToType(data['musicVolume'], 'Number');
+      if (data.hasOwnProperty('effectVolume'))
+        obj.effectVolume = ApiClient.convertToType(data['effectVolume'], 'Number');
+      if (data.hasOwnProperty('hitSoundVolume'))
+        obj.hitSoundVolume = ApiClient.convertToType(data['hitSoundVolume'], 'Number');
+      if (data.hasOwnProperty('soundOffset'))
+        obj.soundOffset = ApiClient.convertToType(data['soundOffset'], 'Number');
+      if (data.hasOwnProperty('noteScale'))
+        obj.noteScale = ApiClient.convertToType(data['noteScale'], 'Number');
     }
     return obj;
   }

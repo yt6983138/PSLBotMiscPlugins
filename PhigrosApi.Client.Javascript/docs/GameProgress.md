@@ -7,7 +7,7 @@ Name | Type | Description | Notes
 **isFirstRun** | **Boolean** |  | [optional] 
 **legacyChapterFinished** | **Boolean** |  | [optional] 
 **alreadyShowCollectionTip** | **Boolean** |  | [optional] 
-**alreadyShowAutoUnlockInTip** | **Boolean** |  | [optional] 
+**alreadyShowAutoUnlockINTip** | **Boolean** |  | [optional] 
 **completed** | **String** |  | [optional] 
 **songUpdateInfo** | **Number** |  | [optional] 
 **challengeModeRank** | [**Challenge**](Challenge.md) |  | [optional] 

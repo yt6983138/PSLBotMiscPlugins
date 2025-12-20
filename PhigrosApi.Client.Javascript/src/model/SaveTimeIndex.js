@@ -40,8 +40,8 @@ export default class SaveTimeIndex {
       obj = obj || new SaveTimeIndex();
       if (data.hasOwnProperty('index'))
         obj.index = ApiClient.convertToType(data['index'], 'Number');
-      if (data.hasOwnProperty('modification_time'))
-        obj.modificationTime = ApiClient.convertToType(data['modification_time'], 'Date');
+      if (data.hasOwnProperty('modificationTime'))
+        obj.modificationTime = ApiClient.convertToType(data['modificationTime'], 'Date');
     }
     return obj;
   }
