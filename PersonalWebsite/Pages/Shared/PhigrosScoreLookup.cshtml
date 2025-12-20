@@ -8,12 +8,94 @@
 
 @section Headers {
     <style>
+        .draggable {
+            position: absolute;
+            width: fit-content;
+            height: fit-content;
+        }
 
+            .draggable > .dialog-header {
+                cursor: grab;
+            }
+
+        main {
+            height: 100vh;
+            width: 100vw;
+        }
+
+        #LoginTapTap {
+            margin-left: 15px;
+        }
+
+        #LoginGroup {
+            margin-top: 20px;
+        }
+
+        #TapTapLoginInfoGroupQRCode {
+            content: "";
+            margin: 10px auto 10px 5px;
+            padding: 6px;
+            width: fit-content;
+            background-color: white;
+            border: 2px solid gray
+        }
     </style>
     <script src="/swagger/PhigrosApi/PhigrosApi.bundled.js"></script>
     <script src="/personal/js/psl.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/davidshimjs/qrcodejs@gh-pages/qrcode.min.js"></script>
 }
 
-<win-dialog id="main" title="">
+<win-dialog id="main" title="Begin" style="left: 20px; top: 40px">
+    <h2>Instruction</h2>
+    <p>
+        1. Login by the buttons at bottom (Select either TapTap or Manual by token) <br />
+        2. <br />
+        3. Logout if you are using shared computer <br />
+        Hint: Windows are draggable
+    </p>
+    <div id="LoginGroup">
+        <input id="SaveToken" type="checkbox" />
+        <label for="SaveToken">Save token</label>
 
+        <button id="LoginTapTap" onclick="LoginTapTap(event)">Login (TapTap)</button>
+        <button id="LoginManual" onclick="LoginManual(event)">Login (Manual)</button>
+        <button id="Logout" onclick="Logout(event)">Logout</button>
+    </div>
+</win-dialog>
+
+<win-dialog id="TapTapLogin" title="TapTap Login" style="left: 40px; top: 60px; display: none; z-index: 9000">
+    <h3>Login Instruction</h3>
+    <p>
+        1. Click the "Generate Login" button <br />
+        2. Login using the QRCode or the link (For non-international accounts, <br />
+            a helper website is provided for those who cannot download TapTap China) <br />
+        3. Complete the login using the TapTap app/website before it times out <br />
+    </p>
+    <br />
+
+    <div id="TapTapLoginInfoGroup" style="display: none">
+        <div id="TapTapLoginInfoGroupQRCode"></div>
+        <a id="TapTapLoginInfoGroupURL">Primary login link</a>
+        <a id="TapTapLoginInfoGroupURLAlternate" style="display: none">China alternate login link</a>
+        <p id="TapTapLoginInfoGroupInfo"></p>
+    </div>
+    
+    <br />
+    <input id="TapTapLoginIsInternational" type="checkbox" />
+    <label for="TapTapLoginIsInternational">International Account</label> <br />
+    <button id="TapTapLoginGenerate" onclick="LoginTapTapGenerate(event)">Generate Login</button>
+    <button id="TapTapLoginCancel" onclick="LoginTapTapCancel(event)">Cancel</button>
+</win-dialog>
+
+<win-dialog id="ManualLogin" title="Manual Login" style="left: 40px; top: 60px; display: none; z-index: 9000">
+    <label for="ManualLoginToken">Please enter your token.</label>
+    <input id="ManualLoginToken" type="text" maxlength="25" /> <br />
+
+    <input id="ManualLoginIsInternational" type="checkbox" />
+    <label for="ManualLoginIsInternational">International Account</label> <br />
+
+    <p id="ManualLoginError" style="color: red"></p> <br />
+
+    <button id="ManualLoginCheck" onclick="LoginManualNext(event)">Enter</button>
+    <button id="ManualLoginCancel" onclick="LoginManualCancel(event)">Cancel</button>
 </win-dialog>
