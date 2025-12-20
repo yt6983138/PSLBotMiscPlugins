@@ -1,5 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc.ApplicationParts;
 using PersonalWebsite.Services;
+using PhigrosApi;
+using PSLDiscordBot.Core.Services;
+using PSLDiscordBot.Core.Services.Phigros;
 using PSLDiscordBot.Framework;
 
 namespace PersonalWebsite;
@@ -60,6 +63,14 @@ public class PersonalWebsitePlugin : IPlugin
 
 		// Add services to the container.
 		self.Load(builder, false);
+#if DEBUG
+		PhigrosApiPlugin phiApi = new();
+		phiApi.Load(builder, false);
+
+		builder.Services.AddSingleton<PhigrosService>();
+		builder.Services.AddSingleton<LocalizationService>();
+		Program.Instance.ConfigureSwagger(builder);
+#endif
 
 		WebApplication app = builder.Build();
 
@@ -69,6 +80,9 @@ public class PersonalWebsitePlugin : IPlugin
 			app.UseExceptionHandler("/Home/Error");
 		}
 		self.Setup(app);
+#if DEBUG
+		phiApi.Setup(app);
+#endif
 
 		app.Run();
 	}
