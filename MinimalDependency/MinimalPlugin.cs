@@ -54,9 +54,8 @@ public class MinimalPlugin : IPlugin
 	}
 	private void MinimalPlugin_AfterMainInitialize(object? sender, EventArgs e)
 	{
-		this._discordClientService.SocketClient.LoginAsync(TokenType.Bot, this.Config.Value.Token).Wait();
-		this._discordClientService.RestClient.LoginAsync(TokenType.Bot, this.Config.Value.Token).Wait();
-		this._discordClientService.SocketClient.StartAsync().Wait();
+		this._discordClientService.Token = this.Config.Value.Token;
+		this._discordClientService.StartBotAsync().Wait();
 
 		this._discordClientService.SocketClient.Log += this.Log;
 		this._discordClientService.SocketClient.Ready += this.Client_Ready;
