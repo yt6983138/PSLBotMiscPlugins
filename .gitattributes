@@ -64,3 +64,4 @@
 
 # make github stop counting this repo as a javascript repo
 PhigrosApi.Client.Javascript/** linguist-generated
+PhigrosLoginHost/wwwroot/** linguist-vendored
