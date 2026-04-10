@@ -63,4 +63,4 @@
 #*.RTF   diff=astextplain
 
 # make github stop counting this repo as a javascript repo
-PhigrosApi.Client.Javascript/* linguist-vendored=true
+PhigrosApi.Client.Javascript/** linguist-generated
