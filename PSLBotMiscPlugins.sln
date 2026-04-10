@@ -5,10 +5,6 @@ VisualStudioVersion = 17.10.35013.160
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FunPlugin", "FunPlugin\FunPlugin.csproj", "{B5862DF7-3B18-4012-BBD5-30E361FD384B}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PSLDiscordBot.Framework", "..\PSLDiscordBot\PSLDiscordBot.Framework\PSLDiscordBot.Framework.csproj", "{42A606CB-50C1-4D12-849E-7652DD62520A}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PSLDiscordBot.Core", "..\PSLDiscordBot\PSLDiscordBot.Core\PSLDiscordBot.Core.csproj", "{37B6D35B-4A9E-456A-BA53-840EE63761FD}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VerifierAndBanner", "VerifierAndBanner\VerifierAndBanner.csproj", "{8560ACC4-362A-4694-8B85-AFE1C9979DC6}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CommandStatistics", "CommandStatistics\CommandStatistics.csproj", "{CFE3AE6E-0CC0-4761-A7E0-CC27556242E4}"
@@ -40,6 +36,12 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PersonalWebsite", "Personal
 EndProject
 Project("{54A90642-561A-4BB1-A94E-469ADEE60C69}") = "PhigrosApi.Client.Javascript", "PhigrosApi.Client.Javascript\PhigrosApi.Client.Javascript.esproj", "{D26AF154-EB4B-BDEA-EE58-E868B3C34090}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PSLDiscordBot.Core", "PSLDiscordBotBase\PSLDiscordBot.Core\PSLDiscordBot.Core.csproj", "{5C012AFB-7339-81C0-513D-9FA609268647}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PSLDiscordBot.Framework", "PSLDiscordBotBase\PSLDiscordBot.Framework\PSLDiscordBot.Framework.csproj", "{CED36893-298D-F45A-7FE6-0C7F04D4CD6F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PSLDiscordBot.Analyzer", "PSLDiscordBotBase\PSLDiscordBot.Analyzer\PSLDiscordBot.Analyzer.csproj", "{E624471F-EDE9-CC35-33C3-9D30B3DF7B70}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -50,14 +52,6 @@ Global
 		{B5862DF7-3B18-4012-BBD5-30E361FD384B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B5862DF7-3B18-4012-BBD5-30E361FD384B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B5862DF7-3B18-4012-BBD5-30E361FD384B}.Release|Any CPU.Build.0 = Release|Any CPU
-		{42A606CB-50C1-4D12-849E-7652DD62520A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{42A606CB-50C1-4D12-849E-7652DD62520A}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{42A606CB-50C1-4D12-849E-7652DD62520A}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{42A606CB-50C1-4D12-849E-7652DD62520A}.Release|Any CPU.Build.0 = Release|Any CPU
-		{37B6D35B-4A9E-456A-BA53-840EE63761FD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{37B6D35B-4A9E-456A-BA53-840EE63761FD}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{37B6D35B-4A9E-456A-BA53-840EE63761FD}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{37B6D35B-4A9E-456A-BA53-840EE63761FD}.Release|Any CPU.Build.0 = Release|Any CPU
 		{8560ACC4-362A-4694-8B85-AFE1C9979DC6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{8560ACC4-362A-4694-8B85-AFE1C9979DC6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8560ACC4-362A-4694-8B85-AFE1C9979DC6}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -100,6 +94,18 @@ Global
 		{D26AF154-EB4B-BDEA-EE58-E868B3C34090}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D26AF154-EB4B-BDEA-EE58-E868B3C34090}.Release|Any CPU.Build.0 = Release|Any CPU
 		{D26AF154-EB4B-BDEA-EE58-E868B3C34090}.Release|Any CPU.Deploy.0 = Release|Any CPU
+		{5C012AFB-7339-81C0-513D-9FA609268647}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5C012AFB-7339-81C0-513D-9FA609268647}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5C012AFB-7339-81C0-513D-9FA609268647}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5C012AFB-7339-81C0-513D-9FA609268647}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CED36893-298D-F45A-7FE6-0C7F04D4CD6F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CED36893-298D-F45A-7FE6-0C7F04D4CD6F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CED36893-298D-F45A-7FE6-0C7F04D4CD6F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CED36893-298D-F45A-7FE6-0C7F04D4CD6F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E624471F-EDE9-CC35-33C3-9D30B3DF7B70}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E624471F-EDE9-CC35-33C3-9D30B3DF7B70}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E624471F-EDE9-CC35-33C3-9D30B3DF7B70}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E624471F-EDE9-CC35-33C3-9D30B3DF7B70}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

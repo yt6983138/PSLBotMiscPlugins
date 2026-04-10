@@ -7,8 +7,8 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<ProjectReference Include="..\..\PSLDiscordBot\PSLDiscordBot.Core\PSLDiscordBot.Core.csproj" />
-		<ProjectReference Include="..\..\PSLDiscordBot\PSLDiscordBot.Framework\PSLDiscordBot.Framework.csproj">
+		<ProjectReference Include="..\PSLDiscordBotBase\PSLDiscordBot.Core\PSLDiscordBot.Core.csproj" />
+		<ProjectReference Include="..\PSLDiscordBotBase\PSLDiscordBot.Framework\PSLDiscordBot.Framework.csproj">
 			<ExcludeAssets>runtime</ExcludeAssets>
 		</ProjectReference>
 	</ItemGroup>

@@ -8,8 +8,7 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<ProjectReference Include="..\..\PhigrosLibraryCSharp\PhigrosLibraryCSharp\PhigrosLibraryCSharp.csproj" />
-		<ProjectReference Include="..\..\PSLDiscordBot\PSLDiscordBot.Core\PSLDiscordBot.Core.csproj" />
+		<ProjectReference Include="..\PSLDiscordBotBase\PSLDiscordBot.Core\PSLDiscordBot.Core.csproj" />
 		<ProjectReference Include="..\PhigrosApi.Client.Javascript\PhigrosApi.Client.Javascript.esproj" />
 	</ItemGroup>
 
