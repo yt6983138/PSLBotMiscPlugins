@@ -2,7 +2,6 @@
 using Microsoft.Extensions.Options;
 using PSLDiscordBot.Core;
 using PSLDiscordBot.Core.Services;
-using PSLDiscordBot.Core.Services.Phigros;
 using PSLDiscordBot.Core.Utility;
 using PSLDiscordBot.Framework.CommandBase;
 using PSLDiscordBot.Framework.Localization;

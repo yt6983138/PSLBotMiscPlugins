@@ -2,7 +2,6 @@
 using PhigrosLibraryCSharp;
 using PhigrosLibraryCSharp.Cloud.RawData;
 using PhigrosLibraryCSharp.GameRecords;
-using PSLDiscordBot.Core.Services.Phigros;
 using System.Collections.Concurrent;
 using System.IO.Compression;
 using System.Net.Mime;
