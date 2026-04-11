@@ -15,6 +15,8 @@ public class AdminHelperPlugin : IPlugin
 
 	private CommandStatisticsService _commandStatisticsService = null!;
 	private ICommandResolveService _commandResolveService = null!;
+	private StatusService _statusService = null!;
+	private Program _program = null!;
 
 	string IPlugin.Name => "Admin helper";
 	string IPlugin.Description => "Help admins do shit";
@@ -38,14 +40,19 @@ public class AdminHelperPlugin : IPlugin
 	{
 		hostBuilder.Services.Configure<AdminConfig>(
 			hostBuilder.Configuration.GetSection("AdminConfig"));
-		hostBuilder.Services.AddSingleton<BlackListService>();
-		hostBuilder.Services.AddSingleton<CommandStatisticsService>();
+		hostBuilder.Services.AddSingleton<BlackListService>()
+			.AddSingleton<CommandStatisticsService>()
+			.AddSingleton<StatusService>();
+
+		Console.CancelKeyPress += this.Console_CancelKeyPress;
 	}
 
 	void IPlugin.Setup(IHost host)
 	{
 		this._commandStatisticsService = host.Services.GetRequiredService<CommandStatisticsService>();
 		this._commandResolveService = host.Services.GetRequiredService<ICommandResolveService>();
+		this._statusService = host.Services.GetRequiredService<StatusService>();
+		this._program = host.Services.GetRequiredService<Program>();
 
 		this._commandResolveService.BeforeSlashCommandExecutes += this.CommandResolveService_BeforeSlashCommandExecutes;
 
@@ -79,6 +86,34 @@ public class AdminHelperPlugin : IPlugin
 		CommandStatisticInfo info = await this._commandStatisticsService.GetOrAddNew(e.SocketSlashCommand.CommandName);
 		info.UseCount++;
 		await this._commandStatisticsService.SaveChangesAsync();
+	}
+	private void Console_CancelKeyPress(object? sender, ConsoleCancelEventArgs e)
+	{
+		bool @break = e.SpecialKey == ConsoleSpecialKey.ControlBreak;
+		if (@break)
+		{
+			this.Logger.LogCritical(EventId, "Hard terminating application. (Ctrl-C to soft terminate)");
+			Environment.FailFast("Ctrl-break triggered, hard terminating.");
+			return;
+		}
+
+		e.Cancel = true;
+		this._statusService.CurrentStatus = Status.ShuttingDown;
+		this.Logger.LogInformation(EventId, "Soft terminate initialized. (Ctrl-break to hard terminate)");
+		while (this._program.RunningTasks.Count > 0)
+		{
+			Thread.Sleep(500);
+			this.Logger.LogInformation(EventId, "{count} tasks running...", this._program.RunningTasks.Count);
+
+			if (this._statusService.CurrentStatus == Status.Normal)
+			{
+				this.Logger.LogInformation(EventId, "Operation canceled.");
+				this.Logger.LogInformation(EventId, "Operation canceled.");
+				return;
+			}
+		}
+
+		this._program.CancellationTokenSource.Cancel();
 	}
 
 	#region Backup related
