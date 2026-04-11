@@ -1,5 +1,6 @@
 ﻿using AdminHelper.Services;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Mvc.ApplicationParts;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -17,6 +18,8 @@ public class AdminHelperPlugin : IPlugin
 	private ICommandResolveService _commandResolveService = null!;
 	private StatusService _statusService = null!;
 	private Program _program = null!;
+
+	private bool _hasOtherRegisteredMvc = false;
 
 	string IPlugin.Name => "Admin helper";
 	string IPlugin.Description => "Help admins do shit";
@@ -42,7 +45,18 @@ public class AdminHelperPlugin : IPlugin
 			hostBuilder.Configuration.GetSection("AdminConfig"));
 		hostBuilder.Services.AddSingleton<BlackListService>()
 			.AddSingleton<CommandStatisticsService>()
-			.AddSingleton<StatusService>();
+			.AddSingleton<StatusService>()
+			.AddSingleton<BugReportDatabaseService>();
+		// i know it should be scoped or transient but commands are singletons, so it will be singleton eventually
+
+		this._hasOtherRegisteredMvc = hostBuilder.Services.HasMvcRegistered();
+		if (!this._hasOtherRegisteredMvc)
+		{
+			hostBuilder.Services.AddControllers();
+		}
+
+		hostBuilder.Services.GetApplicationPartManager()
+			.ApplicationParts.Add(new AssemblyPart(typeof(AdminHelperPlugin).Assembly));
 
 		Console.CancelKeyPress += this.Console_CancelKeyPress;
 	}
@@ -54,10 +68,22 @@ public class AdminHelperPlugin : IPlugin
 		this._statusService = host.Services.GetRequiredService<StatusService>();
 		this._program = host.Services.GetRequiredService<Program>();
 
+		host.Services.GetRequiredService<BugReportDatabaseService>();
+		// make sure the event handler is registered before any command executes
+
 		this._commandResolveService.BeforeSlashCommandExecutes += this.CommandResolveService_BeforeSlashCommandExecutes;
 
 		this.Logger = host.Services.GetRequiredService<ILogger<AdminHelperPlugin>>();
 		this.Config = host.Services.GetRequiredService<IOptions<AdminConfig>>();
+
+		if (!this._hasOtherRegisteredMvc)
+		{
+			WebApplication app = (WebApplication)host;
+
+			app.MapControllers().AllowAnonymous();
+			app.UseRouting();
+			app.UseAuthorization();
+		}
 
 		if (this.Config.Value.TimedBackupInterval != TimeSpan.Zero)
 		{
