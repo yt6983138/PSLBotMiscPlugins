@@ -2,12 +2,20 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using PSLDiscordBot.Framework;
+using PSLDiscordBot.Framework.BuiltInServices;
 
 namespace AdminHelper;
 
 public class AdminHelperPlugin : IPlugin
 {
+	private static readonly EventId EventId = new(114514_110, nameof(AdminHelperPlugin));
+
+	private CommandStatisticsService _commandStatisticsService = null!;
+	private ICommandResolveService _commandResolveService = null!;
+
 	string IPlugin.Name => "Admin helper";
 	string IPlugin.Description => "Help admins do shit";
 	Version IPlugin.Version => new(1, 1, 0, 0);
@@ -17,18 +25,125 @@ public class AdminHelperPlugin : IPlugin
 	bool IPlugin.CanBeDynamicallyLoaded => false;
 	bool IPlugin.CanBeDynamicallyUnloaded => false;
 
+	public string FormattedTimedDestination =>
+		string.Format(this.Config.Value.TimedBackupDestination, DateTime.Now.ToString("s")).Replace(':', '_');
+	public string FormattedStartupDestination =>
+		string.Format(this.Config.Value.StartupBackupDestination, DateTime.Now.ToString("s")).Replace(':', '_');
+
+	public ILogger<AdminHelperPlugin> Logger { get; private set; } = null!;
+	public IOptions<AdminConfig> Config { get; private set; } = null!;
+	public Timer? BackupTimer { get; private set; }
+
 	void IPlugin.Load(WebApplicationBuilder hostBuilder, bool isDynamicLoading)
 	{
 		hostBuilder.Services.Configure<AdminConfig>(
 			hostBuilder.Configuration.GetSection("AdminConfig"));
 		hostBuilder.Services.AddSingleton<BlackListService>();
+		hostBuilder.Services.AddSingleton<CommandStatisticsService>();
 	}
 
 	void IPlugin.Setup(IHost host)
 	{
+		this._commandStatisticsService = host.Services.GetRequiredService<CommandStatisticsService>();
+		this._commandResolveService = host.Services.GetRequiredService<ICommandResolveService>();
+
+		this._commandResolveService.BeforeSlashCommandExecutes += this.CommandResolveService_BeforeSlashCommandExecutes;
+
+		this.Logger = host.Services.GetRequiredService<ILogger<AdminHelperPlugin>>();
+		this.Config = host.Services.GetRequiredService<IOptions<AdminConfig>>();
+
+		if (this.Config.Value.TimedBackupInterval != TimeSpan.Zero)
+		{
+			this.BackupTimer = new(
+				this.TimedSave,
+				null,
+				this.Config.Value.TimedBackupInterval, // prevent being started immediately
+				this.Config.Value.TimedBackupInterval);
+		}
+		if (this.Config.Value.DoStartupBackup)
+		{
+			this.Logger.LogInformation(EventId, "Startup backup begin.");
+			this.SaveThings(this.FormattedStartupDestination, this.Config.Value.StartupBackupSources);
+			this.Logger.LogInformation(EventId, "Startup backup ended.");
+		}
 	}
 
 	void IPlugin.Unload(IHost host, bool isDynamicUnloading)
 	{
 	}
+
+	private async void CommandResolveService_BeforeSlashCommandExecutes(object? sender, PSLDiscordBot.Framework.MiscEventArgs.SlashCommandEventArgs e)
+	{
+		if (e.Canceled) return;
+
+		CommandStatisticInfo info = await this._commandStatisticsService.GetOrAddNew(e.SocketSlashCommand.CommandName);
+		info.UseCount++;
+		await this._commandStatisticsService.SaveChangesAsync();
+	}
+
+	#region Backup related
+	private void TimedSave(object? state)
+	{
+		this.Logger.LogInformation(EventId, "Timed backup begin.");
+		this.SaveThings(this.FormattedTimedDestination, this.Config.Value.TimedBackupSources);
+		this.Logger.LogInformation(EventId, "Timed backup ended.");
+	}
+	private void SaveThings(string dest, List<string> things)
+	{
+		List<FileSystemInfo> files = [];
+		foreach (string item in things)
+		{
+			if (File.Exists(item))
+			{
+				files.Add(new FileInfo(item));
+			}
+			else if (Directory.Exists(item))
+			{
+				files.Add(new DirectoryInfo(item));
+			}
+			else
+			{
+				this.Logger.LogWarning(EventId, "Source backup file/folder '{item}' do not exist. Skipping.", item);
+			}
+		}
+
+		foreach (FileSystemInfo file in files)
+		{
+			try
+			{
+				if (file is DirectoryInfo di)
+				{
+					CopyFolder(Path.Combine(dest, di.Name), di, true);
+				}
+				else if (file is FileInfo fi)
+				{
+					string folder = Path.Combine(dest, fi.Directory!.Name);
+					Directory.CreateDirectory(folder);
+					fi.CopyTo(folder, true);
+				}
+				else
+				{
+					throw new ApplicationException("This should not happen");
+				}
+			}
+			catch (Exception ex)
+			{
+				this.Logger.LogError(EventId, ex, "Failed to backup file/folder '{path}'.", file.FullName);
+			}
+		}
+
+		static void CopyFolder(string dest, DirectoryInfo src, bool overwrite)
+		{
+			Directory.CreateDirectory(dest);
+			foreach (FileInfo item in src.GetFiles())
+			{
+				item.CopyTo(Path.Combine(dest, item.Name), overwrite);
+			}
+			foreach (DirectoryInfo item in src.GetDirectories())
+			{
+				CopyFolder(Path.Combine(dest, item.Name), item, overwrite);
+			}
+		}
+	}
+	#endregion
 }

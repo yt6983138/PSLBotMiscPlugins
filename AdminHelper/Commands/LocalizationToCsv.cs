@@ -14,7 +14,7 @@ using PSLDiscordBot.Framework.Localization;
 using System.Globalization;
 using System.Text;
 
-namespace LocalizationTranslatorHelper.Commands;
+namespace AdminHelper.Commands;
 
 [AddToGlobal]
 public class LocalizationToCsv : AdminCommandBase

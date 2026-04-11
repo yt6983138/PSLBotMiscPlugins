@@ -2,6 +2,8 @@
 using PhigrosLibraryCSharp;
 using PhigrosLibraryCSharp.Cloud.RawData;
 using PhigrosLibraryCSharp.GameRecords;
+using PSLDiscordBot.Core.Services;
+using PSLDiscordBot.Core.Utility;
 using System.Collections.Concurrent;
 using System.IO.Compression;
 using System.Net.Mime;
@@ -185,7 +187,8 @@ public class CloudSaveController : CustomControllerBase
 		try
 		{
 			SaveContext context = await save.GetSaveContextAsync(index);
-			GameRecord gameRecords = context.ReadGameRecord(this._phigrosData.DifficultiesMap);
+			GameRecord gameRecords = context.ReadGameRecord(this._phigrosData.NonMultiLanguageInfos.SongsWithoutSuffix
+				.ToDictionary(x => x.Id, x => x.ChartConstantArray));
 
 			this._logger.LogDebug("{ip} requested summary and save successfully.", this.IP);
 			return this.Json(gameRecords);

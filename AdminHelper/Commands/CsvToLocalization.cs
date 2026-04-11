@@ -1,4 +1,5 @@
-﻿using CsvHelper.Configuration;
+﻿using CsvHelper;
+using CsvHelper.Configuration;
 using Discord;
 using Discord.WebSocket;
 using Microsoft.Extensions.Logging;
@@ -12,9 +13,8 @@ using PSLDiscordBot.Framework;
 using PSLDiscordBot.Framework.CommandBase;
 using PSLDiscordBot.Framework.Localization;
 using System.Globalization;
-using CsvReader = CsvHelper.CsvReader;
 
-namespace LocalizationTranslatorHelper.Commands;
+namespace AdminHelper.Commands;
 
 [AddToGlobal]
 public class CsvToLocalization : AdminCommandBase

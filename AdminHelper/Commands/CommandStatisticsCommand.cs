@@ -1,4 +1,4 @@
-﻿using CommandStatistics.Services;
+﻿using AdminHelper.Services;
 using Discord;
 using Discord.WebSocket;
 using Microsoft.Extensions.Logging;
@@ -13,7 +13,7 @@ using PSLDiscordBot.Framework.CommandBase;
 using PSLDiscordBot.Framework.Localization;
 using System.Text;
 
-namespace CommandStatistics.Commands;
+namespace AdminHelper.Commands;
 
 [AddToGlobal]
 public class CommandStatisticsCommand : GuestCommandBase

@@ -2,7 +2,7 @@
 using PSLDiscordBot.Framework.BuiltInServices;
 using PSLDiscordBot.Framework.CommandBase;
 
-namespace CommandStatistics.Services;
+namespace AdminHelper.Services;
 
 [PrimaryKey(nameof(CommandName))]
 public class CommandStatisticInfo

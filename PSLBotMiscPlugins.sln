@@ -7,11 +7,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FunPlugin", "FunPlugin\FunP
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VerifierAndBanner", "VerifierAndBanner\VerifierAndBanner.csproj", "{8560ACC4-362A-4694-8B85-AFE1C9979DC6}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CommandStatistics", "CommandStatistics\CommandStatistics.csproj", "{CFE3AE6E-0CC0-4761-A7E0-CC27556242E4}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MinimalDependency", "MinimalDependency\MinimalDependency.csproj", "{A446658F-5652-4A6F-878D-4BFB7CF90D6C}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AutoBackup", "AutoBackup\AutoBackup.csproj", "{41D413B8-6946-4902-AC47-377E55145B16}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AdminHelper", "AdminHelper\AdminHelper.csproj", "{A30AE987-ACB4-405A-A748-ECD2A0AFF68E}"
 EndProject
@@ -21,8 +17,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PhigrosApi", "PhigrosApi\Ph
 	ProjectSection(ProjectDependencies) = postProject
 		{D26AF154-EB4B-BDEA-EE58-E868B3C34090} = {D26AF154-EB4B-BDEA-EE58-E868B3C34090}
 	EndProjectSection
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LocalizationTranslatorHelper", "LocalizationTranslatorHelper\LocalizationTranslatorHelper.csproj", "{04B4A569-91CF-3575-5253-498A5CA20628}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{8EC462FD-D22E-90A8-E5CE-7E832BA40C5D}"
 	ProjectSection(SolutionItems) = preProject
@@ -56,18 +50,10 @@ Global
 		{8560ACC4-362A-4694-8B85-AFE1C9979DC6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8560ACC4-362A-4694-8B85-AFE1C9979DC6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8560ACC4-362A-4694-8B85-AFE1C9979DC6}.Release|Any CPU.Build.0 = Release|Any CPU
-		{CFE3AE6E-0CC0-4761-A7E0-CC27556242E4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{CFE3AE6E-0CC0-4761-A7E0-CC27556242E4}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{CFE3AE6E-0CC0-4761-A7E0-CC27556242E4}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{CFE3AE6E-0CC0-4761-A7E0-CC27556242E4}.Release|Any CPU.Build.0 = Release|Any CPU
 		{A446658F-5652-4A6F-878D-4BFB7CF90D6C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{A446658F-5652-4A6F-878D-4BFB7CF90D6C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A446658F-5652-4A6F-878D-4BFB7CF90D6C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A446658F-5652-4A6F-878D-4BFB7CF90D6C}.Release|Any CPU.Build.0 = Release|Any CPU
-		{41D413B8-6946-4902-AC47-377E55145B16}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{41D413B8-6946-4902-AC47-377E55145B16}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{41D413B8-6946-4902-AC47-377E55145B16}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{41D413B8-6946-4902-AC47-377E55145B16}.Release|Any CPU.Build.0 = Release|Any CPU
 		{A30AE987-ACB4-405A-A748-ECD2A0AFF68E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{A30AE987-ACB4-405A-A748-ECD2A0AFF68E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A30AE987-ACB4-405A-A748-ECD2A0AFF68E}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -80,10 +66,6 @@ Global
 		{C985DFDF-435A-5833-1743-6A57ABDC636C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C985DFDF-435A-5833-1743-6A57ABDC636C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C985DFDF-435A-5833-1743-6A57ABDC636C}.Release|Any CPU.Build.0 = Release|Any CPU
-		{04B4A569-91CF-3575-5253-498A5CA20628}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{04B4A569-91CF-3575-5253-498A5CA20628}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{04B4A569-91CF-3575-5253-498A5CA20628}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{04B4A569-91CF-3575-5253-498A5CA20628}.Release|Any CPU.Build.0 = Release|Any CPU
 		{2E52618B-1044-4AE0-9977-BAF3F07E7985}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{2E52618B-1044-4AE0-9977-BAF3F07E7985}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2E52618B-1044-4AE0-9977-BAF3F07E7985}.Release|Any CPU.ActiveCfg = Release|Any CPU
