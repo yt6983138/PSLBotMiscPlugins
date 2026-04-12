@@ -1,0 +1,13 @@
+{
+  "profiles": {
+    "AdminHelper": {
+      "commandName": "Project",
+      "launchBrowser": true,
+      "launchUrl": "admin/bugReports.html",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      },
+      "applicationUrl": "https://localhost:24289;http://localhost:24290"
+    }
+  }
+}

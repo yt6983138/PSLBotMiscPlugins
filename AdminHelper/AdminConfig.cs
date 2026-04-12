@@ -6,7 +6,12 @@ public class AdminConfig
 	public LocalizedString BlackListedUserMessage { get; set; } = LocalizedString.CreateDefault("Oops, something is wrong!");
 	public LocalizedString BlackListedCommandMessage { get; set; } = LocalizedString.CreateDefault("This command is currently disabled.");
 
-	public long MvcSuperSecretNumber { get; set; } = Random.Shared.NextInt64();
+	public long MvcSuperSecretNumber { get; set; }
+#if DEBUG
+		= Secret.MyExtremelyImportantSecretThatCannotBeTrackedSoIMadeItInAnotherClassAndIDKWhyIAmMakingTheNameSoLong;
+#else
+		= Random.Shared.NextInt64();
+#endif
 
 	public string TimedBackupDestination { get; set; } = "./Backup/{0}_Timed";
 	public string StartupBackupDestination { get; set; } = "./Backup/{0}_Startup/";

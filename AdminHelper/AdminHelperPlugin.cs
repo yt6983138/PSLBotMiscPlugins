@@ -1,12 +1,12 @@
 ﻿using AdminHelper.Services;
-using Microsoft.AspNetCore.Builder;
+using Discord.Rest;
+using Discord.WebSocket;
 using Microsoft.AspNetCore.Mvc.ApplicationParts;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using PSLDiscordBot.Core.Services;
 using PSLDiscordBot.Framework;
 using PSLDiscordBot.Framework.BuiltInServices;
+using System.Text.Json;
 
 namespace AdminHelper;
 
@@ -83,6 +83,10 @@ public class AdminHelperPlugin : IPlugin
 			app.MapControllers().AllowAnonymous();
 			app.UseRouting();
 			app.UseAuthorization();
+			app.UseStaticFiles(new StaticFileOptions()
+			{
+				ServeUnknownFileTypes = true
+			});
 		}
 
 		if (this.Config.Value.TimedBackupInterval != TimeSpan.Zero)
@@ -104,6 +108,70 @@ public class AdminHelperPlugin : IPlugin
 	void IPlugin.Unload(IHost host, bool isDynamicUnloading)
 	{
 	}
+
+#if DEBUG
+	private class DiscordClient : IDiscordClientService
+	{
+		public required DiscordSocketClient SocketClient { get; set; }
+		public required DiscordRestClient RestClient { get; set; }
+		public string Token { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+
+		public bool HasStartedSuccessfully => throw new NotImplementedException();
+
+		public Task StartBotAsync(bool failOnAlreadyStarted = false)
+		{
+			throw new NotImplementedException();
+		}
+
+		public Task<bool> TryStartBotAsync(bool failOnAlreadyStarted = false)
+		{
+			throw new NotImplementedException();
+		}
+	}
+	public static void Main(string[] args)
+	{
+		WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
+
+		// Add services to the container.
+		builder.Services.AddSingleton<BugReportDatabaseService>()
+			.AddSingleton<BugReportHandlerService>();
+
+		DiscordClient client = new()
+		{
+			RestClient = new(),
+			SocketClient = new()
+		};
+		client.RestClient.LoginAsync(Discord.TokenType.Bot, Secret.Token).Wait();
+
+		builder.Services.AddSingleton<IDiscordClientService>(new DiscordClient() { RestClient = new(new()), SocketClient = new() });
+
+		builder.Services.Configure<AdminConfig>(
+			builder.Configuration.GetSection("AdminConfig"));
+
+		builder.Services.AddControllersWithViews()
+			.AddJsonOptions(x => x.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower);
+
+		WebApplication app = builder.Build();
+
+		// Configure the HTTP request pipeline.
+		if (!app.Environment.IsDevelopment())
+		{
+			app.UseExceptionHandler("/Home/Error");
+		}
+		app.MapControllers().AllowAnonymous();
+
+		app.UseStaticFiles(new StaticFileOptions()
+		{
+			ServeUnknownFileTypes = true
+		});
+
+		app.UseRouting();
+
+		app.UseAuthorization();
+
+		app.Run();
+	}
+#endif
 
 	private async void CommandResolveService_BeforeSlashCommandExecutes(object? sender, PSLDiscordBot.Framework.MiscEventArgs.SlashCommandEventArgs e)
 	{
