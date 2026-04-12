@@ -1,0 +1,384 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>Bug report managing</title>
+
+    <link rel="stylesheet" type="text/css" href="https://raw.githack.com/yt6983138/10CSS/main/css/10css.min.css" />
+    <link rel="stylesheet" type="text/css" href="https://raw.githack.com/yt6983138/10CSS/main/css/10css.dark.css">
+
+    <style>
+        #intro {
+            margin: 16px;
+        }
+
+        #password-input {
+            margin: 4px 0 12px 0;
+        }
+
+        .draggable {
+            position: absolute;
+            width: fit-content;
+            height: fit-content;
+        }
+
+        .draggable > .dialog-header {
+            cursor: grab;
+        }
+
+        #out-bound-requests {
+            max-width: 45vh;
+        }
+        #in-bound-requests {
+            max-width: 45vh;
+        }
+
+        hr {
+            margin: 12px 0 12px 0;
+        }
+        body {
+            /*min-height: 100vh;*/
+        }
+        button {
+            margin: 8px 8px 8px 0;
+        }
+
+        .dialog {
+            margin: 16px;
+        }
+
+        .dialog-body {
+            padding: 12px;
+        }
+    </style>
+
+    <script type="text/javascript" src="bugReport.js"></script>
+    <script type="module" src="https://md-block.verou.me/md-block.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.2.7/purify.min.js"></script>
+    <script type="text/javascript">
+        var reports = null;
+
+        async function Initialize() {
+            superSecret = document.getElementById("password-input").value;
+
+            try {
+                reports = await GetAll();
+            }
+            catch (e) {
+                alert("Failed to get bug reports, check the key and try again.");
+                console.error(e);
+                return;
+            }
+
+            reports.reverse()
+
+            document.getElementById("password-div").remove();
+            const introText = document.getElementById("intro-text")
+            //introText.innerHTML += `<br />Status: You have ${reports.length} reports in total`
+
+            MakeDraggable("detailed-view");
+            MakeDraggable("mark-message");
+            MakeDraggable("in-bound-requests");
+            MakeDraggable("out-bound-requests");
+            MakeDraggable("send-message");
+
+            const inbound = document.getElementById("in-bound-requests");
+            const inboundIntro = document.getElementById("in-bound-intro");
+            const inboundBody = inbound.querySelector(".dialog-body");
+
+            const outbound = document.getElementById("out-bound-requests");
+            const outboundIntro = document.getElementById("out-bound-intro");
+            const outboundBody = outbound.querySelector(".dialog-body");
+
+            inboundIntro.innerHTML = `Status:
+                You have ${reports.filter(x => !Status.IsSentByUs(x.status)).length} in-bound messages,
+                where ${reports.filter(x => !Status.IsSentByUs(x.status) && Status.AsIgnoreSender(x.status) === Status.Unread).length} are unread,
+                ${reports.filter(x => !Status.IsSentByUs(x.status) && Status.AsIgnoreSender(x.status) === Status.Processing).length} are processing,
+                and ${reports.filter(x => !Status.IsSentByUs(x.status) && Status.AsIgnoreSender(x.status) === Status.Resolved).length} are resolved.
+            `;
+
+            outboundIntro.innerHTML = `Status:
+                You have ${reports.filter(x => Status.IsSentByUs(x.status)).length} out-bound messages.
+            `;
+
+            inbound.style.display = "inherit";
+            for (const report of reports) {
+                if (Status.IsSentByUs(report)) continue;
+
+                const inCard = BuildInBoundReportDiv(report);
+                inboundBody.appendChild(inCard);
+            }
+
+            outbound.style.display = "inherit";
+            for (const report of reports) {
+                if (!Status.IsSentByUs(report)) continue;
+
+                const outCard = BuildOutBoundReportDiv(report);
+                outboundBody.appendChild(outCard);
+            }
+
+            const inboundRect = inbound.getBoundingClientRect();
+            const outboundRect = outbound.getBoundingClientRect();
+            document.body.style.height = `${Math.max(inboundRect.height, outboundRect.height) + 500}px`
+            outbound.style.left = `${inboundRect.width + 40}px`
+        }
+
+        var DetailViewCurrentReport = null;
+        async function SetDetailView(report) {
+            const contentElement = document.getElementById("detailed-view-content");
+            const miscInfoElement = document.getElementById("detailed-view-misc-info");
+            const attachmentsElement = document.getElementById("detailed-view-attachments");
+
+            DetailViewCurrentReport = report;
+
+            contentElement.mdContent = DOMPurify.sanitize(report.content);
+            miscInfoElement.innerText = `Id: ${report.id}
+                Author: ${report.authorName} (${report.authorId})
+                Recipient: ${report.recipientName} (${report.recipientId})
+                Sent at: ${report.timeStamp}
+                Message id: ${report.messageId}
+                Current status: ${Status.ToString(report.status)}
+            `;
+
+            attachmentsElement.innerHTML = "";
+            let hasNoAttachments = true;
+            for (const attachment of report.attachments) {
+                const name = attachment.originalFileName;
+                const hash = attachment.hash;
+
+                hasNoAttachments = false;
+
+                const link = document.createElement("a");
+                link.innerText = name;
+                link.download = name;
+                link.href = URL.createObjectURL(await GetAttachement(hash));
+
+                attachmentsElement.appendChild(link);
+            }
+            if (hasNoAttachments) {
+                attachmentsElement.innerText = "(None)";
+            }
+        }
+        function SetDetailViewVisibility(type) {
+            document.getElementById("detailed-view").style.display = type;
+        }
+        async function ViewDetail(id) {
+            const detail = await GetDetailed(id);
+            await SetDetailView(detail);
+            SetDetailViewVisibility("inherit");
+        }
+        function BuildInBoundReportDiv(report) {
+            const div = document.createElement("div");
+            div.classList.add("in-bound-report");
+            div.innerHTML = `
+                <h3>${DOMPurify.sanitize(report.preview)}...</h3>
+                <p>
+                    Reported by: ${report.authorId} <br />
+                    Time: ${report.timeStamp} <br />
+                    Status: ${Status.ToString(report.status)} <br />
+                    Id: ${report.id}
+                </p>
+                <button class="view-detail-button" onclick="ViewDetail(${report.id})">View Detail...</button>
+                <hr>
+            `;
+            return div;
+        }
+        function BuildOutBoundReportDiv(report) {
+            const div = document.createElement("div");
+            div.classList.add("out-bound-report");
+            div.innerHTML = `
+                <h3>${DOMPurify.sanitize(report.preview)}...</h3>
+                <p>
+                    Recipient: ${report.recipientId} <br />
+                    Time: ${report.timeStamp} <br />
+                    Id: ${report.id}
+                </p>
+                <button class="view-detail-button" onclick="ViewDetail(${report.id})">View Detail...</button>
+                <hr>
+            `;
+            return div;
+        }
+
+        var MarkAsDialogSuccessCallback;
+        var MarkAsDialogValue = null;
+        function SetMarkAsDialogValue() {
+            const raw = document.getElementById("mark-message-value").value;
+            MarkAsDialogValue = Status[raw];
+            if (MarkAsDialogSuccessCallback === null) return;
+            MarkAsDialogSuccessCallback(MarkAsDialogValue);
+            MarkAsDialogSuccessCallback = null;
+        }
+        function SetMarkAsDialogVisibility(type) {
+            document.getElementById("mark-message").style.display = type;
+        }
+
+        async function DetailMarkAsCallback(value) {
+            const id = DetailViewCurrentReport.id;
+            const status = DetailViewCurrentReport.status & Status.SentByUs | value;
+            await UpdateStatus(id, status);
+        }
+
+        /**
+         * note resets all fields
+         */
+        function SetSendMessageDialogVisibility(type) {
+            document.getElementById("send-message").style.display = type;
+            document.getElementById("send-message-content").value = "";
+            document.getElementById("send-message-recipient").value = "";
+            document.getElementById("send-message-attachments").value = null;
+        }
+        async function SendMessage() {
+            const content = document.getElementById("send-message-content").value;
+            const recipient = parseInt(document.getElementById("send-message-recipient").value);
+            const attachmentFiles = document.getElementById("send-message-attachments").files;
+
+            const attachments = [];
+            for (const attachment of attachmentFiles) {
+                attachments.push(ConstructSendAttachment(attachment.name, await attachment.arrayBuffer()));
+            }
+
+            const model = ConstructSendModel(recipient, content, attachments);
+            await Send(model);
+            SetSendMessageDialogVisibility("none");
+        }
+
+        let draggableMaxIndex = 0;
+        function MakeDraggable(dialog) {
+            if (typeof dialog === "string")
+                dialog = document.getElementById(dialog);
+            if (!(dialog instanceof HTMLElement)) throw new Error("bad element");
+
+            dialog.classList.add("draggable");
+
+            let draggable = dialog.getElementsByClassName("dialog-header")[0];
+            draggable.addEventListener('mousedown', (e) => {
+                dialog.isDragging = true;
+                offsetX = e.clientX - dialog.offsetLeft;
+                offsetY = e.clientY - dialog.offsetTop;
+                dialog.style.zIndex = (++draggableMaxIndex).toString();
+                draggable.style.cursor = 'grabbing';
+            });
+            document.addEventListener('mousemove', (e) => {
+                if (!dialog.isDragging) return;
+                dialog.style.left = (e.clientX - offsetX) + 'px';
+                dialog.style.top = (e.clientY - offsetY) + 'px';
+            });
+            document.addEventListener('mouseup', () => {
+                dialog.isDragging = false;
+                draggable.style.cursor = 'auto';
+
+                let rect = dialog.getBoundingClientRect();
+                let parentRect = dialog.parentElement.getBoundingClientRect();
+                let topOffset = rect.top - parentRect.top;
+                let leftOffset = rect.left - parentRect.left;
+                let bottomOffset = parentRect.bottom - rect.bottom;
+                let rightOffset = parentRect.right - rect.right;
+
+                if (leftOffset < 0) dialog.style.left = `0px`;
+                if (topOffset < 0) dialog.style.top = `0px`;
+                if (rightOffset < 0) dialog.style.left = `${leftOffset + rightOffset}px`;
+                if (bottomOffset < 0) dialog.style.top = `${topOffset + bottomOffset}px`;
+            });
+        }
+    </script>
+</head>
+<body>
+    <dialog open id="intro" class="dialog fixed-dialog is-xl contents">
+        <div class="dialog-header">
+            <h2>Bug report management</h2>
+        </div>
+        <div class="dialog-body">
+            <p id="intro-text">
+                This page is used to manage bug reports.
+            </p>
+            <div id="password-div">
+                <br />
+                <label for="secret">Enter configured key in config to start:</label>
+                <input id="password-input" type="password" name="secret" />
+                <button onclick="Initialize()">OK</button>
+            </div>
+        </div>
+    </dialog>
+
+    <dialog open id="in-bound-requests" class="dialog fixed-dialog is-xl contents" style="display: none">
+        <div class="dialog-header">
+            <h2>In-bound reports</h2>
+        </div>
+        <div class="dialog-body">
+            <p id="in-bound-intro">
+
+            </p>
+            <hr>
+        </div>
+    </dialog>
+
+    <dialog open id="out-bound-requests" class="dialog fixed-dialog is-xl contents" style="display: none">
+        <div class="dialog-header">
+            <h2>Out-bound reports</h2>
+        </div>
+        <div class="dialog-body">
+            <p id="out-bound-intro">
+
+            </p>
+            <button onclick="SetSendMessageDialogVisibility('inherit')">Send message...</button>
+            <hr>
+        </div>
+    </dialog>
+
+    <dialog open id="detailed-view" class="dialog fixed-dialog is-xl contents" style="display: none; max-width: 75vw">
+        <div class="dialog-header">
+            <h2>Detailed View</h2>
+        </div>
+        <div class="dialog-body">
+            <p id="detailed-view-misc-info">
+            </p>
+            <hr>
+            <md-block id="detailed-view-content">
+            </md-block>
+            <hr>
+            <span>Attachments: </span>
+            <div id="detailed-view-attachments">
+            </div>
+            <hr>
+            <button onclick="SetDetailViewVisibility('none')">Close</button>
+            <button onclick="SetMarkAsDialogVisibility('inherit'); MarkAsDialogSuccessCallback = DetailMarkAsCallback">Mark as...</button>
+        </div>
+    </dialog>
+
+    <dialog open id="send-message" class="dialog fixed-dialog is-xl contents" style="display: none;">
+        <div class="dialog-header">
+            <h2>Send</h2>
+        </div>
+        <div class="dialog-body">
+            <label for="send-message-recipient">Recipient ID:</label>
+            <input type="text" id="send-message-recipient" />
+            <hr>
+            <label for="send-message-content">Body:</label><br/>
+            <textarea id="send-message-content"></textarea>
+            <hr>
+            <label for="send-message-attachments">Attachments:</label>
+            <input type="file" id="send-message-attachments" multiple />
+            <hr>
+            <button onclick="SetSendMessageDialogVisibility('none')">Cancel</button>
+            <button onclick="SendMessage()">Send</button>
+        </div>
+    </dialog>
+
+    <dialog open id="mark-message" class="dialog fixed-dialog is-xl contents" style="display: none; max-width: 75vw">
+        <div class="dialog-header">
+            <h2>Mark As</h2>
+        </div>
+        <div class="dialog-body">
+            <label for="mark-message-value">Mark message as:</label>
+            <select id="mark-message-value">
+                <option value="Unread">Unread</option>
+                <option value="Processing">Processing</option>
+                <option value="Resolved">Resolved</option>
+            </select>
+            <hr>
+            <button onclick="SetMarkAsDialogValue(); SetMarkAsDialogVisibility('none')">Ok</button>
+            <button onclick="MarkAsDialogValue = null; SetMarkAsDialogVisibility('none'); MarkAsDialogSuccessCallback = null;">Cancel</button>
+        </div>
+    </dialog>
+</body>
+</html>
