@@ -30,10 +30,10 @@ public class BugReportController : Controller
 	{
 		return base.Json(data, _jsonOptions);
 	}
-	private T GetRequestBodyAsJson<T>()
+	private async Task<T> GetRequestBodyAsJson<T>()
 	{
 		using StreamReader reader = new(this.Request.Body);
-		string body = reader.ReadToEnd();
+		string body = await reader.ReadToEndAsync();
 		return JsonSerializer.Deserialize<T>(body, _jsonOptions)
 			?? throw new InvalidOperationException("Failed to deserialize request body.");
 	}
@@ -117,7 +117,7 @@ public class BugReportController : Controller
 
 		using BugReportDatabaseService.BugReportRequester requester = this._databaseService.GetNewRequester();
 
-		SendMessageDto messageDto = this.GetRequestBodyAsJson<SendMessageDto>();
+		SendMessageDto messageDto = await this.GetRequestBodyAsJson<SendMessageDto>();
 
 		RestUser user = await this._discordClientService.RestClient.GetUserAsync(messageDto.RecipientId);
 		if (user is null)
