@@ -50,11 +50,13 @@ public class BugReportController : Controller
 	}
 
 	[HttpGet("/api/reports/reports")]
-	public IActionResult GetReports(int previewLength = 32)
+	public async Task<IActionResult> GetReports(int previewLength = 32)
 	{
 		if (this.HasBadAuth(out IActionResult? error)) return error;
 
-		return this.Json(this._databaseService.ReportMessages
+		using BugReportDatabaseService.BugReportRequester requester = this._databaseService.GetNewRequester();
+
+		return this.Json(await requester.ReportMessages
 			.AsNoTracking()
 			.Select(x => new
 			{
@@ -64,14 +66,16 @@ public class BugReportController : Controller
 				x.Status,
 				x.TimeStamp,
 				Preview = x.Content.Substring(0, previewLength),
-			}));
+			}).ToArrayAsync());
 	}
 	[HttpGet("/api/reports/detailed")]
 	public async Task<IActionResult> GetReportDetailed(int id)
 	{
 		if (this.HasBadAuth(out IActionResult? error)) return error;
 
-		ReportMessage? message = await this._databaseService.ReportMessages
+		using BugReportDatabaseService.BugReportRequester requester = this._databaseService.GetNewRequester();
+
+		ReportMessage? message = await requester.ReportMessages
 			.AsNoTracking()
 			.FirstOrDefaultAsync(x => x.Id == id);
 
@@ -111,6 +115,8 @@ public class BugReportController : Controller
 	{
 		if (this.HasBadAuth(out IActionResult? error)) return error;
 
+		using BugReportDatabaseService.BugReportRequester requester = this._databaseService.GetNewRequester();
+
 		SendMessageDto messageDto = this.GetRequestBodyAsJson<SendMessageDto>();
 
 		RestUser user = await this._discordClientService.RestClient.GetUserAsync(messageDto.RecipientId);
@@ -122,7 +128,7 @@ public class BugReportController : Controller
 				.Select(x => new FileAttachment(new MemoryStream(Convert.FromBase64String(x.Base64Content)), x.FileName)),
 			messageDto.Content);
 
-		await this._databaseService.AddMessage(
+		await requester.AddMessage(
 			null,
 			messageDto.RecipientId,
 			message.Id,
@@ -130,7 +136,7 @@ public class BugReportController : Controller
 			messageDto.Content,
 			ReportFlag.SentByUs,
 			messageDto.Attachments.Select(x => (Convert.FromBase64String(x.Base64Content), x.FileName)).ToArray());
-		await this._databaseService.SaveChangesAsync();
+		await requester.SaveChangesAsync();
 
 		return this.Ok();
 	}
@@ -139,12 +145,14 @@ public class BugReportController : Controller
 	{
 		if (this.HasBadAuth(out IActionResult? error)) return error;
 
-		ReportMessage? message = await this._databaseService.ReportMessages.FirstOrDefaultAsync(x => x.Id == id);
+		using BugReportDatabaseService.BugReportRequester requester = this._databaseService.GetNewRequester();
+
+		ReportMessage? message = await requester.ReportMessages.FirstOrDefaultAsync(x => x.Id == id);
 		if (message is null)
 			return this.NotFound("Report message not found.");
 
 		message.Status = newStatus;
-		await this._databaseService.SaveChangesAsync();
+		await requester.SaveChangesAsync();
 
 		return this.Ok();
 	}
