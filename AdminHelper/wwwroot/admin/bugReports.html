@@ -55,6 +55,8 @@
     <script type="text/javascript" src="bugReport.js"></script>
     <script type="module" src="https://md-block.verou.me/md-block.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.2.7/purify.min.js"></script>
+    <script src="./json-with-bigint.min.js"></script>
+
     <script type="text/javascript">
         var reports = null;
 
@@ -103,7 +105,7 @@
 
             inbound.style.display = "inherit";
             for (const report of reports) {
-                if (Status.IsSentByUs(report)) continue;
+                if (Status.IsSentByUs(report.status)) continue;
 
                 const inCard = BuildInBoundReportDiv(report);
                 inboundBody.appendChild(inCard);
@@ -111,7 +113,7 @@
 
             outbound.style.display = "inherit";
             for (const report of reports) {
-                if (!Status.IsSentByUs(report)) continue;
+                if (!Status.IsSentByUs(report.status)) continue;
 
                 const outCard = BuildOutBoundReportDiv(report);
                 outboundBody.appendChild(outCard);
@@ -160,6 +162,7 @@
             }
         }
         function SetDetailViewVisibility(type) {
+            SetElementToScreenRelativePosition("detailed-view");
             document.getElementById("detailed-view").style.display = type;
         }
         async function ViewDetail(id) {
@@ -209,6 +212,7 @@
             MarkAsDialogSuccessCallback = null;
         }
         function SetMarkAsDialogVisibility(type) {
+            SetElementToScreenRelativePosition("mark-message");
             document.getElementById("mark-message").style.display = type;
         }
 
@@ -222,6 +226,8 @@
          * note resets all fields
          */
         function SetSendMessageDialogVisibility(type) {
+            SetElementToScreenRelativePosition("send-message");
+
             document.getElementById("send-message").style.display = type;
             document.getElementById("send-message-content").value = "";
             document.getElementById("send-message-recipient").value = "";
@@ -229,7 +235,7 @@
         }
         async function SendMessage() {
             const content = document.getElementById("send-message-content").value;
-            const recipient = parseInt(document.getElementById("send-message-recipient").value);
+            const recipient = BigInt(document.getElementById("send-message-recipient").value);
             const attachmentFiles = document.getElementById("send-message-attachments").files;
 
             const attachments = [];
@@ -279,6 +285,28 @@
                 if (rightOffset < 0) dialog.style.left = `${leftOffset + rightOffset}px`;
                 if (bottomOffset < 0) dialog.style.top = `${topOffset + bottomOffset}px`;
             });
+        }
+        /**
+         * relative parameters 0 to center
+         */
+        function SetElementToScreenRelativePosition(element, relativeTop = 0, relativeLeft = 0) {
+            if (typeof element === "string") {
+                element = document.getElementById(element);
+            }
+
+            const scrollTop = document.documentElement.scrollTop;
+            const scrollLeft = document.documentElement.scrollLeft;
+            const rect = element.getBoundingClientRect();
+
+            if (!relativeTop) {
+                relativeTop = window.innerHeight / 2 - rect.height / 2;
+            }
+            if (!relativeLeft) {
+                relativeLeft = window.innerWidth / 2 - rect.width / 2;
+            }
+
+            element.style.top = `${scrollTop + relativeTop}px`;
+            element.style.left = `${scrollLeft + relativeLeft}px`;
         }
     </script>
 </head>
