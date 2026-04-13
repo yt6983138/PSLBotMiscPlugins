@@ -80,7 +80,7 @@ public class BugReportController : Controller
 			.FirstOrDefaultAsync(x => x.Id == id);
 
 		if (message is null)
-			return this.NotFound("Specified report is not found.");
+			return this.NotFound("Specified report cannot be found.");
 
 		return this.Json(new
 		{
@@ -88,6 +88,7 @@ public class BugReportController : Controller
 			message.AuthorId,
 			message.RecipientId,
 			message.Content,
+			message.MessageId,
 			message.Attachments,
 			message.Status,
 			message.TimeStamp,
@@ -141,7 +142,7 @@ public class BugReportController : Controller
 		return this.Ok();
 	}
 	[HttpPatch("/api/reports/updateStatus")]
-	public async Task<IActionResult> UpdateReportStatus(long id, ReportFlag newStatus)
+	public async Task<IActionResult> UpdateReportStatus(long id, int newStatus)
 	{
 		if (this.HasBadAuth(out IActionResult? error)) return error;
 
@@ -151,7 +152,7 @@ public class BugReportController : Controller
 		if (message is null)
 			return this.NotFound("Report message not found.");
 
-		message.Status = newStatus;
+		message.Status = (ReportFlag)newStatus; // hacky workaround for it to accept any value
 		await requester.SaveChangesAsync();
 
 		return this.Ok();
