@@ -1,12 +1,8 @@
 ﻿using AdminHelper.Services;
-using Discord.Rest;
-using Discord.WebSocket;
 using Microsoft.AspNetCore.Mvc.ApplicationParts;
 using Microsoft.Extensions.Options;
-using PSLDiscordBot.Core.Services;
 using PSLDiscordBot.Framework;
 using PSLDiscordBot.Framework.BuiltInServices;
-using System.Text.Json;
 
 namespace AdminHelper;
 
@@ -171,6 +167,8 @@ public class AdminHelperPlugin : IPlugin
 
 		app.Run();
 	}
+#else
+	public static void Main() { }
 #endif
 
 	private async void CommandResolveService_BeforeSlashCommandExecutes(object? sender, PSLDiscordBot.Framework.MiscEventArgs.SlashCommandEventArgs e)
