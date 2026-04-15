@@ -1,6 +1,8 @@
 ﻿using AdminHelper.Services;
 using Microsoft.AspNetCore.Mvc.ApplicationParts;
 using Microsoft.Extensions.Options;
+using PSLDiscordBot.Core;
+using PSLDiscordBot.Core.Services;
 using PSLDiscordBot.Framework;
 using PSLDiscordBot.Framework.BuiltInServices;
 
@@ -14,6 +16,7 @@ public class AdminHelperPlugin : IPlugin
 	private ICommandResolveService _commandResolveService = null!;
 	private StatusService _statusService = null!;
 	private Program _program = null!;
+	private PSLPlugin _pslPlugin = null!;
 
 	private bool _hasOtherRegisteredMvc = false;
 
@@ -63,6 +66,9 @@ public class AdminHelperPlugin : IPlugin
 		this._commandResolveService = host.Services.GetRequiredService<ICommandResolveService>();
 		this._statusService = host.Services.GetRequiredService<StatusService>();
 		this._program = host.Services.GetRequiredService<Program>();
+		this._pslPlugin = host.Services.GetRequiredService<PSLPlugin>();
+
+		host.Services.GetRequiredService<BugReportHandlerService>().OnReportReceived += this.AdminHelperPlugin_OnReportReceived;
 
 		host.Services.GetRequiredService<BugReportDatabaseService>();
 		// make sure the event handler is registered before any command executes
@@ -99,6 +105,13 @@ public class AdminHelperPlugin : IPlugin
 			this.SaveThings(this.FormattedStartupDestination, this.Config.Value.StartupBackupSources);
 			this.Logger.LogInformation(EventId, "Startup backup ended.");
 		}
+	}
+
+	private Task AdminHelperPlugin_OnReportReceived(Discord.WebSocket.SocketUser user, string reportContent, Discord.IAttachment[] attachments)
+	{
+		// assume the admin has already known that they did or did not setup admin user properly
+		return this._pslPlugin.AdminDM?.SendMessageAsync($"You have a new bug report. Preview: {reportContent[..32]}...")
+			?? Task.CompletedTask;
 	}
 
 	void IPlugin.Unload(IHost host, bool isDynamicUnloading)
