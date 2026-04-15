@@ -234,9 +234,13 @@
             document.getElementById("send-message-attachments").value = null;
         }
         async function SendMessage() {
-            const content = document.getElementById("send-message-content").value;
+            let content = document.getElementById("send-message-content").value;
             const recipient = BigInt(document.getElementById("send-message-recipient").value);
             const attachmentFiles = document.getElementById("send-message-attachments").files;
+            const addNotice = document.getElementById("send-message-add-notice").checked;
+
+            if (addNotice)
+                content += "\n\nNote: We cannot see messages in your dm. Please use /report-problem to reply.";
 
             const attachments = [];
             for (const attachment of attachmentFiles) {
@@ -389,6 +393,9 @@
             <hr>
             <button onclick="SetSendMessageDialogVisibility('none')">Cancel</button>
             <button onclick="SendMessage()">Send</button>
+
+            <label for="send-message-add-notice">Add notice</label>
+            <input type="checkbox" id="send-message-add-notice" checked />
         </div>
     </dialog>
 
