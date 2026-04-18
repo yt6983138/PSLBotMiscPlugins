@@ -23,7 +23,7 @@ public sealed class BugReportDatabaseService : IDisposable
 
 		this._bugReportHandlerService.OnReportReceived += this.Handler_OnReportReceived;
 
-		this.DatabaseDirectory = Directory.CreateDirectory("BugReports");
+		this.DatabaseDirectory = Directory.CreateDirectory("Administration/BugReports");
 		this.AttachmentDirectory = this.DatabaseDirectory.CreateSubdirectory("Attachments");
 	}
 

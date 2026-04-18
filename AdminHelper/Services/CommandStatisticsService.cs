@@ -25,7 +25,7 @@ public class CommandStatisticsService : DbContext
 
 	protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 	{
-		optionsBuilder.UseSqlite("Data Source=./MiscPlugins/CommandStatistics.db")
+		optionsBuilder.UseSqlite("Data Source=./Administration/CommandStatistics.db")
 			.UseQueryTrackingBehavior(QueryTrackingBehavior.TrackAll);
 	}
 	public async Task<CommandStatisticInfo> GetOrAddNew(string commandName)

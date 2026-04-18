@@ -13,8 +13,8 @@ public class AdminConfig
 		= Random.Shared.NextInt64();
 #endif
 
-	public string TimedBackupDestination { get; set; } = "./Backup/{0}_Timed";
-	public string StartupBackupDestination { get; set; } = "./Backup/{0}_Startup/";
+	public string TimedBackupDestination { get; set; } = "./Administration/Backup/{0}_Timed";
+	public string StartupBackupDestination { get; set; } = "./Administration/Backup/{0}_Startup/";
 
 	public List<string> TimedBackupSources { get; set; } =
 	[
