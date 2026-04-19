@@ -26,7 +26,7 @@ public class PersonalWebsitePlugin : IPlugin
 
 		if (!this._hasOtherRegisteredMvc)
 		{
-			hostBuilder.Services.AddControllers();
+			hostBuilder.Services.AddMvc();
 		}
 		hostBuilder.Services.AddRazorPages();
 		hostBuilder.Services.GetApplicationPartManager()

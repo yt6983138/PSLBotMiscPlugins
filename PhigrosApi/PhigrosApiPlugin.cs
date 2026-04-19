@@ -38,7 +38,7 @@ public class PhigrosApiPlugin : IPlugin
 	{
 		if (!hasOtherRegisteredMvc)
 		{
-			builder.Services.AddControllers();
+			builder.Services.AddMvc();
 		}
 		builder.Services.AddCors(options => options.AddPolicy("Everything",
 			policy =>
