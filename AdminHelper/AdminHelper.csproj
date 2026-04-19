@@ -8,6 +8,10 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+	  <PackageReference Include="CodingSeb.ExpressionEvaluator" Version="1.4.41" />
+	</ItemGroup>
+
+	<ItemGroup>
 		<ProjectReference Include="..\PSLDiscordBotBase\PSLDiscordBot.Core\PSLDiscordBot.Core.csproj" />
 		<ProjectReference Include="..\PSLDiscordBotBase\PSLDiscordBot.Framework\PSLDiscordBot.Framework.csproj">
 			<ExcludeAssets>runtime</ExcludeAssets>

@@ -51,7 +51,7 @@ public class AdminHelperPlugin : IPlugin
 		this._hasOtherRegisteredMvc = hostBuilder.Services.HasMvcRegistered();
 		if (!this._hasOtherRegisteredMvc)
 		{
-			hostBuilder.Services.AddControllers();
+			hostBuilder.Services.AddMvc();
 		}
 
 		hostBuilder.Services.GetApplicationPartManager()
@@ -71,6 +71,7 @@ public class AdminHelperPlugin : IPlugin
 		host.Services.GetRequiredService<BugReportHandlerService>().OnReportReceived += this.AdminHelperPlugin_OnReportReceived;
 
 		host.Services.GetRequiredService<BugReportDatabaseService>();
+		host.Services.GetRequiredService<BlackListService>();
 		// make sure the event handler is registered before any command executes
 
 		this._commandResolveService.BeforeSlashCommandExecutes += this.CommandResolveService_BeforeSlashCommandExecutes;

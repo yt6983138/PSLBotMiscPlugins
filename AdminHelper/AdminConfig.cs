@@ -3,8 +3,7 @@
 namespace AdminHelper;
 public class AdminConfig
 {
-	public LocalizedString BlackListedUserMessage { get; set; } = LocalizedString.CreateDefault("Oops, something is wrong!");
-	public LocalizedString BlackListedCommandMessage { get; set; } = LocalizedString.CreateDefault("This command is currently disabled.");
+	public LocalizedString BlackListedDefaultMessage { get; set; } = LocalizedString.CreateDefault("Oops, something is wrong!");
 
 	public long MvcSuperSecretNumber { get; set; }
 #if DEBUG
@@ -13,8 +12,8 @@ public class AdminConfig
 		= Random.Shared.NextInt64();
 #endif
 
-	public string TimedBackupDestination { get; set; } = "./Administration/Backup/{0}_Timed";
-	public string StartupBackupDestination { get; set; } = "./Administration/Backup/{0}_Startup/";
+	public string TimedBackupDestination { get; set; } = "./Backup/{0}_Timed";
+	public string StartupBackupDestination { get; set; } = "./Backup/{0}_Startup/";
 
 	public List<string> TimedBackupSources { get; set; } =
 	[
