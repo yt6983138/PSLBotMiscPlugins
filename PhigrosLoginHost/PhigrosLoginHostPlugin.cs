@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc.ApplicationParts;
 using PSLDiscordBot.Framework;
+using PSLDiscordBot.Framework.BuiltInServices;
 using System.Text.Json;
 
 namespace PhigrosLoginHost;
@@ -14,7 +15,7 @@ public class PhigrosLoginHostPlugin : IPlugin
 	public string Author => "yt6983138 aka static_void (yt6983138@gmail.com)";
 	public int Priority => 10000;
 
-	public void Load(WebApplicationBuilder hostBuilder, bool isDynamicLoading)
+	public void Load(WebApplicationBuilder hostBuilder)
 	{
 		hostBuilder.Services.AddSingleton<HttpClientService>();
 		hostBuilder.Services.Configure<LoginHostConfig>(
@@ -30,6 +31,7 @@ public class PhigrosLoginHostPlugin : IPlugin
 		hostBuilder.Services.GetApplicationPartManager()
 			.ApplicationParts.Add(new AssemblyPart(typeof(PhigrosLoginHostPlugin).Assembly));
 	}
+	public void ConfigureDiscordClient(DiscordClientServiceConfig config) { }
 	public void Setup(WebApplication host)
 	{
 		if (!this._hasOtherRegisteredMvc)
@@ -44,7 +46,7 @@ public class PhigrosLoginHostPlugin : IPlugin
 			app.UseAuthorization();
 		}
 	}
-	public void Unload(WebApplication host)
+	public void Unload(WebApplication host, bool isSafeUnload)
 	{
 	}
 

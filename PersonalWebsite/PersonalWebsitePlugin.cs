@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc.ApplicationParts;
 using PersonalWebsite.Services;
 using PSLDiscordBot.Framework;
+using PSLDiscordBot.Framework.BuiltInServices;
 
 namespace PersonalWebsite;
 
@@ -14,7 +15,7 @@ public class PersonalWebsitePlugin : IPlugin
 	public string Author => "yt6983138 aka static_void (yt6983138@gmail.com)";
 	public int Priority => 10001;
 
-	public void Load(WebApplicationBuilder hostBuilder, bool isDynamicLoading)
+	public void Load(WebApplicationBuilder hostBuilder)
 	{
 		hostBuilder.Services.AddSingleton<BlogManagerService>();
 		hostBuilder.Services.Configure<Config>(
@@ -30,6 +31,7 @@ public class PersonalWebsitePlugin : IPlugin
 		hostBuilder.Services.GetApplicationPartManager()
 			.ApplicationParts.Add(new AssemblyPart(typeof(PersonalWebsitePlugin).Assembly));
 	}
+	public void ConfigureDiscordClient(DiscordClientServiceConfig config) { }
 	public void Setup(WebApplication host)
 	{
 		WebApplication app = host.Unbox<WebApplication>();
@@ -45,7 +47,7 @@ public class PersonalWebsitePlugin : IPlugin
 		}
 		app.MapRazorPages().AllowAnonymous();
 	}
-	public void Unload(WebApplication host)
+	public void Unload(WebApplication host, bool isSafeUnload)
 	{
 	}
 
@@ -57,7 +59,7 @@ public class PersonalWebsitePlugin : IPlugin
 		PersonalWebsitePlugin self = new();
 
 		// Add services to the container.
-		self.Load(builder, false);
+		self.Load(builder);
 #if DEBUG
 		PhigrosApiPlugin phiApi = new();
 		phiApi.Load(builder, false);

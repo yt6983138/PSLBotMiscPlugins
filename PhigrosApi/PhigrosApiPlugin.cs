@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ApplicationParts;
 using PSLDiscordBot.Core.Services;
 using PSLDiscordBot.Framework;
+using PSLDiscordBot.Framework.BuiltInServices;
 
 namespace PhigrosApi;
 
@@ -17,18 +18,19 @@ public class PhigrosApiPlugin : IPlugin
 	public string Author => "yt6983138 aka static_void (yt6983138@gmail.com)";
 	public int Priority => 10086;
 
-	public void Load(WebApplicationBuilder hostBuilder, bool isDynamicLoading)
+	public void Load(WebApplicationBuilder hostBuilder)
 	{
 		this._hasOtherRegisteredMvc = hostBuilder.Services.HasMvcRegistered();
 
 		CommonLoad(hostBuilder, this._hasOtherRegisteredMvc);
 	}
+	public void ConfigureDiscordClient(DiscordClientServiceConfig config) { }
 	public void Setup(WebApplication host)
 	{
 		WebApplication app = host.Unbox<WebApplication>();
 		CommonSetup(app, this._hasOtherRegisteredMvc);
 	}
-	public void Unload(WebApplication host)
+	public void Unload(WebApplication host, bool isSafeUnload)
 	{
 	}
 

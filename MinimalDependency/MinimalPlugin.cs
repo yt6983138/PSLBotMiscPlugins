@@ -10,8 +10,6 @@ public class MinimalPlugin : IPlugin
 {
 	private const string ConfigLocation = "./MiscPlugins/Minimal.json";
 
-	private IDiscordClientService _discordClientService = null!;
-
 	public bool Initialized { get; private set; }
 	public IOptions<Config> Config { get; set; } = null!;
 
@@ -23,16 +21,22 @@ public class MinimalPlugin : IPlugin
 
 	int IPlugin.Priority => -1;
 
-	public void Load(WebApplicationBuilder hostBuilder, bool isDynamicLoading)
+	public void Load(WebApplicationBuilder hostBuilder)
 	{
 		hostBuilder.Services.Configure<Config>(
 			hostBuilder.Configuration.GetSection("MinimalPlugin"));
 	}
+	public void ConfigureDiscordClient(DiscordClientServiceConfig config)
+	{
+		config.Token = this.Config.Value.Token;
+	}
 	public void Setup(WebApplication host)
 	{
-		host.Services.GetRequiredService<Program>().AfterMainInitialize += this.MinimalPlugin_AfterMainInitialize;
+		IDiscordClientService discordClientService = host.Services.GetRequiredService<IDiscordClientService>();
+		discordClientService.SocketClient.Log += this.Log;
+		discordClientService.SocketClient.Ready += this.Client_Ready;
 	}
-	public void Unload(WebApplication host)
+	public void Unload(WebApplication host, bool isSafeUnload)
 	{
 	}
 
@@ -48,13 +52,5 @@ public class MinimalPlugin : IPlugin
 			Console.WriteLine(msg.Exception.ToString());
 
 		return Task.CompletedTask;
-	}
-	private void MinimalPlugin_AfterMainInitialize(object? sender, EventArgs e)
-	{
-		this._discordClientService.Token = this.Config.Value.Token;
-		this._discordClientService.StartBotAsync().Wait();
-
-		this._discordClientService.SocketClient.Log += this.Log;
-		this._discordClientService.SocketClient.Ready += this.Client_Ready;
 	}
 }

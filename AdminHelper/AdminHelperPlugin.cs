@@ -35,7 +35,7 @@ public class AdminHelperPlugin : IPlugin
 	public IOptions<AdminConfig> Config { get; private set; } = null!;
 	public Timer? BackupTimer { get; private set; }
 
-	void IPlugin.Load(WebApplicationBuilder hostBuilder, bool isDynamicLoading)
+	void IPlugin.Load(WebApplicationBuilder hostBuilder)
 	{
 		hostBuilder.Services.Configure<AdminConfig>(
 			hostBuilder.Configuration.GetSection("AdminConfig"));
@@ -57,7 +57,7 @@ public class AdminHelperPlugin : IPlugin
 
 		Console.CancelKeyPress += this.Console_CancelKeyPress;
 	}
-
+	void IPlugin.ConfigureDiscordClient(DiscordClientServiceConfig config) { }
 	void IPlugin.Setup(WebApplication host)
 	{
 		this._commandStatisticsService = host.Services.GetRequiredService<CommandStatisticsService>();
@@ -113,7 +113,7 @@ public class AdminHelperPlugin : IPlugin
 			?? Task.CompletedTask;
 	}
 
-	void IPlugin.Unload(WebApplication host)
+	void IPlugin.Unload(WebApplication host, bool isSafeUnload)
 	{
 	}
 
