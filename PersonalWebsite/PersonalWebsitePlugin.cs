@@ -13,8 +13,6 @@ public class PersonalWebsitePlugin : IPlugin
 	public Version Version => new(1, 0, 0, 0);
 	public string Author => "yt6983138 aka static_void (yt6983138@gmail.com)";
 	public int Priority => 10001;
-	public bool CanBeDynamicallyLoaded => false;
-	public bool CanBeDynamicallyUnloaded => false;
 
 	public void Load(WebApplicationBuilder hostBuilder, bool isDynamicLoading)
 	{
@@ -32,7 +30,7 @@ public class PersonalWebsitePlugin : IPlugin
 		hostBuilder.Services.GetApplicationPartManager()
 			.ApplicationParts.Add(new AssemblyPart(typeof(PersonalWebsitePlugin).Assembly));
 	}
-	public void Setup(IHost host)
+	public void Setup(WebApplication host)
 	{
 		WebApplication app = host.Unbox<WebApplication>();
 		if (!this._hasOtherRegisteredMvc)
@@ -47,7 +45,7 @@ public class PersonalWebsitePlugin : IPlugin
 		}
 		app.MapRazorPages().AllowAnonymous();
 	}
-	public void Unload(IHost host, bool isDynamicUnloading)
+	public void Unload(WebApplication host)
 	{
 	}
 

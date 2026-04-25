@@ -16,8 +16,6 @@ public class PhigrosApiPlugin : IPlugin
 	public Version Version => new(1, 0, 0, 0);
 	public string Author => "yt6983138 aka static_void (yt6983138@gmail.com)";
 	public int Priority => 10086;
-	public bool CanBeDynamicallyLoaded => false;
-	public bool CanBeDynamicallyUnloaded => false;
 
 	public void Load(WebApplicationBuilder hostBuilder, bool isDynamicLoading)
 	{
@@ -25,12 +23,12 @@ public class PhigrosApiPlugin : IPlugin
 
 		CommonLoad(hostBuilder, this._hasOtherRegisteredMvc);
 	}
-	public void Setup(IHost host)
+	public void Setup(WebApplication host)
 	{
 		WebApplication app = host.Unbox<WebApplication>();
 		CommonSetup(app, this._hasOtherRegisteredMvc);
 	}
-	public void Unload(IHost host, bool isDynamicUnloading)
+	public void Unload(WebApplication host)
 	{
 	}
 

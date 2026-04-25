@@ -2,7 +2,6 @@
 using Discord.WebSocket;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using PSLDiscordBot.Framework;
 using PSLDiscordBot.Framework.BuiltInServices;
@@ -26,15 +25,12 @@ public class VerifierAndBanner : IPlugin
 	string IPlugin.Author => "yt6983138 aka static_void (yt6983138@gmail.com)";
 	int IPlugin.Priority => -20;
 
-	bool IPlugin.CanBeDynamicallyLoaded => false;
-	bool IPlugin.CanBeDynamicallyUnloaded => false;
-
 	public void Load(WebApplicationBuilder hostBuilder, bool isDynamicLoading)
 	{
 		hostBuilder.Services.Configure<VABConfig>(
 			hostBuilder.Configuration.GetSection("VABConfig"));
 	}
-	public void Setup(IHost host)
+	public void Setup(WebApplication host)
 	{
 		this._discordClientService = host.Services.GetRequiredService<IDiscordClientService>();
 		this._config = host.Services.GetRequiredService<IOptions<VABConfig>>();
@@ -48,7 +44,7 @@ public class VerifierAndBanner : IPlugin
 		this._discordClientService.SocketClient.MessageReceived += this.SocketClient_MessageReceived;
 		this._discordClientService.SocketClient.Ready += this.SocketClient_Ready;
 	}
-	public void Unload(IHost host, bool isDynamicUnloading)
+	public void Unload(WebApplication host)
 	{
 	}
 

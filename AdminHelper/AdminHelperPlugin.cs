@@ -26,9 +26,6 @@ public class AdminHelperPlugin : IPlugin
 	string IPlugin.Author => "yt6983138 aka static_void (yt6983138@gmail.com)";
 	int IPlugin.Priority => 114514_1;
 
-	bool IPlugin.CanBeDynamicallyLoaded => false;
-	bool IPlugin.CanBeDynamicallyUnloaded => false;
-
 	public string FormattedTimedDestination =>
 		string.Format(this.Config.Value.TimedBackupDestination, DateTime.Now.ToString("s")).Replace(':', '_');
 	public string FormattedStartupDestination =>
@@ -61,7 +58,7 @@ public class AdminHelperPlugin : IPlugin
 		Console.CancelKeyPress += this.Console_CancelKeyPress;
 	}
 
-	void IPlugin.Setup(IHost host)
+	void IPlugin.Setup(WebApplication host)
 	{
 		this._commandStatisticsService = host.Services.GetRequiredService<CommandStatisticsService>();
 		this._commandResolveService = host.Services.GetRequiredService<ICommandResolveService>();
@@ -82,7 +79,7 @@ public class AdminHelperPlugin : IPlugin
 
 		if (!this._hasOtherRegisteredMvc)
 		{
-			WebApplication app = (WebApplication)host;
+			WebApplication app = host;
 
 			app.MapControllers().AllowAnonymous();
 			app.UseRouting();
@@ -116,7 +113,7 @@ public class AdminHelperPlugin : IPlugin
 			?? Task.CompletedTask;
 	}
 
-	void IPlugin.Unload(IHost host, bool isDynamicUnloading)
+	void IPlugin.Unload(WebApplication host)
 	{
 	}
 

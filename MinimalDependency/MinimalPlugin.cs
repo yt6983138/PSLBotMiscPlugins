@@ -1,7 +1,6 @@
 ﻿using Discord;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using PSLDiscordBot.Framework;
 using PSLDiscordBot.Framework.BuiltInServices;
@@ -22,8 +21,6 @@ public class MinimalPlugin : IPlugin
 	Version IPlugin.Version => new(1, 0, 0, 0);
 	string IPlugin.Author => "yt6983138 aka static_void (yt6983138@gmail.com)";
 
-	bool IPlugin.CanBeDynamicallyLoaded => false;
-	bool IPlugin.CanBeDynamicallyUnloaded => false;
 	int IPlugin.Priority => -1;
 
 	public void Load(WebApplicationBuilder hostBuilder, bool isDynamicLoading)
@@ -31,11 +28,11 @@ public class MinimalPlugin : IPlugin
 		hostBuilder.Services.Configure<Config>(
 			hostBuilder.Configuration.GetSection("MinimalPlugin"));
 	}
-	public void Setup(IHost host)
+	public void Setup(WebApplication host)
 	{
 		host.Services.GetRequiredService<Program>().AfterMainInitialize += this.MinimalPlugin_AfterMainInitialize;
 	}
-	public void Unload(IHost host, bool isDynamicUnloading)
+	public void Unload(WebApplication host)
 	{
 	}
 
