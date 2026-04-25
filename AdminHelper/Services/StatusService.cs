@@ -1,5 +1,4 @@
 ﻿using Discord.WebSocket;
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using PSLDiscordBot.Core;
 using PSLDiscordBot.Framework.BuiltInServices;
@@ -11,7 +10,8 @@ public enum Status
 {
 	Normal,
 	UnderMaintenance,
-	ShuttingDown
+	ShuttingDown,
+	UpdatingData
 }
 public class StatusService
 {
@@ -65,6 +65,7 @@ public class StatusService
 				Status.UnderMaintenance =>
 					$"The bot is under maintenance since {this.MaintenanceStartedAt}. You may try again later.",
 				Status.ShuttingDown => "The service is shutting down. The service may be up later.",
+				Status.UpdatingData => "The bot is updating resources. You may try again later.",
 				_ => "Unspecified error."
 			};
 			await e.SocketSlashCommand.RespondAsync(message, ephemeral: true);

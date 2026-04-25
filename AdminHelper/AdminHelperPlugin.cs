@@ -45,6 +45,7 @@ public class AdminHelperPlugin : IPlugin
 		hostBuilder.Services.AddSingleton<BlackListService>()
 			.AddSingleton<CommandStatisticsService>()
 			.AddSingleton<StatusService>()
+			.AddSingleton<PhigrosDataUpdateService>()
 			.AddSingleton<BugReportDatabaseService>();
 		// i know it should be scoped or transient but commands are singletons, so it will be singleton eventually
 
