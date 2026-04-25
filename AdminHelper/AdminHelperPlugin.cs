@@ -112,7 +112,7 @@ public class AdminHelperPlugin : IPlugin
 	private Task AdminHelperPlugin_OnReportReceived(Discord.WebSocket.SocketUser user, string reportContent, Discord.IAttachment[] attachments)
 	{
 		// assume the admin has already known that they did or did not setup admin user properly
-		return this._pslPlugin.AdminDM?.SendMessageAsync($"You have a new bug report. Preview: {reportContent[..32]}...")
+		return this._pslPlugin.AdminDM?.SendMessageAsync($"You have a new bug report. Preview: {reportContent[..Math.Min(reportContent.Length, 32)]}...")
 			?? Task.CompletedTask;
 	}
 
