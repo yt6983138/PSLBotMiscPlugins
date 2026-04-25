@@ -3,6 +3,7 @@ using Discord;
 using Discord.WebSocket;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using PSLDiscordBot.Core;
 using PSLDiscordBot.Core.Command.Global.Base;
 using PSLDiscordBot.Core.Services;
 using PSLDiscordBot.Core.UserDatas;
@@ -10,7 +11,7 @@ using PSLDiscordBot.Core.Utility;
 using PSLDiscordBot.Framework.CommandBase;
 using PSLDiscordBot.Framework.Localization;
 
-namespace PSLDiscordBot.Core.Command.Global;
+namespace AdminHelper.Commands;
 
 [AddToGlobal]
 public class CancelCommand : AdminCommandBase
