@@ -1,4 +1,3 @@
-using Microsoft.AspNetCore.Mvc.ApplicationParts;
 using PSLDiscordBot.Framework;
 using PSLDiscordBot.Framework.BuiltInServices;
 using System.Text.Json;
@@ -20,31 +19,12 @@ public class PhigrosLoginHostPlugin : IPlugin
 		hostBuilder.Services.AddSingleton<HttpClientService>();
 		hostBuilder.Services.Configure<LoginHostConfig>(
 			hostBuilder.Configuration.GetSection("LoginHostConfig"));
-
-		this._hasOtherRegisteredMvc = hostBuilder.Services.HasMvcRegistered();
-
-		if (!this._hasOtherRegisteredMvc)
-		{
-			hostBuilder.Services.AddControllers()
-				.AddJsonOptions(x => x.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower);
-		}
-		hostBuilder.Services.GetApplicationPartManager()
-			.ApplicationParts.Add(new AssemblyPart(typeof(PhigrosLoginHostPlugin).Assembly));
+		hostBuilder.Services.AddAssemblyToMvc(this);
 	}
 	public void ConfigureDiscordClient(DiscordClientServiceConfig config) { }
 	public void Setup(WebApplication host)
 	{
-		if (!this._hasOtherRegisteredMvc)
-		{
-			WebApplication app = host.Unbox<WebApplication>();
-			app.MapControllers().AllowAnonymous();
-			app.UseStaticFiles(new StaticFileOptions()
-			{
-				ServeUnknownFileTypes = true
-			});
-			app.UseRouting();
-			app.UseAuthorization();
-		}
+		host.Services.GetRequiredService<IMvcConfigurationService>().StaticFileOptions.ServeUnknownFileTypes = true;
 	}
 	public void Unload(WebApplication host, bool isSafeUnload)
 	{

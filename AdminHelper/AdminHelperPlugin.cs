@@ -1,5 +1,4 @@
 ﻿using AdminHelper.Services;
-using Microsoft.AspNetCore.Mvc.ApplicationParts;
 using Microsoft.Extensions.Options;
 using PSLDiscordBot.Core;
 using PSLDiscordBot.Core.Services;
@@ -46,14 +45,7 @@ public class AdminHelperPlugin : IPlugin
 			.AddSingleton<BugReportDatabaseService>();
 		// i know it should be scoped or transient but commands are singletons, so it will be singleton eventually
 
-		this._hasOtherRegisteredMvc = hostBuilder.Services.HasMvcRegistered();
-		if (!this._hasOtherRegisteredMvc)
-		{
-			hostBuilder.Services.AddMvc();
-		}
-
-		hostBuilder.Services.GetApplicationPartManager()
-			.ApplicationParts.Add(new AssemblyPart(typeof(AdminHelperPlugin).Assembly));
+		hostBuilder.Services.AddAssemblyToMvc(this);
 
 		Console.CancelKeyPress += this.Console_CancelKeyPress;
 	}
@@ -77,18 +69,7 @@ public class AdminHelperPlugin : IPlugin
 		this.Logger = host.Services.GetRequiredService<ILogger<AdminHelperPlugin>>();
 		this.Config = host.Services.GetRequiredService<IOptions<AdminConfig>>();
 
-		if (!this._hasOtherRegisteredMvc)
-		{
-			WebApplication app = host;
-
-			app.MapControllers().AllowAnonymous();
-			app.UseRouting();
-			app.UseAuthorization();
-			app.UseStaticFiles(new StaticFileOptions()
-			{
-				ServeUnknownFileTypes = true
-			});
-		}
+		host.Services.GetRequiredService<IMvcConfigurationService>().StaticFileOptions.ServeUnknownFileTypes = true;
 
 		if (this.Config.Value.TimedBackupInterval != TimeSpan.Zero)
 		{

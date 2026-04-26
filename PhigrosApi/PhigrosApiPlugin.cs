@@ -1,5 +1,5 @@
+using Microsoft.AspNetCore.Cors.Infrastructure;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.ApplicationParts;
 using PSLDiscordBot.Core.Services;
 using PSLDiscordBot.Framework;
 using PSLDiscordBot.Framework.BuiltInServices;
@@ -8,8 +8,6 @@ namespace PhigrosApi;
 
 public class PhigrosApiPlugin : IPlugin
 {
-	private bool _hasOtherRegisteredMvc = false;
-
 	public const string GroupName = "PhigrosApi";
 
 	public string Name => "Phigros Api Host";
@@ -20,38 +18,35 @@ public class PhigrosApiPlugin : IPlugin
 
 	public void Load(WebApplicationBuilder hostBuilder)
 	{
-		this._hasOtherRegisteredMvc = hostBuilder.Services.HasMvcRegistered();
-
-		CommonLoad(hostBuilder, this._hasOtherRegisteredMvc);
+		CommonLoad(hostBuilder);
 	}
 	public void ConfigureDiscordClient(DiscordClientServiceConfig config) { }
 	public void Setup(WebApplication host)
 	{
-		WebApplication app = host.Unbox<WebApplication>();
-		CommonSetup(app, this._hasOtherRegisteredMvc);
+		IMvcConfigurationService configurator = host.Services.GetRequiredService<IMvcConfigurationService>();
+
+		configurator.StaticFileOptions.ServeUnknownFileTypes = true;
+		configurator.BeforeRoutingMiddleware.Add(app => app.UseExceptionHandler());
+		configurator.BetweenRoutingAndAuthMiddleware.Add(app => app.UseCors("Everything"));
+		configurator.AfterAuthMiddleware.Add(app => app.UseSwagger());
 	}
 	public void Unload(WebApplication host, bool isSafeUnload)
 	{
 	}
 
-	private static void CommonLoad(WebApplicationBuilder builder, bool hasOtherRegisteredMvc)
+	private static void CommonLoad(WebApplicationBuilder builder)
 	{
-		if (!hasOtherRegisteredMvc)
-		{
-			builder.Services.AddMvc();
-		}
-		builder.Services.AddCors(options => options.AddPolicy("Everything",
+		builder.Services.AddExceptionHandler<ExceptionHandler>();
+		builder.Services.AddProblemDetails();
+		builder.Services.AddAssemblyToMvc<PhigrosApiPlugin>();
+
+		builder.Services.Configure<CorsOptions>(options => options.AddPolicy("Everything",
 			policy =>
 			{
 				policy.AllowAnyHeader()
 					.AllowAnyMethod()
 					.AllowAnyOrigin();
 			}));
-		builder.Services.AddExceptionHandler<ExceptionHandler>();
-		builder.Services.AddProblemDetails();
-		builder.Services.GetApplicationPartManager()
-			.ApplicationParts.Add(new AssemblyPart(typeof(PhigrosApiPlugin).Assembly));
-
 		builder.Services.Configure<MvcOptions>(x =>
 		{
 			x.InputFormatters.Add(new PlainTextFormatter());
@@ -69,30 +64,15 @@ public class PhigrosApiPlugin : IPlugin
 			});
 		};
 	}
-	private static void CommonSetup(WebApplication app, bool hasOtherRegisteredMvc)
-	{
-		if (!hasOtherRegisteredMvc)
-		{
-			app.MapControllers().AllowAnonymous();
-			app.UseStaticFiles(new StaticFileOptions()
-			{
-				ServeUnknownFileTypes = true
-			});
-			app.UseRouting();
-			app.UseAuthorization();
-		}
-
-		app.UseExceptionHandler();
-		app.UseCors("Everything");
-		app.UseSwagger();
-	}
 
 	//#if DEBUG
 	public static void Main(string[] args)
 	{
 		WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
-		CommonLoad(builder, false);
+
+		builder.Services.AddMvc();
+		CommonLoad(builder);
 #if DEBUG
 		Program.Instance.ConfigureSwagger(builder);
 #endif
@@ -109,8 +89,16 @@ public class PhigrosApiPlugin : IPlugin
 			// The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
 			app.UseHsts();
 		}
-
-		CommonSetup(app, false);
+		app.MapControllers().AllowAnonymous();
+		app.UseStaticFiles(new StaticFileOptions()
+		{
+			ServeUnknownFileTypes = true
+		});
+		app.UseRouting();
+		app.UseAuthorization();
+		app.UseExceptionHandler();
+		app.UseCors("Everything");
+		app.UseSwagger();
 		app.UseSwaggerUI(options =>
 		{
 			options.SwaggerEndpoint($"/swagger/{GroupName}/swagger.json", GroupName);
