@@ -162,7 +162,7 @@ public class AdminHelperPlugin : IPlugin
 	public static void Main() { }
 #endif
 
-	private async void CommandResolveService_BeforeSlashCommandExecutes(object? sender, PSLDiscordBot.Framework.MiscEventArgs.SlashCommandEventArgs e)
+	private async Task CommandResolveService_BeforeSlashCommandExecutes(object? sender, PSLDiscordBot.Framework.MiscEventArgs.SlashCommandEventArgs e)
 	{
 		if (e.Canceled) return;
 

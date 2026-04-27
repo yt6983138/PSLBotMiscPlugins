@@ -52,7 +52,7 @@ public class StatusService
 		this._detached = true;
 	}
 
-	private async void BeforeSlashCommandExecutes(object? sender, SlashCommandEventArgs e)
+	private async Task BeforeSlashCommandExecutes(object? sender, SlashCommandEventArgs e)
 	{
 		if (this.CurrentStatus != Status.Normal
 			&& e.SocketSlashCommand.User.Id != this._configService.AdminUserId)

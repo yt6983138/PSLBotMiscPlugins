@@ -81,7 +81,7 @@ public class BlackListService : FileManagementServiceBase<BlackListSaveData>, ID
 		this.Evaluator.StaticTypesForExtensionsMethods.Add(typeof(EvaluatorExtensions));
 	}
 
-	private async void CommandResolveService_BeforeSlashCommandExecutes(object? sender, PSLDiscordBot.Framework.MiscEventArgs.SlashCommandEventArgs e)
+	private async Task CommandResolveService_BeforeSlashCommandExecutes(object? sender, PSLDiscordBot.Framework.MiscEventArgs.SlashCommandEventArgs e)
 	{
 		using ScopedSemaphoreSlim.Scope _ = await this._dataLock.EnterScopeAsync();
 		SocketSlashCommand command = e.SocketSlashCommand;
