@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using PhigrosLibraryCSharp;
-using PhigrosLibraryCSharp.Cloud.RawData;
-using PhigrosLibraryCSharp.GameRecords;
+using PhigrosLibraryCSharp.CloudSave;
+using PhigrosLibraryCSharp.CloudSave.HttpModels;
 using PSLDiscordBot.Core.Services;
 using PSLDiscordBot.Core.Utility;
 using System.Collections.Concurrent;
@@ -11,12 +10,14 @@ using System.Net.Mime;
 namespace PhigrosApi.Controllers;
 
 public record class SaveTimeIndex(int Index, DateTime ModificationTime);
-public record class SaveData(GameProgress Progress, GameSettings Settings, GameUserInfo GameUserInfo, UserInfo UserInfo, Summary Summary);
+public record class SaveData(GameProgress Progress, GameSettings Settings, GameUserInfo GameUserInfo, PlayerInfo PlayerInfo, Summary Summary);
 
+[Controller]
 [ApiExplorerSettings(GroupName = PhigrosApiPlugin.GroupName)]
 public class CloudSaveController : CustomControllerBase
 {
 	public static ConcurrentDictionary<string, Save> TokenSaveCache { get; set; } = new();
+	public static int MaxCacheSize { get; set; } = 1000;
 
 	private PhigrosService _phigrosData;
 
@@ -32,8 +33,14 @@ public class CloudSaveController : CustomControllerBase
 			return save;
 
 		Save newSave = new(token, isInternational); // will throw if invalid token
-		await newSave.GetUserInfoAsync();
+		await newSave.GetPlayerInfoAsync();
 		this._logger.LogDebug("Adding token {token} to cache", token);
+		if (TokenSaveCache.Count >= MaxCacheSize)
+		{
+			this._logger.LogInformation("PhigrosApi cache size exceeded. Removing oldest entry.");
+			string oldestKey = TokenSaveCache.Keys.First();
+			TokenSaveCache.TryRemove(oldestKey, out _);
+		}
 		return !TokenSaveCache.TryAdd(token, newSave) ? throw new ApplicationException("Failed to add to cache") : newSave;
 	}
 	private async Task<(IActionResult?, Save?)> GetSaveAndHandleError(string token, bool isInternational)
@@ -73,11 +80,11 @@ public class CloudSaveController : CustomControllerBase
 		List<SaveTimeIndex> timeList = [];
 		try
 		{
-			RawSaveContainer container = await save.GetRawSaveFromCloudAsync();
+			SaveInfoContainer container = await save.GetSaveInfoFromCloudAsync();
 			int index = 0;
-			foreach (RawSave item in container.results)
+			foreach (SaveInfo item in container.Results)
 			{
-				timeList.Add(new(index, item.modifiedAt.iso));
+				timeList.Add(new(index, item.ModifiedAt.Time));
 				index++;
 			}
 		}
@@ -105,11 +112,11 @@ public class CloudSaveController : CustomControllerBase
 		GameSettings settings;
 		GameUserInfo userInfo;
 		Summary summary;
-		UserInfo outterUserInfo;
+		PlayerInfo playerInfo;
 		try
 		{
 			SaveContext context = await save.GetSaveContextAsync(index);
-			outterUserInfo = await save.GetUserInfoAsync();
+			playerInfo = await save.GetPlayerInfoAsync();
 			summary = context.ReadSummary();
 			progress = context.ReadGameProgress();
 			settings = context.ReadGameSettings();
@@ -125,7 +132,7 @@ public class CloudSaveController : CustomControllerBase
 		}
 
 		this._logger.LogDebug("{ip} requested game user info successfully.", this.IP);
-		return this.Json(new SaveData(progress, settings, userInfo, outterUserInfo, summary));
+		return this.Json(new SaveData(progress, settings, userInfo, playerInfo, summary));
 	}
 
 	[HttpPost]
@@ -143,7 +150,7 @@ public class CloudSaveController : CustomControllerBase
 		ZipArchive newZip = new(newStream, ZipArchiveMode.Create);
 		try
 		{
-			byte[] d = await save.GetSaveRawZipAsync((await save.GetRawSaveFromCloudAsync()).GetParsedSaves()[index]);
+			byte[] d = await save.GetSaveZipAsync((await save.GetSaveInfoFromCloudAsync()).GetParsedSaves()[index]);
 
 			foreach (ZipArchiveEntry entry in new ZipArchive(new MemoryStream(d), ZipArchiveMode.Read).Entries)
 			{
@@ -187,11 +194,12 @@ public class CloudSaveController : CustomControllerBase
 		try
 		{
 			SaveContext context = await save.GetSaveContextAsync(index);
-			GameRecord gameRecords = context.ReadGameRecord(this._phigrosData.NonMultiLanguageInfos.SongsWithoutSuffix
-				.ToDictionary(x => x.Id, x => x.ChartConstantArray));
+			List<CompleteScore> records = context.ReadGameRecord()
+				.GetCompleteScores(this._phigrosData.ChartConstantMap, this._phigrosData.NameMap)
+				.ToList();
 
 			this._logger.LogDebug("{ip} requested summary and save successfully.", this.IP);
-			return this.Json(gameRecords);
+			return this.Json(records);
 		}
 		catch (ArgumentOutOfRangeException ex)
 		{
