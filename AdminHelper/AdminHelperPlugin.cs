@@ -17,8 +17,6 @@ public class AdminHelperPlugin : IPlugin
 	private Program _program = null!;
 	private PSLPlugin _pslPlugin = null!;
 
-	private bool _hasOtherRegisteredMvc = false;
-
 	string IPlugin.Name => "Admin helper";
 	string IPlugin.Description => "Help admins do shit";
 	Version IPlugin.Version => new(1, 1, 0, 0);
@@ -200,7 +198,6 @@ public class AdminHelperPlugin : IPlugin
 
 			if (this._statusService.CurrentStatus == Status.Normal)
 			{
-				this.Logger.LogInformation(EventId, "Operation canceled.");
 				this.Logger.LogInformation(EventId, "Operation canceled.");
 				return;
 			}

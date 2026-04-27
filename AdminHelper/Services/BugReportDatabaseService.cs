@@ -2,7 +2,6 @@
 using Discord;
 using Discord.WebSocket;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Options;
 using PSLDiscordBot.Core.Services;
 using System.Security.Cryptography;
 
@@ -11,15 +10,13 @@ namespace AdminHelper.Services;
 public sealed class BugReportDatabaseService : IDisposable
 {
 	private readonly BugReportHandlerService _bugReportHandlerService;
-	private readonly IOptions<AdminConfig> _config;
 
 	public DirectoryInfo DatabaseDirectory { get; private set; }
 	public DirectoryInfo AttachmentDirectory { get; private set; }
 
-	public BugReportDatabaseService(BugReportHandlerService bugReportHandlerService, IOptions<AdminConfig> config)
+	public BugReportDatabaseService(BugReportHandlerService bugReportHandlerService)
 	{
 		this._bugReportHandlerService = bugReportHandlerService;
-		this._config = config;
 
 		this._bugReportHandlerService.OnReportReceived += this.Handler_OnReportReceived;
 
@@ -48,10 +45,6 @@ public sealed class BugReportDatabaseService : IDisposable
 		return new(this);
 	}
 
-	~BugReportDatabaseService()
-	{
-		this.Dispose();
-	}
 	public void Dispose()
 	{
 		GC.SuppressFinalize(this);
