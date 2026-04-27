@@ -30,7 +30,7 @@ public class VerifierAndBanner : IPlugin
 		hostBuilder.Services.Configure<VABConfig>(
 			hostBuilder.Configuration.GetSection("VABConfig"));
 	}
-	public void ConfigureDiscordClient(DiscordClientServiceConfig config)
+	public void ConfigureDiscordClient(WebApplicationBuilder builder, DiscordClientServiceConfig config)
 	{
 		config.SocketConfig.GatewayIntents |= GatewayIntents.AllUnprivileged | GatewayIntents.MessageContent;
 	}

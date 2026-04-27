@@ -20,7 +20,7 @@ public class PhigrosApiPlugin : IPlugin
 	{
 		CommonLoad(hostBuilder);
 	}
-	public void ConfigureDiscordClient(DiscordClientServiceConfig config) { }
+	public void ConfigureDiscordClient(WebApplicationBuilder builder, DiscordClientServiceConfig config) { }
 	public void Setup(WebApplication host)
 	{
 		IMvcConfigurationService configurator = host.Services.GetRequiredService<IMvcConfigurationService>();

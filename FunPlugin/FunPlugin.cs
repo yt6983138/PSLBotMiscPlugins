@@ -17,7 +17,7 @@ public class FunPlugin : IPlugin
 	{
 		hostBuilder.Services.Configure<FPConfig>(hostBuilder.Configuration.GetSection("FPConfig"));
 	}
-	public void ConfigureDiscordClient(DiscordClientServiceConfig config) { }
+	public void ConfigureDiscordClient(WebApplicationBuilder builder, DiscordClientServiceConfig config) { }
 	public void Setup(WebApplication host)
 	{
 	}

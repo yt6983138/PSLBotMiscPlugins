@@ -20,7 +20,7 @@ public class PersonalWebsitePlugin : IPlugin
 
 		hostBuilder.Services.AddAssemblyToMvc(this);
 	}
-	public void ConfigureDiscordClient(DiscordClientServiceConfig config) { }
+	public void ConfigureDiscordClient(WebApplicationBuilder builder, DiscordClientServiceConfig config) { }
 	public void Setup(WebApplication host)
 	{
 		host.Services.GetRequiredService<IMvcConfigurationService>().StaticFileOptions.ServeUnknownFileTypes = true;

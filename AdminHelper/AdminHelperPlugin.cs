@@ -49,7 +49,7 @@ public class AdminHelperPlugin : IPlugin
 
 		Console.CancelKeyPress += this.Console_CancelKeyPress;
 	}
-	void IPlugin.ConfigureDiscordClient(DiscordClientServiceConfig config) { }
+	void IPlugin.ConfigureDiscordClient(WebApplicationBuilder builder, DiscordClientServiceConfig config) { }
 	void IPlugin.Setup(WebApplication host)
 	{
 		this._commandStatisticsService = host.Services.GetRequiredService<CommandStatisticsService>();
