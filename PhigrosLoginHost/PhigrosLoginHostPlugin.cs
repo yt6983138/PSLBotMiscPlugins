@@ -6,8 +6,6 @@ namespace PhigrosLoginHost;
 
 public class PhigrosLoginHostPlugin : IPlugin
 {
-	private bool _hasOtherRegisteredMvc = false;
-
 	public string Name => "Phigros Login Host";
 	public string Description => "Login host for people who cannot install TapTap China.";
 	public Version Version => new(1, 0, 0, 0);
