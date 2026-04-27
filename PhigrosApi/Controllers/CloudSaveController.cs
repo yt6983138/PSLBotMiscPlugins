@@ -34,12 +34,11 @@ public class CloudSaveController : CustomControllerBase
 
 		Save newSave = new(token, isInternational); // will throw if invalid token
 		await newSave.GetPlayerInfoAsync();
-		this._logger.LogDebug("Adding token {token} to cache", token);
 		if (TokenSaveCache.Count >= MaxCacheSize)
 		{
-			this._logger.LogInformation("PhigrosApi cache size exceeded. Removing oldest entry.");
-			string oldestKey = TokenSaveCache.Keys.First();
-			TokenSaveCache.TryRemove(oldestKey, out _);
+			this._logger.LogInformation("PhigrosApi cache size exceeded. Removing entries.");
+			foreach (string key in TokenSaveCache.Keys.Take(10))
+				TokenSaveCache.TryRemove(key, out _);
 		}
 		return !TokenSaveCache.TryAdd(token, newSave) ? throw new ApplicationException("Failed to add to cache") : newSave;
 	}
