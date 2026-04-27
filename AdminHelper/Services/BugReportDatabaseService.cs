@@ -31,7 +31,6 @@ public sealed class BugReportDatabaseService : IDisposable
 	{
 		using HttpClient client = new();
 		using BugReportRequester requester = this.GetNewRequester();
-
 		await requester.AddMessage(
 			user.Id,
 			null,
@@ -39,14 +38,14 @@ public sealed class BugReportDatabaseService : IDisposable
 			DateTime.Now,
 			reportContent,
 			ReportFlag.Unread,
-			attachments.Select(x => (client.GetByteArrayAsync(x.Url).GetAwaiter().GetResult(), x.Filename)).ToArray());
+			(await Task.WhenAll(attachments.Select(x => client.GetByteArrayAsync(x.Url)))).Select((x, i) => (x, attachments[i].Filename)).ToArray());
 
 		await requester.SaveChangesAsync();
 	}
 
 	public BugReportRequester GetNewRequester()
 	{
-		return new(this._config, this);
+		return new(this);
 	}
 
 	~BugReportDatabaseService()
@@ -68,7 +67,7 @@ public sealed class BugReportDatabaseService : IDisposable
 		/// </summary>
 		public DbSet<ReportMessage> ReportMessages { get; set; }
 
-		internal BugReportRequester(IOptions<AdminConfig> config, BugReportDatabaseService parent)
+		internal BugReportRequester(BugReportDatabaseService parent)
 		{
 			this._parent = parent;
 			this.Database.EnsureCreated();
