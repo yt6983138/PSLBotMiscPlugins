@@ -68,8 +68,15 @@ public class StatusService
 				Status.UpdatingData => "The bot is updating resources. You may try again later.",
 				_ => "Unspecified error."
 			};
-			await e.SocketSlashCommand.RespondAsync(message, ephemeral: true);
-			this._logger.LogInformation(EventId, "Blocked command {cmd} from {name}({id})", arg.CommandName, arg.User.GlobalName, arg.User.Id);
+			try
+			{
+				await e.SocketSlashCommand.RespondAsync(message, ephemeral: true);
+				this._logger.LogInformation(EventId, "Blocked command {cmd} from {name}({id})", arg.CommandName, arg.User.GlobalName, arg.User.Id);
+			}
+			catch (Exception ex)
+			{
+				this._logger.LogWarning(ex, "Failed to send maintenance message to {name}({id})", arg.User.GlobalName, arg.User.Id);
+			}
 			return;
 		}
 	}
