@@ -85,8 +85,22 @@ public class BlackListService : FileManagementServiceBase<BlackListSaveData>, ID
 		SocketSlashCommand command = e.SocketSlashCommand;
 		foreach (KeyValuePair<int, BlackListCondition> item in this.Data.Data)
 		{
+			try
+			{
+				if (await EvaluateCore(item)) break;
+			}
+			catch (Exception ex)
+			{
+				this._logger.LogError(EventId, ex, "Failed to evaluate black list condition with id {id}", item.Key);
+				continue;
+			}
+		}
+
+		// return: should break
+		async Task<bool> EvaluateCore(KeyValuePair<int, BlackListCondition> item)
+		{
 			if (command.User.Id == this._pslPlugin.AdminUser?.Id)
-				break;
+				return true;
 
 			SocketGuild? guild = command.GuildId is null ? null : this._discordClientService.SocketClient.GetGuild(command.GuildId.Value);
 			if (this.ShouldBlackList(
@@ -110,9 +124,9 @@ public class BlackListService : FileManagementServiceBase<BlackListSaveData>, ID
 					await command.RespondAsync(
 						innerMessage.Value1.GetFormatted(command.UserLocale, new { Command = command, Condition = item.Value, Guild = guild }));
 				}
-
-				break;
+				return true;
 			}
+			return false;
 		}
 	}
 
