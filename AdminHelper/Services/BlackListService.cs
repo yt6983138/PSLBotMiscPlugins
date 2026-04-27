@@ -49,6 +49,7 @@ public class BlackListService : FileManagementServiceBase<BlackListSaveData>, ID
 	private readonly ILogger<BlackListService> _logger;
 	private readonly IDiscordClientService _discordClientService;
 	private readonly PSLPlugin _pslPlugin;
+	private readonly ScopedSemaphoreSlim _dataLock = new(1, 1);
 
 	public bool EventRegistered { get; private set; } = true;
 	public ExpressionEvaluator Evaluator { get; } = new();
@@ -82,6 +83,7 @@ public class BlackListService : FileManagementServiceBase<BlackListSaveData>, ID
 
 	private async void CommandResolveService_BeforeSlashCommandExecutes(object? sender, PSLDiscordBot.Framework.MiscEventArgs.SlashCommandEventArgs e)
 	{
+		using ScopedSemaphoreSlim.Scope _ = await this._dataLock.EnterScopeAsync();
 		SocketSlashCommand command = e.SocketSlashCommand;
 		foreach (KeyValuePair<int, BlackListCondition> item in this.Data.Data)
 		{
@@ -130,8 +132,6 @@ public class BlackListService : FileManagementServiceBase<BlackListSaveData>, ID
 		}
 	}
 
-	~BlackListService() =>
-		this.Dispose();
 	public void Dispose()
 	{
 		if (!this.EventRegistered) return;
@@ -140,26 +140,31 @@ public class BlackListService : FileManagementServiceBase<BlackListSaveData>, ID
 		GC.SuppressFinalize(this);
 		this.Save();
 		this._commandResolveService.BeforeSlashCommandExecutes -= this.CommandResolveService_BeforeSlashCommandExecutes;
+		this._dataLock.Dispose();
 	}
 
 	public void AddBlackList(BlackListCondition condition)
 	{
+		using ScopedSemaphoreSlim.Scope _ = this._dataLock.EnterScope();
 		this.Data.Data.Add(++this.Data.LastInt, condition);
 		this.Save();
 	}
 	public void RemoveBlackList(int id)
 	{
+		using ScopedSemaphoreSlim.Scope _ = this._dataLock.EnterScope();
 		this.Data.Data.Remove(id);
 		this.Save();
 	}
 	public void DisableBlackList(int id)
 	{
+		using ScopedSemaphoreSlim.Scope _ = this._dataLock.EnterScope();
 		if (this.Data.Data.TryGetValue(id, out BlackListCondition? value))
 			value.Disabled = true;
 		this.Save();
 	}
 	public void EnableBlackList(int id)
 	{
+		using ScopedSemaphoreSlim.Scope _ = this._dataLock.EnterScope();
 		if (this.Data.Data.TryGetValue(id, out BlackListCondition? value))
 			value.Disabled = false;
 		this.Save();
