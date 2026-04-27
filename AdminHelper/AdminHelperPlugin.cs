@@ -168,9 +168,17 @@ public class AdminHelperPlugin : IPlugin
 	{
 		if (e.Canceled) return;
 
-		CommandStatisticInfo info = await this._commandStatisticsService.GetOrAddNew(e.SocketSlashCommand.CommandName);
-		info.UseCount++;
-		await this._commandStatisticsService.SaveChangesAsync();
+		try
+		{
+			using CommandStatisticsService.Requester requester = this._commandStatisticsService.NewRequester();
+			CommandStatisticInfo info = await requester.GetOrAddNew(e.SocketSlashCommand.CommandName);
+			info.UseCount++;
+			await requester.SaveChangesAsync();
+		}
+		catch (Exception ex)
+		{
+			this.Logger.LogError(EventId, ex, "Failed to update command statistics for command '{commandName}'.", e.SocketSlashCommand.CommandName);
+		}
 	}
 	private void Console_CancelKeyPress(object? sender, ConsoleCancelEventArgs e)
 	{
