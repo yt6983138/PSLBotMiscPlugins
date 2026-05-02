@@ -2,7 +2,6 @@
 using Discord;
 using Discord.WebSocket;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Options;
 using PSLDiscordBot.Core.Services;
 using System.Security.Cryptography;
 
@@ -11,15 +10,13 @@ namespace AdminHelper.Services;
 public sealed class BugReportDatabaseService : IDisposable
 {
 	private readonly BugReportHandlerService _bugReportHandlerService;
-	private readonly IOptions<AdminConfig> _config;
 
 	public DirectoryInfo DatabaseDirectory { get; private set; }
 	public DirectoryInfo AttachmentDirectory { get; private set; }
 
-	public BugReportDatabaseService(BugReportHandlerService bugReportHandlerService, IOptions<AdminConfig> config)
+	public BugReportDatabaseService(BugReportHandlerService bugReportHandlerService)
 	{
 		this._bugReportHandlerService = bugReportHandlerService;
-		this._config = config;
 
 		this._bugReportHandlerService.OnReportReceived += this.Handler_OnReportReceived;
 
@@ -31,7 +28,6 @@ public sealed class BugReportDatabaseService : IDisposable
 	{
 		using HttpClient client = new();
 		using BugReportRequester requester = this.GetNewRequester();
-
 		await requester.AddMessage(
 			user.Id,
 			null,
@@ -39,20 +35,16 @@ public sealed class BugReportDatabaseService : IDisposable
 			DateTime.Now,
 			reportContent,
 			ReportFlag.Unread,
-			attachments.Select(x => (client.GetByteArrayAsync(x.Url).GetAwaiter().GetResult(), x.Filename)).ToArray());
+			(await Task.WhenAll(attachments.Select(x => client.GetByteArrayAsync(x.Url)))).Select((x, i) => (x, attachments[i].Filename)).ToArray());
 
 		await requester.SaveChangesAsync();
 	}
 
 	public BugReportRequester GetNewRequester()
 	{
-		return new(this._config, this);
+		return new(this);
 	}
 
-	~BugReportDatabaseService()
-	{
-		this.Dispose();
-	}
 	public void Dispose()
 	{
 		GC.SuppressFinalize(this);
@@ -68,7 +60,7 @@ public sealed class BugReportDatabaseService : IDisposable
 		/// </summary>
 		public DbSet<ReportMessage> ReportMessages { get; set; }
 
-		internal BugReportRequester(IOptions<AdminConfig> config, BugReportDatabaseService parent)
+		internal BugReportRequester(BugReportDatabaseService parent)
 		{
 			this._parent = parent;
 			this.Database.EnsureCreated();

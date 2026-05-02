@@ -87,6 +87,15 @@ public class PhigrosDataUpdateService
 	}
 	private async Task UpdateDataCore()
 	{
+		using ExecuteBlockAtEnd _ = new(() =>
+		{
+			this.ExtractOptions.ApkFile?.Dispose();
+			this.ExtractOptions.ObbFile?.Dispose();
+			this.ExtractOptions.ClassDataFile?.Dispose();
+			this.ExtractOptions.ApkFile = null;
+			this.ExtractOptions.ObbFile = null;
+			this.ExtractOptions.ClassDataFile = null;
+		});
 		using HttpClient httpClient = new();
 
 		FileInfo apkFile = await CLI.DownloadApk("TAPTAP", null, this._cliLogger);

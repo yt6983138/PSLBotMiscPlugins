@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Mvc;
+using PSLDiscordBot.Framework;
 using System.Net;
-using System.Text;
 using System.Text.Json;
 
 namespace PhigrosApi.Controllers;
@@ -21,7 +21,7 @@ public enum ErrorCode
 }
 public record class Response<T>(bool Success, T Data);
 public record class ErrorData(ErrorCode Code, string CodeName, string Message);
-public abstract class CustomControllerBase : Controller
+public abstract class CustomControllerBase : CustomJsonController
 {
 	protected static readonly JsonSerializerOptions _jsonSettings = new()
 	{
@@ -45,6 +45,7 @@ public abstract class CustomControllerBase : Controller
 	protected ILogger _logger;
 
 	protected string IP => this.HttpContext.Features.Get<IHttpConnectionFeature>()?.RemoteIpAddress?.ToString() ?? "<unknown_ip>";
+	protected override object JsonSerializerOptions => _jsonSettings;
 
 	public CustomControllerBase(ILoggerFactory logger)
 	{
@@ -71,23 +72,6 @@ public abstract class CustomControllerBase : Controller
 	}
 
 	[NonAction]
-	public async Task<T?> ReadRequestBodyAsJson<T>(object? serializeSettings = null)
-	{
-		serializeSettings ??= _jsonSettings;
-		if (serializeSettings is Newtonsoft.Json.JsonSerializerSettings nSettings)
-		{
-			byte[] buffer = new byte[this.Request.Body.Length];
-			await this.Request.Body.ReadExactlyAsync(buffer);
-			return Newtonsoft.Json.JsonConvert.DeserializeObject<T>(Encoding.UTF8.GetString(buffer), nSettings);
-		}
-		else if (serializeSettings is JsonSerializerOptions sSettings)
-		{
-			return await JsonSerializer.DeserializeAsync<T>(this.Request.Body, sSettings);
-		}
-		throw new ArgumentException($"Unknown serializer type: {serializeSettings}", nameof(serializeSettings));
-	}
-
-	[NonAction]
 	public async Task<(T Value, IActionResult? Error)> ReadRequestBodyAs<T>()
 	{
 		T? body;
@@ -105,17 +89,6 @@ public abstract class CustomControllerBase : Controller
 			return (default!, this.Error("Body is empty", code: ErrorCode.RequestError));
 		}
 		return (body, default);
-	}
-	[NonAction]
-	public async Task<string> ReadRequestBodyAsString()
-	{
-		this.Request.EnableBuffering();
-
-		using StreamReader requestReader = new(this.Request.Body, leaveOpen: true);
-		string body = await requestReader.ReadToEndAsync();
-		this.Request.Body.Seek(0, SeekOrigin.Begin);
-
-		return body;
 	}
 
 	[NonAction]

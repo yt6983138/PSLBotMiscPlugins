@@ -2,21 +2,30 @@ using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Primitives;
+using PSLDiscordBot.Framework;
 using System.Text;
+using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Text.RegularExpressions;
 
 namespace PhigrosLoginHost.Controllers;
 
-public partial class MainController : Controller
+[Controller]
+public partial class MainController : CustomJsonController
 {
 	public const string TaptapAccountHost = "accounts.taptap.cn";
 
+	private static readonly JsonSerializerOptions _jsonOption = new(JsonSerializerDefaults.Web)
+	{
+		PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower
+	};
 	public static long NowTaptapTimeValue => (long)(DateTime.UtcNow - DateTime.UnixEpoch).TotalSeconds;
 
 	private readonly LoginHostConfig _config;
 	private readonly ILogger<MainController> _logger;
 	private readonly HttpClientService _httpService;
+
+	protected override object JsonSerializerOptions => _jsonOption;
 
 	public MainController(ILogger<MainController> logger, HttpClientService httpService, IOptions<LoginHostConfig> config)
 	{

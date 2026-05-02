@@ -1,41 +1,37 @@
 ﻿using Discord;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Options;
 using PSLDiscordBot.Framework;
 using PSLDiscordBot.Framework.BuiltInServices;
 
 namespace MinimalDependency;
 public class MinimalPlugin : IPlugin
 {
-	private const string ConfigLocation = "./MiscPlugins/Minimal.json";
-
-	private IDiscordClientService _discordClientService = null!;
-
 	public bool Initialized { get; private set; }
-	public IOptions<Config> Config { get; set; } = null!;
-
 
 	string IPlugin.Name => "PSLDiscordBot Minimal";
 	string IPlugin.Description => "Minimal implementation for PSLDiscord bot";
 	Version IPlugin.Version => new(1, 0, 0, 0);
 	string IPlugin.Author => "yt6983138 aka static_void (yt6983138@gmail.com)";
-
-	bool IPlugin.CanBeDynamicallyLoaded => false;
-	bool IPlugin.CanBeDynamicallyUnloaded => false;
 	int IPlugin.Priority => -1;
 
-	public void Load(WebApplicationBuilder hostBuilder, bool isDynamicLoading)
+	public void Load(WebApplicationBuilder hostBuilder)
 	{
 		hostBuilder.Services.Configure<Config>(
 			hostBuilder.Configuration.GetSection("MinimalPlugin"));
 	}
-	public void Setup(IHost host)
+	public void ConfigureDiscordClient(WebApplicationBuilder builder, DiscordClientServiceConfig config)
 	{
-		host.Services.GetRequiredService<Program>().AfterMainInitialize += this.MinimalPlugin_AfterMainInitialize;
+		config.Token = builder.Configuration.GetRequiredSection("MinimalPlugin")[nameof(Config.Token)] ?? "";
 	}
-	public void Unload(IHost host, bool isDynamicUnloading)
+	public void Setup(WebApplication host)
+	{
+		IDiscordClientService discordClientService = host.Services.GetRequiredService<IDiscordClientService>();
+		discordClientService.SocketClient.Log += this.Log;
+		discordClientService.SocketClient.Ready += this.Client_Ready;
+	}
+	public void Unload(WebApplication host, bool isSafeUnload)
 	{
 	}
 
@@ -51,13 +47,5 @@ public class MinimalPlugin : IPlugin
 			Console.WriteLine(msg.Exception.ToString());
 
 		return Task.CompletedTask;
-	}
-	private void MinimalPlugin_AfterMainInitialize(object? sender, EventArgs e)
-	{
-		this._discordClientService.Token = this.Config.Value.Token;
-		this._discordClientService.StartBotAsync().Wait();
-
-		this._discordClientService.SocketClient.Log += this.Log;
-		this._discordClientService.SocketClient.Ready += this.Client_Ready;
 	}
 }

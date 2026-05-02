@@ -1,7 +1,6 @@
 ﻿using AdminHelper.Services;
 using Discord;
 using Discord.WebSocket;
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using PSLDiscordBot.Core;
 using PSLDiscordBot.Core.Command.Global.Base;
@@ -11,7 +10,6 @@ using PSLDiscordBot.Core.Utility;
 using PSLDiscordBot.Framework;
 using PSLDiscordBot.Framework.CommandBase;
 using PSLDiscordBot.Framework.Localization;
-using System.Text;
 
 namespace AdminHelper.Commands;
 
@@ -35,21 +33,19 @@ public class CommandStatisticsCommand : GuestCommandBase
 
 	public override async Task Callback(SocketSlashCommand arg, UserData? data, DataBaseService.DbDataRequester requester, object executer)
 	{
-		List<CommandStatisticInfo> filtered = await this._commandStatisticsService.GetAllExistingReadonly();
+		using CommandStatisticsService.Requester commandStatRequester = this._commandStatisticsService.NewRequester();
+
+		List<CommandStatisticInfo> filtered = await commandStatRequester.GetAllExistingReadonly();
 		filtered.Sort((x, y) => y.UseCount.CompareTo(x.UseCount));
 
-		StringBuilder sb = new("Use count | Command name\n");
+		ColumnTextBuilder builder = new("Use count", "Command name");
 		foreach (CommandStatisticInfo item in filtered)
 		{
-			string useCount = item.UseCount.ToString();
-			sb.Append(useCount);
-			sb.Append(' ', 10 - useCount.Length);
-			sb.Append("| ");
-			sb.AppendLine(item.CommandName);
+			builder.WithRow(item.UseCount.ToString(), item.CommandName);
 		}
 
 		await arg.QuickReplyWithAttachments(
 			$"There are {filtered.Count} statistics:",
-			new FileAttachment(new MemoryStream(Encoding.UTF8.GetBytes(sb.ToString())), "Return.txt"));
+			PSLUtils.ToAttachment(builder.Build().ToString(), "Return.txt"));
 	}
 }

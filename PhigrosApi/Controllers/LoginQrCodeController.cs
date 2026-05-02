@@ -1,9 +1,10 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using PhigrosLibraryCSharp.Cloud.Login;
+using PhigrosLibraryCSharp.CloudSave.Login;
 using System.Runtime.CompilerServices;
 
 namespace PhigrosApi.Controllers;
 
+[Controller]
 [ApiExplorerSettings(GroupName = PhigrosApiPlugin.GroupName)]
 public class LoginQrCodeController : CustomControllerBase
 {
@@ -106,7 +107,7 @@ public class LoginQrCodeController : CustomControllerBase
 		{
 			return this.Error(ex, code: ErrorCode.LCLoginError);
 		}
-		this._logger.LogDebug("{ip} got token successfully. Token: {token}", this.IP, token);
+		this._logger.LogDebug("{ip} got token successfully.", this.IP);
 		return this.Json(token);
 	}
 }

@@ -1,53 +1,31 @@
-﻿using Microsoft.AspNetCore.Mvc.ApplicationParts;
-using PersonalWebsite.Services;
+﻿using PersonalWebsite.Services;
 using PSLDiscordBot.Framework;
+using PSLDiscordBot.Framework.BuiltInServices;
 
 namespace PersonalWebsite;
 
 public class PersonalWebsitePlugin : IPlugin
 {
-	private bool _hasOtherRegisteredMvc = false;
-
 	public string Name => "Personal Website";
 	public string Description => "My personal website.";
 	public Version Version => new(1, 0, 0, 0);
 	public string Author => "yt6983138 aka static_void (yt6983138@gmail.com)";
 	public int Priority => 10001;
-	public bool CanBeDynamicallyLoaded => false;
-	public bool CanBeDynamicallyUnloaded => false;
 
-	public void Load(WebApplicationBuilder hostBuilder, bool isDynamicLoading)
+	public void Load(WebApplicationBuilder hostBuilder)
 	{
 		hostBuilder.Services.AddSingleton<BlogManagerService>();
 		hostBuilder.Services.Configure<Config>(
 			hostBuilder.Configuration.GetSection("PersonalWebsiteConfig"));
 
-		this._hasOtherRegisteredMvc = hostBuilder.Services.HasMvcRegistered();
-
-		if (!this._hasOtherRegisteredMvc)
-		{
-			hostBuilder.Services.AddMvc();
-		}
-		hostBuilder.Services.AddRazorPages();
-		hostBuilder.Services.GetApplicationPartManager()
-			.ApplicationParts.Add(new AssemblyPart(typeof(PersonalWebsitePlugin).Assembly));
+		hostBuilder.Services.AddAssemblyToMvc(this);
 	}
-	public void Setup(IHost host)
+	public void ConfigureDiscordClient(WebApplicationBuilder builder, DiscordClientServiceConfig config) { }
+	public void Setup(WebApplication host)
 	{
-		WebApplication app = host.Unbox<WebApplication>();
-		if (!this._hasOtherRegisteredMvc)
-		{
-			app.MapControllers().AllowAnonymous();
-			app.UseStaticFiles(new StaticFileOptions()
-			{
-				ServeUnknownFileTypes = true
-			});
-			app.UseRouting();
-			app.UseAuthorization();
-		}
-		app.MapRazorPages().AllowAnonymous();
+		host.Services.GetRequiredService<IMvcConfigurationService>().StaticFileOptions.ServeUnknownFileTypes = true;
 	}
-	public void Unload(IHost host, bool isDynamicUnloading)
+	public void Unload(WebApplication host, bool isSafeUnload)
 	{
 	}
 
@@ -59,7 +37,10 @@ public class PersonalWebsitePlugin : IPlugin
 		PersonalWebsitePlugin self = new();
 
 		// Add services to the container.
-		self.Load(builder, false);
+		self.Load(builder);
+		builder.Services.AddMvc();
+
+		builder.Services.AddRazorPages();
 #if DEBUG
 		PhigrosApiPlugin phiApi = new();
 		phiApi.Load(builder, false);
@@ -76,6 +57,15 @@ public class PersonalWebsitePlugin : IPlugin
 		{
 			app.UseExceptionHandler("/Home/Error");
 		}
+		app.MapControllers().AllowAnonymous();
+		app.UseStaticFiles(new StaticFileOptions()
+		{
+			ServeUnknownFileTypes = true
+		});
+		app.UseRouting();
+		app.UseAuthorization();
+		app.MapRazorPages().AllowAnonymous();
+
 		self.Setup(app);
 #if DEBUG
 		phiApi.Setup(app);

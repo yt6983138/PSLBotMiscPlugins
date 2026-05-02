@@ -2,7 +2,6 @@
 using CsvHelper.Configuration;
 using Discord;
 using Discord.WebSocket;
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using PSLDiscordBot.Core;
 using PSLDiscordBot.Core.Command.Global.Base;
@@ -64,7 +63,7 @@ public class CsvToLocalization : AdminCommandBase
 
 			LocalizedString localizedString = localizationManager.LocalizedStrings.TryGetValue(key, out LocalizedString? localizedStringValue)
 				? localizedStringValue
-				: LocalizedString.Create([]);
+				: localizationManager.CreateString();
 
 			for (int i = 1; i < headers.Count; i++)
 			{

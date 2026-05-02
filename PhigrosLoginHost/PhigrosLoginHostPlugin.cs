@@ -1,52 +1,30 @@
-using Microsoft.AspNetCore.Mvc.ApplicationParts;
 using PSLDiscordBot.Framework;
+using PSLDiscordBot.Framework.BuiltInServices;
 using System.Text.Json;
 
 namespace PhigrosLoginHost;
 
 public class PhigrosLoginHostPlugin : IPlugin
 {
-	private bool _hasOtherRegisteredMvc = false;
-
 	public string Name => "Phigros Login Host";
 	public string Description => "Login host for people who cannot install TapTap China.";
 	public Version Version => new(1, 0, 0, 0);
 	public string Author => "yt6983138 aka static_void (yt6983138@gmail.com)";
 	public int Priority => 10000;
-	public bool CanBeDynamicallyLoaded => false;
-	public bool CanBeDynamicallyUnloaded => false;
 
-	public void Load(WebApplicationBuilder hostBuilder, bool isDynamicLoading)
+	public void Load(WebApplicationBuilder hostBuilder)
 	{
 		hostBuilder.Services.AddSingleton<HttpClientService>();
 		hostBuilder.Services.Configure<LoginHostConfig>(
 			hostBuilder.Configuration.GetSection("LoginHostConfig"));
-
-		this._hasOtherRegisteredMvc = hostBuilder.Services.HasMvcRegistered();
-
-		if (!this._hasOtherRegisteredMvc)
-		{
-			hostBuilder.Services.AddControllers()
-				.AddJsonOptions(x => x.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower);
-		}
-		hostBuilder.Services.GetApplicationPartManager()
-			.ApplicationParts.Add(new AssemblyPart(typeof(PhigrosLoginHostPlugin).Assembly));
+		hostBuilder.Services.AddAssemblyToMvc(this);
 	}
-	public void Setup(IHost host)
+	public void ConfigureDiscordClient(WebApplicationBuilder builder, DiscordClientServiceConfig config) { }
+	public void Setup(WebApplication host)
 	{
-		if (!this._hasOtherRegisteredMvc)
-		{
-			WebApplication app = host.Unbox<WebApplication>();
-			app.MapControllers().AllowAnonymous();
-			app.UseStaticFiles(new StaticFileOptions()
-			{
-				ServeUnknownFileTypes = true
-			});
-			app.UseRouting();
-			app.UseAuthorization();
-		}
+		host.Services.GetRequiredService<IMvcConfigurationService>().StaticFileOptions.ServeUnknownFileTypes = true;
 	}
-	public void Unload(IHost host, bool isDynamicUnloading)
+	public void Unload(WebApplication host, bool isSafeUnload)
 	{
 	}
 

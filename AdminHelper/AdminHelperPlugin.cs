@@ -1,5 +1,4 @@
 ﻿using AdminHelper.Services;
-using Microsoft.AspNetCore.Mvc.ApplicationParts;
 using Microsoft.Extensions.Options;
 using PSLDiscordBot.Core;
 using PSLDiscordBot.Core.Services;
@@ -18,16 +17,11 @@ public class AdminHelperPlugin : IPlugin
 	private Program _program = null!;
 	private PSLPlugin _pslPlugin = null!;
 
-	private bool _hasOtherRegisteredMvc = false;
-
 	string IPlugin.Name => "Admin helper";
 	string IPlugin.Description => "Help admins do shit";
 	Version IPlugin.Version => new(1, 1, 0, 0);
 	string IPlugin.Author => "yt6983138 aka static_void (yt6983138@gmail.com)";
 	int IPlugin.Priority => 114514_1;
-
-	bool IPlugin.CanBeDynamicallyLoaded => false;
-	bool IPlugin.CanBeDynamicallyUnloaded => false;
 
 	public string FormattedTimedDestination =>
 		string.Format(this.Config.Value.TimedBackupDestination, DateTime.Now.ToString("s")).Replace(':', '_');
@@ -38,7 +32,7 @@ public class AdminHelperPlugin : IPlugin
 	public IOptions<AdminConfig> Config { get; private set; } = null!;
 	public Timer? BackupTimer { get; private set; }
 
-	void IPlugin.Load(WebApplicationBuilder hostBuilder, bool isDynamicLoading)
+	void IPlugin.Load(WebApplicationBuilder hostBuilder)
 	{
 		hostBuilder.Services.Configure<AdminConfig>(
 			hostBuilder.Configuration.GetSection("AdminConfig"));
@@ -49,19 +43,12 @@ public class AdminHelperPlugin : IPlugin
 			.AddSingleton<BugReportDatabaseService>();
 		// i know it should be scoped or transient but commands are singletons, so it will be singleton eventually
 
-		this._hasOtherRegisteredMvc = hostBuilder.Services.HasMvcRegistered();
-		if (!this._hasOtherRegisteredMvc)
-		{
-			hostBuilder.Services.AddMvc();
-		}
-
-		hostBuilder.Services.GetApplicationPartManager()
-			.ApplicationParts.Add(new AssemblyPart(typeof(AdminHelperPlugin).Assembly));
+		hostBuilder.Services.AddAssemblyToMvc(this);
 
 		Console.CancelKeyPress += this.Console_CancelKeyPress;
 	}
-
-	void IPlugin.Setup(IHost host)
+	void IPlugin.ConfigureDiscordClient(WebApplicationBuilder builder, DiscordClientServiceConfig config) { }
+	void IPlugin.Setup(WebApplication host)
 	{
 		this._commandStatisticsService = host.Services.GetRequiredService<CommandStatisticsService>();
 		this._commandResolveService = host.Services.GetRequiredService<ICommandResolveService>();
@@ -80,18 +67,7 @@ public class AdminHelperPlugin : IPlugin
 		this.Logger = host.Services.GetRequiredService<ILogger<AdminHelperPlugin>>();
 		this.Config = host.Services.GetRequiredService<IOptions<AdminConfig>>();
 
-		if (!this._hasOtherRegisteredMvc)
-		{
-			WebApplication app = (WebApplication)host;
-
-			app.MapControllers().AllowAnonymous();
-			app.UseRouting();
-			app.UseAuthorization();
-			app.UseStaticFiles(new StaticFileOptions()
-			{
-				ServeUnknownFileTypes = true
-			});
-		}
+		host.Services.GetRequiredService<IMvcConfigurationService>().StaticFileOptions.ServeUnknownFileTypes = true;
 
 		if (this.Config.Value.TimedBackupInterval != TimeSpan.Zero)
 		{
@@ -112,11 +88,11 @@ public class AdminHelperPlugin : IPlugin
 	private Task AdminHelperPlugin_OnReportReceived(Discord.WebSocket.SocketUser user, string reportContent, Discord.IAttachment[] attachments)
 	{
 		// assume the admin has already known that they did or did not setup admin user properly
-		return this._pslPlugin.AdminDM?.SendMessageAsync($"You have a new bug report. Preview: {reportContent[..32]}...")
+		return this._pslPlugin.AdminDM?.SendMessageAsync($"You have a new bug report. Preview: {reportContent[..Math.Min(reportContent.Length, 32)]}...")
 			?? Task.CompletedTask;
 	}
 
-	void IPlugin.Unload(IHost host, bool isDynamicUnloading)
+	void IPlugin.Unload(WebApplication host, bool isSafeUnload)
 	{
 	}
 
@@ -186,13 +162,21 @@ public class AdminHelperPlugin : IPlugin
 	public static void Main() { }
 #endif
 
-	private async void CommandResolveService_BeforeSlashCommandExecutes(object? sender, PSLDiscordBot.Framework.MiscEventArgs.SlashCommandEventArgs e)
+	private async Task CommandResolveService_BeforeSlashCommandExecutes(object? sender, PSLDiscordBot.Framework.MiscEventArgs.SlashCommandEventArgs e)
 	{
 		if (e.Canceled) return;
 
-		CommandStatisticInfo info = await this._commandStatisticsService.GetOrAddNew(e.SocketSlashCommand.CommandName);
-		info.UseCount++;
-		await this._commandStatisticsService.SaveChangesAsync();
+		try
+		{
+			using CommandStatisticsService.Requester requester = this._commandStatisticsService.NewRequester();
+			CommandStatisticInfo info = await requester.GetOrAddNew(e.SocketSlashCommand.CommandName);
+			info.UseCount++;
+			await requester.SaveChangesAsync();
+		}
+		catch (Exception ex)
+		{
+			this.Logger.LogError(EventId, ex, "Failed to update command statistics for command '{commandName}'.", e.SocketSlashCommand.CommandName);
+		}
 	}
 	private void Console_CancelKeyPress(object? sender, ConsoleCancelEventArgs e)
 	{
@@ -214,7 +198,6 @@ public class AdminHelperPlugin : IPlugin
 
 			if (this._statusService.CurrentStatus == Status.Normal)
 			{
-				this.Logger.LogInformation(EventId, "Operation canceled.");
 				this.Logger.LogInformation(EventId, "Operation canceled.");
 				return;
 			}
