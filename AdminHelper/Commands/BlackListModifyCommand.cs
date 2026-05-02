@@ -75,6 +75,6 @@ public class BlackListModifyCommand : AdminCommandBase
 			return;
 		}
 
-		await arg.RespondAsync($"Condition with id {id} not found");
+		await arg.QuickReply($"Condition with id {id} not found");
 	}
 }

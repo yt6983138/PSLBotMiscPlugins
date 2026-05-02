@@ -56,7 +56,7 @@ public class PokeCommand : GuestCommandBase
 			this._logger.LogWarning(this.EventId, "Message is empty, replacing with zero width space. (Index: {index})", list.IndexOf(selected));
 		}
 
-		if (selected.AttachmentPath is not null)
+		if (!string.IsNullOrWhiteSpace(selected.AttachmentPath))
 		{
 			if (!File.Exists(selected.AttachmentPath))
 			{

@@ -1,9 +1,10 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using PhigrosLibraryCSharp;
+using PhigrosLibraryCSharp.LocalSave;
 using System.Net.Mime;
 
 namespace PhigrosApi.Controllers;
 
+[Controller]
 [ApiExplorerSettings(GroupName = PhigrosApiPlugin.GroupName)]
 public class LocalSaveController : CustomControllerBase
 {

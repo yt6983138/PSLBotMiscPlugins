@@ -52,7 +52,7 @@ public class StatusService
 		this._detached = true;
 	}
 
-	private async void BeforeSlashCommandExecutes(object? sender, SlashCommandEventArgs e)
+	private async Task BeforeSlashCommandExecutes(object? sender, SlashCommandEventArgs e)
 	{
 		if (this.CurrentStatus != Status.Normal
 			&& e.SocketSlashCommand.User.Id != this._configService.AdminUserId)
@@ -68,8 +68,15 @@ public class StatusService
 				Status.UpdatingData => "The bot is updating resources. You may try again later.",
 				_ => "Unspecified error."
 			};
-			await e.SocketSlashCommand.RespondAsync(message, ephemeral: true);
-			this._logger.LogInformation(EventId, "Blocked command {cmd} from {name}({id})", arg.CommandName, arg.User.GlobalName, arg.User.Id);
+			try
+			{
+				await e.SocketSlashCommand.RespondAsync(message, ephemeral: true);
+				this._logger.LogInformation(EventId, "Blocked command {cmd} from {name}({id})", arg.CommandName, arg.User.GlobalName, arg.User.Id);
+			}
+			catch (Exception ex)
+			{
+				this._logger.LogWarning(ex, "Failed to send maintenance message to {name}({id})", arg.User.GlobalName, arg.User.Id);
+			}
 			return;
 		}
 	}
