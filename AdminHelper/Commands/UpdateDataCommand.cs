@@ -1,4 +1,4 @@
-﻿using AdminHelper.Services;
+using AdminHelper.Services;
 using Discord;
 using Discord.WebSocket;
 using Microsoft.Extensions.Options;
@@ -18,8 +18,8 @@ public class UpdateDataCommand : AdminCommandBase
 {
 	private readonly PhigrosDataUpdateService _updateService;
 
-	public UpdateDataCommand(IOptions<Config> config, DataBaseService database, LocalizationService localization, PhigrosService phigrosData, ILoggerFactory loggerFactory, PhigrosDataUpdateService updateService)
-		: base(config, database, localization, phigrosData, loggerFactory)
+	public UpdateDataCommand(IServiceProvider provider, PhigrosDataUpdateService updateService)
+		: base(provider)
 	{
 		this._updateService = updateService;
 	}
@@ -45,3 +45,4 @@ public class UpdateDataCommand : AdminCommandBase
 		}
 	}
 }
+

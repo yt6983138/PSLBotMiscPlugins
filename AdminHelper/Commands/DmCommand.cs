@@ -1,4 +1,4 @@
-﻿using Discord;
+using Discord;
 using Discord.WebSocket;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -17,7 +17,7 @@ public class DmCommand : AvailableEveryWhereAdminCommand
 {
 	private readonly HttpClient _httpClient = new();
 
-	public DmCommand(IOptions<Config> config, DataBaseService database, LocalizationService localization, PhigrosService phigrosData, ILoggerFactory loggerFactory) : base(config, database, localization, phigrosData, loggerFactory)
+	public DmCommand(IServiceProvider provider) : base(provider)
 	{
 	}
 
@@ -91,3 +91,4 @@ public class DmCommand : AvailableEveryWhereAdminCommand
 		}
 	}
 }
+

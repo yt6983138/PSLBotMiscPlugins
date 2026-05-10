@@ -1,4 +1,4 @@
-﻿using Discord;
+using Discord;
 using Discord.Rest;
 using Discord.WebSocket;
 using Microsoft.Extensions.Logging;
@@ -16,7 +16,7 @@ namespace AdminHelper.Commands;
 [AddToGlobal]
 public class EditMessageCommand : AvailableEveryWhereAdminCommand
 {
-	public EditMessageCommand(IOptions<Config> config, DataBaseService database, LocalizationService localization, PhigrosService phigrosData, ILoggerFactory loggerFactory) : base(config, database, localization, phigrosData, loggerFactory)
+	public EditMessageCommand(IServiceProvider provider) : base(provider)
 	{
 	}
 
@@ -68,3 +68,4 @@ public class EditMessageCommand : AvailableEveryWhereAdminCommand
 		}
 	}
 }
+

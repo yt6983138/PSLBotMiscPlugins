@@ -11,7 +11,7 @@ namespace FunPlugin.Commands;
 [AddToGlobal]
 public class BonkCommand : PokeCommand
 {
-	public BonkCommand(IOptions<Config> config, DataBaseService database, LocalizationService localization, PhigrosService phigrosData, ILoggerFactory loggerFactory, IOptions<FPConfig> fpConfig) : base(config, database, localization, phigrosData, loggerFactory, fpConfig)
+	public BonkCommand(IServiceProvider provider, IOptions<FPConfig> fpConfig) : base(provider, fpConfig)
 	{
 	}
 

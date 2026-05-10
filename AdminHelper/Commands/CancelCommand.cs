@@ -1,4 +1,4 @@
-﻿using AdminHelper.Services;
+using AdminHelper.Services;
 using Discord;
 using Discord.WebSocket;
 using Microsoft.Extensions.Logging;
@@ -18,8 +18,8 @@ public class CancelCommand : AdminCommandBase
 {
 	private readonly StatusService _statusService;
 
-	public CancelCommand(IOptions<Config> config, DataBaseService database, LocalizationService localization, PhigrosService phigrosData, ILoggerFactory loggerFactory, StatusService statusService)
-		: base(config, database, localization, phigrosData, loggerFactory)
+	public CancelCommand(IServiceProvider provider, StatusService statusService)
+		: base(provider)
 	{
 		this._statusService = statusService;
 	}
@@ -37,3 +37,4 @@ public class CancelCommand : AdminCommandBase
 		await arg.ModifyOriginalResponseAsync(x => x.Content = $"Operation canceled successfully.");
 	}
 }
+

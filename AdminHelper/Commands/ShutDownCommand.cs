@@ -1,4 +1,4 @@
-﻿using AdminHelper.Services;
+using AdminHelper.Services;
 using Discord;
 using Discord.Rest;
 using Discord.WebSocket;
@@ -21,8 +21,8 @@ public class ShutDownCommand : AdminCommandBase
 	private readonly StatusService _statusService;
 	private readonly Program _program;
 
-	public ShutDownCommand(IOptions<Config> config, DataBaseService database, LocalizationService localization, PhigrosService phigrosData, ILoggerFactory loggerFactory, StatusService statusService, Program program)
-		: base(config, database, localization, phigrosData, loggerFactory)
+	public ShutDownCommand(IServiceProvider provider, StatusService statusService, Program program)
+		: base(provider)
 	{
 		this._statusService = statusService;
 		this._program = program;
@@ -55,3 +55,4 @@ public class ShutDownCommand : AdminCommandBase
 		this._program.CancellationTokenSource.Cancel();
 	}
 }
+

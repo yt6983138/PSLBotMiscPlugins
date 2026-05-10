@@ -1,4 +1,4 @@
-﻿using AdminHelper.Services;
+using AdminHelper.Services;
 using Discord;
 using Discord.WebSocket;
 using Microsoft.Extensions.Options;
@@ -18,8 +18,8 @@ public class CommandStatisticsCommand : GuestCommandBase
 {
 	private readonly CommandStatisticsService _commandStatisticsService;
 
-	public CommandStatisticsCommand(IOptions<Config> config, DataBaseService database, LocalizationService localization, PhigrosService phigrosData, ILoggerFactory loggerFactory, CommandStatisticsService commandStatisticsService)
-		: base(config, database, localization, phigrosData, loggerFactory)
+	public CommandStatisticsCommand(IServiceProvider provider, CommandStatisticsService commandStatisticsService)
+		: base(provider)
 	{
 		this._commandStatisticsService = commandStatisticsService;
 	}
@@ -49,3 +49,4 @@ public class CommandStatisticsCommand : GuestCommandBase
 			PSLUtils.ToAttachment(builder.Build().ToString(), "Return.txt"));
 	}
 }
+

@@ -18,12 +18,7 @@ namespace AdminHelper.Commands;
 [AddToGlobal]
 public class CsvToLocalization : AdminCommandBase
 {
-	public CsvToLocalization(
-		IOptions<Config> config,
-		DataBaseService database,
-		LocalizationService localization,
-		PhigrosService phigrosData,
-		ILoggerFactory loggerFactory) : base(config, database, localization, phigrosData, loggerFactory)
+	public CsvToLocalization(IServiceProvider provider) : base(provider)
 	{
 	}
 

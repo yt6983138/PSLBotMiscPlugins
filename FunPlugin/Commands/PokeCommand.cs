@@ -18,8 +18,8 @@ public class PokeCommand : GuestCommandBase
 {
 	private readonly IOptions<FPConfig> _fpConfig;
 
-	public PokeCommand(IOptions<Config> config, DataBaseService database, LocalizationService localization, PhigrosService phigrosData, ILoggerFactory loggerFactory, IOptions<FPConfig> fpConfig)
-		: base(config, database, localization, phigrosData, loggerFactory)
+	public PokeCommand(IServiceProvider provider, IOptions<FPConfig> fpConfig)
+		: base(provider)
 	{
 		this._fpConfig = fpConfig;
 	}

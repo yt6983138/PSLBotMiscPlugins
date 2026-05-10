@@ -1,4 +1,4 @@
-﻿using AdminHelper.Models;
+using AdminHelper.Models;
 using AdminHelper.Services;
 using Discord;
 using Discord.WebSocket;
@@ -19,8 +19,8 @@ public class BlackListListCommand : AdminCommandBase
 {
 	private readonly BlackListService _blackListService;
 
-	public BlackListListCommand(IOptions<Config> config, DataBaseService database, LocalizationService localization, PhigrosService phigrosData, ILoggerFactory loggerFactory, BlackListService blackListService)
-		: base(config, database, localization, phigrosData, loggerFactory)
+	public BlackListListCommand(IServiceProvider provider, BlackListService blackListService)
+		: base(provider)
 	{
 		this._blackListService = blackListService;
 	}
@@ -58,4 +58,5 @@ public class BlackListListCommand : AdminCommandBase
 		await arg.QuickReplyWithAttachments("Blacklist conditions:", [PSLUtils.ToAttachment(builder.Build().ToString(), "Blacklist.txt")]);
 	}
 }
+
 

@@ -1,4 +1,4 @@
-﻿using Discord;
+using Discord;
 using Discord.WebSocket;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -17,7 +17,7 @@ public class SendMessageCommand : AvailableEveryWhereAdminCommand
 {
 	private readonly HttpClient _httpClient = new();
 
-	public SendMessageCommand(IOptions<Config> config, DataBaseService database, LocalizationService localization, PhigrosService phigrosData, ILoggerFactory loggerFactory) : base(config, database, localization, phigrosData, loggerFactory)
+	public SendMessageCommand(IServiceProvider provider) : base(provider)
 	{
 	}
 
@@ -85,3 +85,4 @@ public class SendMessageCommand : AvailableEveryWhereAdminCommand
 		}
 	}
 }
+

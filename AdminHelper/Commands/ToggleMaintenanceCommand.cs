@@ -1,4 +1,4 @@
-﻿using AdminHelper.Services;
+using AdminHelper.Services;
 using Discord;
 using Discord.WebSocket;
 using Microsoft.Extensions.Logging;
@@ -18,8 +18,8 @@ public class ToggleMaintenanceCommand : AdminCommandBase
 {
 	private readonly StatusService _statusService;
 
-	public ToggleMaintenanceCommand(IOptions<Config> config, DataBaseService database, LocalizationService localization, PhigrosService phigrosData, ILoggerFactory loggerFactory, StatusService statusService)
-		: base(config, database, localization, phigrosData, loggerFactory)
+	public ToggleMaintenanceCommand(IServiceProvider provider, StatusService statusService)
+		: base(provider)
 	{
 		this._statusService = statusService;
 	}
@@ -49,3 +49,4 @@ public class ToggleMaintenanceCommand : AdminCommandBase
 			x => x.Content = $"Operation done successfully, current status: {this._statusService.CurrentStatus}");
 	}
 }
+

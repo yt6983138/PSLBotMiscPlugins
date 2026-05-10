@@ -1,4 +1,4 @@
-﻿using AdminHelper.Models;
+using AdminHelper.Models;
 using AdminHelper.Services;
 using Discord;
 using Discord.WebSocket;
@@ -20,8 +20,8 @@ public class BlackListInfoCommand : AdminCommandBase
 {
 	private readonly BlackListService _blackListService;
 
-	public BlackListInfoCommand(IOptions<Config> config, DataBaseService database, LocalizationService localization, PhigrosService phigrosData, ILoggerFactory loggerFactory, BlackListService blackListService)
-		: base(config, database, localization, phigrosData, loggerFactory)
+	public BlackListInfoCommand(IServiceProvider provider, BlackListService blackListService)
+		: base(provider)
 	{
 		this._blackListService = blackListService;
 	}
@@ -50,3 +50,4 @@ public class BlackListInfoCommand : AdminCommandBase
 		await arg.QuickReply($"Condition with id {id} not found");
 	}
 }
+
