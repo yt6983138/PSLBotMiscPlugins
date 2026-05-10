@@ -25,7 +25,7 @@ public class CancelCommand : AdminCommandBase
 	}
 
 	public override OneOf<string, LocalizedString> PSLName => "admin-cancel";
-	public override OneOf<string, LocalizedString> PSLDescription => "Cancel last admin operation. [Admin command]";
+	public override OneOf<string, LocalizedString> PSLDescription => "[Admin command] Cancel last admin operation.";
 
 	public override SlashCommandBuilder CompleteBuilder =>
 		this.BasicBuilder;

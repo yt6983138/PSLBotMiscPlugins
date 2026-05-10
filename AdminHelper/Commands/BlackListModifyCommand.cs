@@ -33,7 +33,7 @@ public class BlackListModifyCommand : AdminCommandBase
 	}
 
 	public override OneOf<string, LocalizedString> PSLName => "blacklist-modify";
-	public override OneOf<string, LocalizedString> PSLDescription => "blacklist modification";
+	public override OneOf<string, LocalizedString> PSLDescription => "[Admin command] blacklist modification";
 
 	public override SlashCommandBuilder CompleteBuilder
 		=> this.BasicBuilder

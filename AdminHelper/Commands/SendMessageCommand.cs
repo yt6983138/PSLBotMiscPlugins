@@ -22,7 +22,7 @@ public class SendMessageCommand : AvailableEveryWhereAdminCommand
 	}
 
 	public override OneOf<string, LocalizedString> PSLName => "mm-send-message";
-	public override OneOf<string, LocalizedString> PSLDescription => "Try send message. [Admin command]";
+	public override OneOf<string, LocalizedString> PSLDescription => "[Admin command] Try send message.";
 
 	public override SlashCommandBuilder CompleteBuilder =>
 		this.BasicBuilder

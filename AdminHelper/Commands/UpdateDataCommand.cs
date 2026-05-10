@@ -25,7 +25,7 @@ public class UpdateDataCommand : AdminCommandBase
 	}
 
 	public override OneOf<string, LocalizedString> PSLName => "update-data";
-	public override OneOf<string, LocalizedString> PSLDescription => "Update Phigros data. [Admin command]";
+	public override OneOf<string, LocalizedString> PSLDescription => "[Admin command] Update Phigros data.";
 
 	public override SlashCommandBuilder CompleteBuilder =>
 		this.BasicBuilder;

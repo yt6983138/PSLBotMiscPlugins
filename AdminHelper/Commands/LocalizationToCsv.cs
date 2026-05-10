@@ -24,7 +24,7 @@ public class LocalizationToCsv : AdminCommandBase
 	}
 
 	public override OneOf<string, LocalizedString> PSLName => "localization-to-csv";
-	public override OneOf<string, LocalizedString> PSLDescription => "Convert localization to csv";
+	public override OneOf<string, LocalizedString> PSLDescription => "[Admin command] Convert localization to csv";
 
 	public override SlashCommandBuilder CompleteBuilder => this.BasicBuilder;
 

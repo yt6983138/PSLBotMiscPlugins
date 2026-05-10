@@ -21,7 +21,7 @@ public class EditMessageCommand : AvailableEveryWhereAdminCommand
 	}
 
 	public override OneOf<string, LocalizedString> PSLName => "mm-edit-message";
-	public override OneOf<string, LocalizedString> PSLDescription => "Try edit message. [Admin command]";
+	public override OneOf<string, LocalizedString> PSLDescription => "[Admin command] Try edit message.";
 
 	public override SlashCommandBuilder CompleteBuilder =>
 		this.BasicBuilder

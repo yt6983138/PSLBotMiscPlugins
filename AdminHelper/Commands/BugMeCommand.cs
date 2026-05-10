@@ -22,7 +22,7 @@ public class BugMeCommand : AdminCommandBase
 	}
 
 	public override OneOf<string, LocalizedString> PSLName => "bug-me";
-	public override OneOf<string, LocalizedString> PSLDescription => "Can be used to test exception handling. [Admin command]";
+	public override OneOf<string, LocalizedString> PSLDescription => "[Admin command] Can be used to test exception handling.";
 
 	public override SlashCommandBuilder CompleteBuilder =>
 		this.BasicBuilder

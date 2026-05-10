@@ -27,7 +27,7 @@ public class BlackListInfoCommand : AdminCommandBase
 	}
 
 	public override OneOf<string, LocalizedString> PSLName => "blacklist-info";
-	public override OneOf<string, LocalizedString> PSLDescription => "blacklist info";
+	public override OneOf<string, LocalizedString> PSLDescription => "[Admin command] blacklist info";
 
 	public override SlashCommandBuilder CompleteBuilder
 		=> this.BasicBuilder

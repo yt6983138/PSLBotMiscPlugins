@@ -23,7 +23,7 @@ public class CsvToLocalization : AdminCommandBase
 	}
 
 	public override OneOf<string, LocalizedString> PSLName => "csv-to-localization";
-	public override OneOf<string, LocalizedString> PSLDescription => "Convert csv to localization";
+	public override OneOf<string, LocalizedString> PSLDescription => "[Admin command] Convert csv to localization";
 
 	public override SlashCommandBuilder CompleteBuilder => this.BasicBuilder
 		.AddOption("csv",

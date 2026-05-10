@@ -22,7 +22,7 @@ public class DmCommand : AvailableEveryWhereAdminCommand
 	}
 
 	public override OneOf<string, LocalizedString> PSLName => "mm-dm";
-	public override OneOf<string, LocalizedString> PSLDescription => "Try dm someone. [Admin command]";
+	public override OneOf<string, LocalizedString> PSLDescription => "[Admin command] Try dm someone.";
 
 	public override SlashCommandBuilder CompleteBuilder =>
 		this.BasicBuilder

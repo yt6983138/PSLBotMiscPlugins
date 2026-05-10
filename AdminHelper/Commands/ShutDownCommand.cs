@@ -29,7 +29,7 @@ public class ShutDownCommand : AdminCommandBase
 	}
 
 	public override OneOf<string, LocalizedString> PSLName => "shutdown";
-	public override OneOf<string, LocalizedString> PSLDescription => "Shut down the bot. [Admin command]";
+	public override OneOf<string, LocalizedString> PSLDescription => "[Admin command] Shut down the bot.";
 
 	public override SlashCommandBuilder CompleteBuilder =>
 		this.BasicBuilder;

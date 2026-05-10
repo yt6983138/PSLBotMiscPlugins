@@ -20,7 +20,7 @@ public class DeleteMessageCommand : AvailableEveryWhereAdminCommand
 	}
 
 	public override OneOf<string, LocalizedString> PSLName => "mm-delete-message";
-	public override OneOf<string, LocalizedString> PSLDescription => "Try delete message. [Admin command]";
+	public override OneOf<string, LocalizedString> PSLDescription => "[Admin command] Try delete message.";
 
 	public override SlashCommandBuilder CompleteBuilder =>
 		this.BasicBuilder

@@ -33,7 +33,7 @@ public class ToggleMaintenanceCommand : AdminCommandBase
 	];
 
 	public override OneOf<string, LocalizedString> PSLName => "toggle-maintenance";
-	public override OneOf<string, LocalizedString> PSLDescription => "Toggle maintenance. [Admin command]";
+	public override OneOf<string, LocalizedString> PSLDescription => "[Admin command] Toggle maintenance.";
 
 	public override SlashCommandBuilder CompleteBuilder =>
 		this.BasicBuilder;
