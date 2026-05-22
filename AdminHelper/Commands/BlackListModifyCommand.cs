@@ -1,16 +1,14 @@
-﻿using AdminHelper.Models;
+using AdminHelper.Models;
 using AdminHelper.Services;
 using Discord;
 using Discord.WebSocket;
-using Microsoft.Extensions.Options;
-using PSLDiscordBot.Core;
 using PSLDiscordBot.Core.Command.Global.Base;
+using PSLDiscordBot.Core.Models;
 using PSLDiscordBot.Core.Services;
-using PSLDiscordBot.Core.UserDatas;
 using PSLDiscordBot.Core.Utility;
-using PSLDiscordBot.Framework;
 using PSLDiscordBot.Framework.CommandBase;
 using PSLDiscordBot.Framework.Localization;
+using PSLDiscordBot.Framework.Utilities;
 
 namespace AdminHelper.Commands;
 
@@ -26,14 +24,14 @@ public class BlackListModifyCommand : AdminCommandBase
 
 	private readonly BlackListService _blackListService;
 
-	public BlackListModifyCommand(IOptions<Config> config, DataBaseService database, LocalizationService localization, PhigrosService phigrosData, ILoggerFactory loggerFactory, BlackListService blackListService)
-		: base(config, database, localization, phigrosData, loggerFactory)
+	public BlackListModifyCommand(IServiceProvider provider, BlackListService blackListService)
+		: base(provider)
 	{
 		this._blackListService = blackListService;
 	}
 
 	public override OneOf<string, LocalizedString> PSLName => "blacklist-modify";
-	public override OneOf<string, LocalizedString> PSLDescription => "blacklist modification";
+	public override OneOf<string, LocalizedString> PSLDescription => "[Admin command] blacklist modification";
 
 	public override SlashCommandBuilder CompleteBuilder
 		=> this.BasicBuilder
@@ -47,7 +45,7 @@ public class BlackListModifyCommand : AdminCommandBase
 			ApplicationCommandOptionType.Integer,
 			"what operation, please avoid Delete if possible",
 			isRequired: true,
-			choices: Utils.CreateChoicesFromEnum<Operation>());
+			choices: BuilderUtility.CreateChoicesFromEnum<Operation>());
 
 	public override async Task Callback(SocketSlashCommand arg, UserData? data, DataBaseService.DbDataRequester requester, object executer)
 	{
@@ -78,3 +76,4 @@ public class BlackListModifyCommand : AdminCommandBase
 		await arg.QuickReply($"Condition with id {id} not found");
 	}
 }
+

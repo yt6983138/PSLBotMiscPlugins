@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Mvc;
-using PSLDiscordBot.Framework;
+using PSLDiscordBot.Framework.Utilities;
 using System.Net;
 using System.Text.Json;
 

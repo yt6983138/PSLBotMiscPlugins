@@ -1,16 +1,14 @@
-﻿using AdminHelper.Models;
+using AdminHelper.Models;
 using AdminHelper.Services;
 using Discord;
 using Discord.WebSocket;
-using Microsoft.Extensions.Options;
-using PSLDiscordBot.Core;
 using PSLDiscordBot.Core.Command.Global.Base;
+using PSLDiscordBot.Core.Models;
 using PSLDiscordBot.Core.Services;
-using PSLDiscordBot.Core.UserDatas;
 using PSLDiscordBot.Core.Utility;
-using PSLDiscordBot.Framework;
 using PSLDiscordBot.Framework.CommandBase;
 using PSLDiscordBot.Framework.Localization;
+using PSLDiscordBot.Framework.Utilities;
 
 namespace AdminHelper.Commands;
 
@@ -19,14 +17,14 @@ public class BlackListAddCommand : AdminCommandBase
 {
 	private readonly BlackListService _blackListService;
 
-	public BlackListAddCommand(IOptions<Config> config, DataBaseService database, LocalizationService localization, PhigrosService phigrosData, ILoggerFactory loggerFactory, BlackListService blackListService)
-		: base(config, database, localization, phigrosData, loggerFactory)
+	public BlackListAddCommand(IServiceProvider provider, BlackListService blackListService)
+		: base(provider)
 	{
 		this._blackListService = blackListService;
 	}
 
 	public override OneOf<string, LocalizedString> PSLName => "blacklist-add";
-	public override OneOf<string, LocalizedString> PSLDescription => "blacklist someone";
+	public override OneOf<string, LocalizedString> PSLDescription => "[Admin command] blacklist someone";
 
 	public override SlashCommandBuilder CompleteBuilder
 		=> this.BasicBuilder
@@ -90,3 +88,4 @@ public class BlackListAddCommand : AdminCommandBase
 		await arg.QuickReply($"BlackList added. Test result: {test}. Response message: {str}");
 	}
 }
+

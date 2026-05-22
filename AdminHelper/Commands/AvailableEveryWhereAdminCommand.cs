@@ -1,4 +1,4 @@
-﻿using Discord;
+using Discord;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using PSLDiscordBot.Core;
@@ -9,7 +9,7 @@ namespace AdminHelper.Commands;
 
 public abstract class AvailableEveryWhereAdminCommand : AdminCommandBase
 {
-	protected AvailableEveryWhereAdminCommand(IOptions<Config> config, DataBaseService database, LocalizationService localization, PhigrosService phigrosData, ILoggerFactory loggerFactory) : base(config, database, localization, phigrosData, loggerFactory)
+	protected AvailableEveryWhereAdminCommand(IServiceProvider provider) : base(provider)
 	{
 	}
 
@@ -20,3 +20,4 @@ public abstract class AvailableEveryWhereAdminCommand : AdminCommandBase
 		InteractionContextType.PrivateChannel
 	];
 }
+

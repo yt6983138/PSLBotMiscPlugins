@@ -1,26 +1,23 @@
-﻿using Discord;
+using Discord;
 using Discord.WebSocket;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
-using PSLDiscordBot.Core;
+using PSLDiscordBot.Core.Models;
 using PSLDiscordBot.Core.Services;
-using PSLDiscordBot.Core.UserDatas;
 using PSLDiscordBot.Core.Utility;
-using PSLDiscordBot.Framework;
 using PSLDiscordBot.Framework.CommandBase;
 using PSLDiscordBot.Framework.Localization;
+using PSLDiscordBot.Framework.Utilities;
 
 namespace AdminHelper.Commands;
 
 [AddToGlobal]
 public class DeleteMessageCommand : AvailableEveryWhereAdminCommand
 {
-	public DeleteMessageCommand(IOptions<Config> config, DataBaseService database, LocalizationService localization, PhigrosService phigrosData, ILoggerFactory loggerFactory) : base(config, database, localization, phigrosData, loggerFactory)
+	public DeleteMessageCommand(IServiceProvider provider) : base(provider)
 	{
 	}
 
 	public override OneOf<string, LocalizedString> PSLName => "mm-delete-message";
-	public override OneOf<string, LocalizedString> PSLDescription => "Try delete message. [Admin command]";
+	public override OneOf<string, LocalizedString> PSLDescription => "[Admin command] Try delete message.";
 
 	public override SlashCommandBuilder CompleteBuilder =>
 		this.BasicBuilder
@@ -56,3 +53,4 @@ public class DeleteMessageCommand : AvailableEveryWhereAdminCommand
 		}
 	}
 }
+

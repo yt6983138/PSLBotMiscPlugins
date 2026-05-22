@@ -1,14 +1,11 @@
-﻿using Discord;
+using Discord;
 using Discord.WebSocket;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
-using PSLDiscordBot.Core;
+using PSLDiscordBot.Core.Models;
 using PSLDiscordBot.Core.Services;
-using PSLDiscordBot.Core.UserDatas;
 using PSLDiscordBot.Core.Utility;
-using PSLDiscordBot.Framework;
 using PSLDiscordBot.Framework.CommandBase;
 using PSLDiscordBot.Framework.Localization;
+using PSLDiscordBot.Framework.Utilities;
 
 namespace AdminHelper.Commands;
 
@@ -17,12 +14,12 @@ public class DmCommand : AvailableEveryWhereAdminCommand
 {
 	private readonly HttpClient _httpClient = new();
 
-	public DmCommand(IOptions<Config> config, DataBaseService database, LocalizationService localization, PhigrosService phigrosData, ILoggerFactory loggerFactory) : base(config, database, localization, phigrosData, loggerFactory)
+	public DmCommand(IServiceProvider provider) : base(provider)
 	{
 	}
 
 	public override OneOf<string, LocalizedString> PSLName => "mm-dm";
-	public override OneOf<string, LocalizedString> PSLDescription => "Try dm someone. [Admin command]";
+	public override OneOf<string, LocalizedString> PSLDescription => "[Admin command] Try dm someone.";
 
 	public override SlashCommandBuilder CompleteBuilder =>
 		this.BasicBuilder
@@ -91,3 +88,4 @@ public class DmCommand : AvailableEveryWhereAdminCommand
 		}
 	}
 }
+

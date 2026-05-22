@@ -2,14 +2,13 @@
 using Discord.WebSocket;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using PSLDiscordBot.Core;
 using PSLDiscordBot.Core.Command.Global.Base;
+using PSLDiscordBot.Core.Models;
 using PSLDiscordBot.Core.Services;
-using PSLDiscordBot.Core.UserDatas;
 using PSLDiscordBot.Core.Utility;
-using PSLDiscordBot.Framework;
 using PSLDiscordBot.Framework.CommandBase;
 using PSLDiscordBot.Framework.Localization;
+using PSLDiscordBot.Framework.Utilities;
 
 namespace FunPlugin.Commands;
 
@@ -18,8 +17,8 @@ public class PokeCommand : GuestCommandBase
 {
 	private readonly IOptions<FPConfig> _fpConfig;
 
-	public PokeCommand(IOptions<Config> config, DataBaseService database, LocalizationService localization, PhigrosService phigrosData, ILoggerFactory loggerFactory, IOptions<FPConfig> fpConfig)
-		: base(config, database, localization, phigrosData, loggerFactory)
+	public PokeCommand(IServiceProvider provider, IOptions<FPConfig> fpConfig)
+		: base(provider)
 	{
 		this._fpConfig = fpConfig;
 	}

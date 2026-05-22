@@ -1,15 +1,13 @@
-﻿using AdminHelper.Services;
+using AdminHelper.Services;
 using Discord;
 using Discord.WebSocket;
-using Microsoft.Extensions.Options;
-using PSLDiscordBot.Core;
 using PSLDiscordBot.Core.Command.Global.Base;
+using PSLDiscordBot.Core.Models;
 using PSLDiscordBot.Core.Services;
-using PSLDiscordBot.Core.UserDatas;
 using PSLDiscordBot.Core.Utility;
-using PSLDiscordBot.Framework;
 using PSLDiscordBot.Framework.CommandBase;
 using PSLDiscordBot.Framework.Localization;
+using PSLDiscordBot.Framework.Utilities;
 
 namespace AdminHelper.Commands;
 
@@ -18,14 +16,14 @@ public class UpdateDataCommand : AdminCommandBase
 {
 	private readonly PhigrosDataUpdateService _updateService;
 
-	public UpdateDataCommand(IOptions<Config> config, DataBaseService database, LocalizationService localization, PhigrosService phigrosData, ILoggerFactory loggerFactory, PhigrosDataUpdateService updateService)
-		: base(config, database, localization, phigrosData, loggerFactory)
+	public UpdateDataCommand(IServiceProvider provider, PhigrosDataUpdateService updateService)
+		: base(provider)
 	{
 		this._updateService = updateService;
 	}
 
 	public override OneOf<string, LocalizedString> PSLName => "update-data";
-	public override OneOf<string, LocalizedString> PSLDescription => "Update Phigros data. [Admin command]";
+	public override OneOf<string, LocalizedString> PSLDescription => "[Admin command] Update Phigros data.";
 
 	public override SlashCommandBuilder CompleteBuilder =>
 		this.BasicBuilder;
@@ -45,3 +43,4 @@ public class UpdateDataCommand : AdminCommandBase
 		}
 	}
 }
+

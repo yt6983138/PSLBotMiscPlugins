@@ -2,15 +2,13 @@
 using CsvHelper.Configuration;
 using Discord;
 using Discord.WebSocket;
-using Microsoft.Extensions.Options;
-using PSLDiscordBot.Core;
 using PSLDiscordBot.Core.Command.Global.Base;
+using PSLDiscordBot.Core.Models;
 using PSLDiscordBot.Core.Services;
-using PSLDiscordBot.Core.UserDatas;
 using PSLDiscordBot.Core.Utility;
-using PSLDiscordBot.Framework;
 using PSLDiscordBot.Framework.CommandBase;
 using PSLDiscordBot.Framework.Localization;
+using PSLDiscordBot.Framework.Utilities;
 using System.Globalization;
 
 namespace AdminHelper.Commands;
@@ -18,17 +16,12 @@ namespace AdminHelper.Commands;
 [AddToGlobal]
 public class CsvToLocalization : AdminCommandBase
 {
-	public CsvToLocalization(
-		IOptions<Config> config,
-		DataBaseService database,
-		LocalizationService localization,
-		PhigrosService phigrosData,
-		ILoggerFactory loggerFactory) : base(config, database, localization, phigrosData, loggerFactory)
+	public CsvToLocalization(IServiceProvider provider) : base(provider)
 	{
 	}
 
 	public override OneOf<string, LocalizedString> PSLName => "csv-to-localization";
-	public override OneOf<string, LocalizedString> PSLDescription => "Convert csv to localization";
+	public override OneOf<string, LocalizedString> PSLDescription => "[Admin command] Convert csv to localization";
 
 	public override SlashCommandBuilder CompleteBuilder => this.BasicBuilder
 		.AddOption("csv",
