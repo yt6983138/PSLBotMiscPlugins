@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Primitives;
-using PSLDiscordBot.Framework;
+using PSLDiscordBot.Framework.Utilities;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Nodes;

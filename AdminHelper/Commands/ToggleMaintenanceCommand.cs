@@ -1,9 +1,6 @@
 using AdminHelper.Services;
 using Discord;
 using Discord.WebSocket;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
-using PSLDiscordBot.Core;
 using PSLDiscordBot.Core.Command.Global.Base;
 using PSLDiscordBot.Core.Models;
 using PSLDiscordBot.Core.Services;

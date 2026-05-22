@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using PSLDiscordBot.Core.Services;
 using PSLDiscordBot.Framework;
 using PSLDiscordBot.Framework.BuiltInServices;
+using PSLDiscordBot.Framework.Utilities;
 
 namespace PhigrosApi;
 
@@ -52,7 +53,7 @@ public class PhigrosApiPlugin : IPlugin
 			x.InputFormatters.Add(new PlainTextFormatter());
 			x.InputFormatters.Insert(0, new NoReadInputFormatter());
 		});
-		Program.Instance.SwaggerGenFilter.Add(Utils.SwaggerRequireInTypeAssembly<PhigrosApiPlugin>);
+		Program.Instance.SwaggerGenFilter.Add(WebUtility.SwaggerRequireInTypeAssembly<PhigrosApiPlugin>);
 		Program.Instance.SwaggerConfigurators += (_, config) =>
 		{
 			config.EnableAnnotations();

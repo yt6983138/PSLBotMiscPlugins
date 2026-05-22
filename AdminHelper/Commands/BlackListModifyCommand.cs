@@ -2,15 +2,13 @@ using AdminHelper.Models;
 using AdminHelper.Services;
 using Discord;
 using Discord.WebSocket;
-using Microsoft.Extensions.Options;
-using PSLDiscordBot.Core;
 using PSLDiscordBot.Core.Command.Global.Base;
 using PSLDiscordBot.Core.Models;
 using PSLDiscordBot.Core.Services;
 using PSLDiscordBot.Core.Utility;
-using PSLDiscordBot.Framework;
 using PSLDiscordBot.Framework.CommandBase;
 using PSLDiscordBot.Framework.Localization;
+using PSLDiscordBot.Framework.Utilities;
 
 namespace AdminHelper.Commands;
 
@@ -47,7 +45,7 @@ public class BlackListModifyCommand : AdminCommandBase
 			ApplicationCommandOptionType.Integer,
 			"what operation, please avoid Delete if possible",
 			isRequired: true,
-			choices: Utils.CreateChoicesFromEnum<Operation>());
+			choices: BuilderUtility.CreateChoicesFromEnum<Operation>());
 
 	public override async Task Callback(SocketSlashCommand arg, UserData? data, DataBaseService.DbDataRequester requester, object executer)
 	{
