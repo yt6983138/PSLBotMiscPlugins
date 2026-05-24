@@ -53,12 +53,7 @@ public class PhigrosDataUpdateService
 		this._phigrosService = phigrosService;
 		LibLogger.Writer = new Cpp2IlILoggerWriter(cpp2ilLogger);
 
-		this.ExtractOptions = new()
-		{
-			NoIllustration = true,
-			NoMusic = true,
-			NoCharts = true,
-		};
+		this.ExtractOptions = new();
 	}
 
 	private void TrySaveJson(string location, object data)
@@ -72,20 +67,20 @@ public class PhigrosDataUpdateService
 			this._logger.LogError(ex, "Failed to write json to {Location}", location);
 		}
 	}
-	public async Task UpdateData()
+	public async Task UpdateData(bool reuseExistingPackage = false)
 	{
 		this._statusService.CurrentStatus = Status.UpdatingData;
 
 		try
 		{
-			await this.UpdateDataCore();
+			await this.UpdateDataCore(reuseExistingPackage);
 		}
 		finally
 		{
 			this._statusService.CurrentStatus = Status.Normal;
 		}
 	}
-	private async Task UpdateDataCore()
+	private async Task UpdateDataCore(bool reuseExistingPackage)
 	{
 		using ExecuteBlockAtEnd _ = new(() =>
 		{
@@ -98,7 +93,8 @@ public class PhigrosDataUpdateService
 		});
 		using HttpClient httpClient = new();
 
-		FileInfo apkFile = await CLI.DownloadApk("TAPTAP", null, this._cliLogger);
+		FileInfo apkFile = new(Path.Combine(Path.GetTempPath(), "phigros_latest.apk"));
+		if (!reuseExistingPackage) apkFile = await CLI.DownloadApk("TAPTAP", apkFile, this._cliLogger);
 		FileInfo classDataFile = await CLI.DownloadClassData("AUTO", null, this._cliLogger);
 
 		this.ExtractOptions.ApkFile = apkFile.OpenRead();

@@ -26,14 +26,20 @@ public class UpdateDataCommand : AdminCommandBase
 	public override OneOf<string, LocalizedString> PSLDescription => "[Admin command] Update Phigros data.";
 
 	public override SlashCommandBuilder CompleteBuilder =>
-		this.BasicBuilder;
+		this.BasicBuilder.AddOption(
+			"reuse-existing-package",
+			ApplicationCommandOptionType.Boolean,
+			"reuse the existing package or not",
+			isRequired: false);
 
 	public override async Task Callback(SocketSlashCommand arg, UserData? data, DataBaseService.DbDataRequester requester, object executer)
 	{
 		await arg.QuickReply("Updating...");
+		bool reuseExistingPackage = arg.GetOptionOrDefault<bool>("reuse-existing-package");
+
 		try
 		{
-			await this._updateService.UpdateData();
+			await this._updateService.UpdateData(reuseExistingPackage);
 			await arg.QuickReply("Done.");
 		}
 		catch (Exception ex)
