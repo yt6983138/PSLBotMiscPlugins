@@ -1,13 +1,3 @@
-using Discord;
-using Discord.WebSocket;
-using PSLDiscordBot.Core.Command.Global.Base;
-using PSLDiscordBot.Core.Models;
-using PSLDiscordBot.Core.Services;
-using PSLDiscordBot.Core.Utility;
-using PSLDiscordBot.Framework.CommandBase;
-using PSLDiscordBot.Framework.Localization;
-using PSLDiscordBot.Framework.Utilities;
-
 namespace AdminHelper.Commands;
 
 [AddToGlobal]
@@ -21,8 +11,7 @@ public class BugMeCommand : AdminCommandBase
 	public override OneOf<string, LocalizedString> PSLName => "bug-me";
 	public override OneOf<string, LocalizedString> PSLDescription => "[Admin command] Can be used to test exception handling.";
 
-	public override SlashCommandBuilder CompleteBuilder =>
-		this.BasicBuilder
+	public override SlashCommandBuilder CompleteBuilder => this.BasicBuilder
 		.AddOption(
 			"reply",
 			ApplicationCommandOptionType.Boolean,

@@ -1,12 +1,4 @@
-using Discord;
 using Discord.Rest;
-using Discord.WebSocket;
-using PSLDiscordBot.Core.Models;
-using PSLDiscordBot.Core.Services;
-using PSLDiscordBot.Core.Utility;
-using PSLDiscordBot.Framework.CommandBase;
-using PSLDiscordBot.Framework.Localization;
-using PSLDiscordBot.Framework.Utilities;
 
 namespace AdminHelper.Commands;
 
@@ -20,8 +12,7 @@ public class EditMessageCommand : AvailableEveryWhereAdminCommand
 	public override OneOf<string, LocalizedString> PSLName => "mm-edit-message";
 	public override OneOf<string, LocalizedString> PSLDescription => "[Admin command] Try edit message.";
 
-	public override SlashCommandBuilder CompleteBuilder =>
-		this.BasicBuilder
+	public override SlashCommandBuilder CompleteBuilder => this.BasicBuilder
 		.AddOption(
 			"channel",
 			ApplicationCommandOptionType.Channel,
@@ -40,29 +31,18 @@ public class EditMessageCommand : AvailableEveryWhereAdminCommand
 
 	public override async Task Callback(SocketSlashCommand arg, UserData? data, DataBaseService.DbDataRequester requester, object executer)
 	{
-		try
-		{
-			IMessageChannel channel = arg.Data.Options.First(x => x.Name == "channel")
-				.Value.Unbox<IMessageChannel>();
+		IMessageChannel channel = arg.GetOption<IMessageChannel>("channel");
 
-			string id = arg.Data.Options.First(x => x.Name == "message_id").Value.Unbox<string>();
+		string id = arg.GetOption<string>("message_id");
 
-			IMessage message = await channel.GetMessageAsync(ulong.Parse(id));
-			RestUserMessage editibleMessage = (RestUserMessage)message;
-			await editibleMessage.ModifyAsync(
-				x =>
-				{
-					x.Content = arg.Data.Options.FirstOrDefault(a => a.Name == "content")?
-						.Value.Unbox<string>() ?? "";
-				});
-			await arg.ModifyOriginalResponseAsync(
-				x => x.Content = $"Edited {message.Id}");
-		}
-		catch (Exception ex)
-		{
-			await arg.ModifyOriginalResponseAsync(
-				x => x.Content = ex.Message);
-		}
+		IMessage message = await channel.GetMessageAsync(ulong.Parse(id));
+		RestUserMessage editibleMessage = (RestUserMessage)message;
+		await editibleMessage.ModifyAsync(
+			x =>
+			{
+				x.Content = arg.GetOption<string>("content");
+			});
+		await arg.QuickReply($"Edited {message.Id}");
 	}
 }
 

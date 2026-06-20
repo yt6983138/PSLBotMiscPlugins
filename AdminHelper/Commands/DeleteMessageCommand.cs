@@ -1,12 +1,3 @@
-using Discord;
-using Discord.WebSocket;
-using PSLDiscordBot.Core.Models;
-using PSLDiscordBot.Core.Services;
-using PSLDiscordBot.Core.Utility;
-using PSLDiscordBot.Framework.CommandBase;
-using PSLDiscordBot.Framework.Localization;
-using PSLDiscordBot.Framework.Utilities;
-
 namespace AdminHelper.Commands;
 
 [AddToGlobal]
@@ -19,8 +10,7 @@ public class DeleteMessageCommand : AvailableEveryWhereAdminCommand
 	public override OneOf<string, LocalizedString> PSLName => "mm-delete-message";
 	public override OneOf<string, LocalizedString> PSLDescription => "[Admin command] Try delete message.";
 
-	public override SlashCommandBuilder CompleteBuilder =>
-		this.BasicBuilder
+	public override SlashCommandBuilder CompleteBuilder => this.BasicBuilder
 		.AddOption(
 			"channel",
 			ApplicationCommandOptionType.Channel,
@@ -34,23 +24,13 @@ public class DeleteMessageCommand : AvailableEveryWhereAdminCommand
 
 	public override async Task Callback(SocketSlashCommand arg, UserData? data, DataBaseService.DbDataRequester requester, object executer)
 	{
-		try
-		{
-			IMessageChannel channel = arg.Data.Options.First(x => x.Name == "channel")
-				.Value.Unbox<IMessageChannel>();
+		IMessageChannel channel = arg.GetOption<IMessageChannel>("channel");
 
-			string id = arg.Data.Options.First(x => x.Name == "message_id").Value.Unbox<string>();
+		string id = arg.GetOption<string>("message_id");
 
-			IMessage message = await channel.GetMessageAsync(ulong.Parse(id));
-			await message.DeleteAsync();
-			await arg.ModifyOriginalResponseAsync(
-				x => x.Content = $"Deleted {message.Id}");
-		}
-		catch (Exception ex)
-		{
-			await arg.ModifyOriginalResponseAsync(
-				x => x.Content = ex.Message);
-		}
+		IMessage message = await channel.GetMessageAsync(ulong.Parse(id));
+		await message.DeleteAsync();
+		await arg.QuickReply($"Deleted {message.Id}");
 	}
 }
 

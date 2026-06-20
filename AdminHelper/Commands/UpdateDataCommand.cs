@@ -1,13 +1,4 @@
 using AdminHelper.Services;
-using Discord;
-using Discord.WebSocket;
-using PSLDiscordBot.Core.Command.Global.Base;
-using PSLDiscordBot.Core.Models;
-using PSLDiscordBot.Core.Services;
-using PSLDiscordBot.Core.Utility;
-using PSLDiscordBot.Framework.CommandBase;
-using PSLDiscordBot.Framework.Localization;
-using PSLDiscordBot.Framework.Utilities;
 
 namespace AdminHelper.Commands;
 
@@ -25,8 +16,8 @@ public class UpdateDataCommand : AdminCommandBase
 	public override OneOf<string, LocalizedString> PSLName => "update-data";
 	public override OneOf<string, LocalizedString> PSLDescription => "[Admin command] Update Phigros data.";
 
-	public override SlashCommandBuilder CompleteBuilder =>
-		this.BasicBuilder.AddOption(
+	public override SlashCommandBuilder CompleteBuilder => this.BasicBuilder
+		.AddOption(
 			"reuse-existing-package",
 			ApplicationCommandOptionType.Boolean,
 			"reuse the existing package or not",

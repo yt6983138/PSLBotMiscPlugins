@@ -1,12 +1,3 @@
-using Discord;
-using Discord.WebSocket;
-using PSLDiscordBot.Core.Models;
-using PSLDiscordBot.Core.Services;
-using PSLDiscordBot.Core.Utility;
-using PSLDiscordBot.Framework.CommandBase;
-using PSLDiscordBot.Framework.Localization;
-using PSLDiscordBot.Framework.Utilities;
-
 namespace AdminHelper.Commands;
 
 [AddToGlobal]
@@ -21,8 +12,7 @@ public class SendMessageCommand : AvailableEveryWhereAdminCommand
 	public override OneOf<string, LocalizedString> PSLName => "mm-send-message";
 	public override OneOf<string, LocalizedString> PSLDescription => "[Admin command] Try send message.";
 
-	public override SlashCommandBuilder CompleteBuilder =>
-		this.BasicBuilder
+	public override SlashCommandBuilder CompleteBuilder => this.BasicBuilder
 		.AddOption(
 			"reply",
 			ApplicationCommandOptionType.String,
@@ -46,40 +36,31 @@ public class SendMessageCommand : AvailableEveryWhereAdminCommand
 
 	public override async Task Callback(SocketSlashCommand arg, UserData? data, DataBaseService.DbDataRequester requester, object executer)
 	{
-		try
-		{
-			string content = arg.Data.Options.First(x => x.Name == "content").Value.Unbox<string>();
-			string? reply = arg.Data.Options.FirstOrDefault(x => x.Name == "reply")?.Value.Unbox<string>();
-			IMessageChannel channel = arg.Data.Options.First(x => x.Name == "channel").Value.Unbox<IMessageChannel>();
-			IAttachment? attachment = arg.Data.Options.FirstOrDefault(x => x.Name == "attachment")?.Value.Unbox<IAttachment>();
+		string content = arg.GetOption<string>("content");
+		string? reply = arg.GetOptionOrDefault<string>("reply");
+		IMessageChannel channel = arg.GetOption<IMessageChannel>("channel");
+		IAttachment? attachment = arg.GetOptionOrDefault<IAttachment>("attachment");
 
-			if (attachment is null)
-			{
-				await channel.SendMessageAsync(
-					content,
-					messageReference: reply is null ? null! : new(ulong.Parse(reply), channel.Id));
-			}
-			else
-			{
-				Stream stream = await this._httpClient.GetStreamAsync(attachment.Url);
-
-				await channel.SendFileAsync(
-					new FileAttachment(
-						stream,
-						attachment.Filename,
-						attachment.Description,
-						attachment.IsSpoiler()),
-					content,
-					messageReference: reply is null ? null! : new(ulong.Parse(reply), channel.Id));
-			}
-			await arg.ModifyOriginalResponseAsync(
-				x => x.Content = $"Sent!");
-		}
-		catch (Exception ex)
+		if (attachment is null)
 		{
-			await arg.ModifyOriginalResponseAsync(
-				x => x.Content = ex.Message);
+			await channel.SendMessageAsync(
+				content,
+				messageReference: reply is null ? null! : new(ulong.Parse(reply), channel.Id));
 		}
+		else
+		{
+			Stream stream = await this._httpClient.GetStreamAsync(attachment.Url);
+
+			await channel.SendFileAsync(
+				new FileAttachment(
+					stream,
+					attachment.Filename,
+					attachment.Description,
+					attachment.IsSpoiler()),
+				content,
+				messageReference: reply is null ? null! : new(ulong.Parse(reply), channel.Id));
+		}
+		await arg.QuickReply("Sent!");
 	}
 }
 

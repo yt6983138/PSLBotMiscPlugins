@@ -1,12 +1,3 @@
-using Discord;
-using Discord.WebSocket;
-using PSLDiscordBot.Core.Models;
-using PSLDiscordBot.Core.Services;
-using PSLDiscordBot.Core.Utility;
-using PSLDiscordBot.Framework.CommandBase;
-using PSLDiscordBot.Framework.Localization;
-using PSLDiscordBot.Framework.Utilities;
-
 namespace AdminHelper.Commands;
 
 [AddToGlobal]
@@ -21,8 +12,7 @@ public class DmCommand : AvailableEveryWhereAdminCommand
 	public override OneOf<string, LocalizedString> PSLName => "mm-dm";
 	public override OneOf<string, LocalizedString> PSLDescription => "[Admin command] Try dm someone.";
 
-	public override SlashCommandBuilder CompleteBuilder =>
-		this.BasicBuilder
+	public override SlashCommandBuilder CompleteBuilder => this.BasicBuilder
 		.AddOption(
 			"reply",
 			ApplicationCommandOptionType.String,
@@ -46,46 +36,36 @@ public class DmCommand : AvailableEveryWhereAdminCommand
 
 	public override async Task Callback(SocketSlashCommand arg, UserData? data, DataBaseService.DbDataRequester requester, object executer)
 	{
-		try
-		{
-			string content = arg.Data.Options.First(x => x.Name == "content").Value
-				.Unbox<string>()
+		string content = arg.GetOption<string>("content")!
 				.Replace(@"\n", "\n")
 				.Replace("\\\n", @"\n");
-			content = $"{content}\n\n*Note: We cannot see your message sent in dm. Please use `/report-problem` to reply.*";
-			string? reply = arg.Data.Options.FirstOrDefault(x => x.Name == "reply")?.Value.Unbox<string>();
-			IUser user = arg.Data.Options.First(x => x.Name == "user").Value.Unbox<IUser>();
-			IAttachment? attachment = arg.Data.Options.FirstOrDefault(x => x.Name == "attachment")?.Value.Unbox<IAttachment>();
-			IDMChannel channel = await user.CreateDMChannelAsync();
+		content = $"{content}\n\n*Note: We cannot see your message sent in dm. Please use `/report-problem` to reply.*";
+		string? reply = arg.GetOptionOrDefault<string>("reply");
+		IUser user = arg.GetOption<IUser>("user");
+		IAttachment? attachment = arg.GetOptionOrDefault<IAttachment>("attachment");
+		IDMChannel channel = await user.CreateDMChannelAsync();
 
-			IUserMessage message;
-			if (attachment is null)
-			{
-				message = await channel.SendMessageAsync(
-					content,
-					messageReference: reply is null ? null! : new(ulong.Parse(reply), channel.Id));
-			}
-			else
-			{
-				Stream stream = await this._httpClient.GetStreamAsync(attachment.Url);
-
-				message = await channel.SendFileAsync(
-					new FileAttachment(
-						stream,
-						attachment.Filename,
-						attachment.Description,
-						attachment.IsSpoiler()),
-					content,
-					messageReference: reply is null ? null! : new(ulong.Parse(reply), channel.Id));
-			}
-			await arg.ModifyOriginalResponseAsync(
-				x => x.Content = $"Sent! Sent message ID: `{message.Id}`");
-		}
-		catch (Exception ex)
+		IUserMessage message;
+		if (attachment is null)
 		{
-			await arg.ModifyOriginalResponseAsync(
-				x => x.Content = ex.ToString());
+			message = await channel.SendMessageAsync(
+				content,
+				messageReference: reply is null ? null! : new(ulong.Parse(reply), channel.Id));
 		}
+		else
+		{
+			Stream stream = await this._httpClient.GetStreamAsync(attachment.Url);
+
+			message = await channel.SendFileAsync(
+				new FileAttachment(
+					stream,
+					attachment.Filename,
+					attachment.Description,
+					attachment.IsSpoiler()),
+				content,
+				messageReference: reply is null ? null! : new(ulong.Parse(reply), channel.Id));
+		}
+		await arg.QuickReply($"Sent! Sent message ID: `{message.Id}`");
 	}
 }
 

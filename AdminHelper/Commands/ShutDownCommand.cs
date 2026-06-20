@@ -1,14 +1,5 @@
 using AdminHelper.Services;
-using Discord;
 using Discord.Rest;
-using Discord.WebSocket;
-using PSLDiscordBot.Core.Command.Global.Base;
-using PSLDiscordBot.Core.Models;
-using PSLDiscordBot.Core.Services;
-using PSLDiscordBot.Core.Utility;
-using PSLDiscordBot.Framework;
-using PSLDiscordBot.Framework.CommandBase;
-using PSLDiscordBot.Framework.Localization;
 
 namespace AdminHelper.Commands;
 
@@ -28,8 +19,7 @@ public class ShutDownCommand : AdminCommandBase
 	public override OneOf<string, LocalizedString> PSLName => "shutdown";
 	public override OneOf<string, LocalizedString> PSLDescription => "[Admin command] Shut down the bot.";
 
-	public override SlashCommandBuilder CompleteBuilder =>
-		this.BasicBuilder;
+	public override SlashCommandBuilder CompleteBuilder => this.BasicBuilder;
 
 	public override async Task Callback(SocketSlashCommand arg, UserData? data, DataBaseService.DbDataRequester requester, object executer)
 	{

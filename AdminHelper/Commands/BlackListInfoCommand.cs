@@ -1,15 +1,6 @@
 using AdminHelper.Models;
 using AdminHelper.Services;
-using Discord;
-using Discord.WebSocket;
 using Newtonsoft.Json;
-using PSLDiscordBot.Core.Command.Global.Base;
-using PSLDiscordBot.Core.Models;
-using PSLDiscordBot.Core.Services;
-using PSLDiscordBot.Core.Utility;
-using PSLDiscordBot.Framework.CommandBase;
-using PSLDiscordBot.Framework.Localization;
-using PSLDiscordBot.Framework.Utilities;
 
 namespace AdminHelper.Commands;
 
@@ -27,8 +18,7 @@ public class BlackListInfoCommand : AdminCommandBase
 	public override OneOf<string, LocalizedString> PSLName => "blacklist-info";
 	public override OneOf<string, LocalizedString> PSLDescription => "[Admin command] blacklist info";
 
-	public override SlashCommandBuilder CompleteBuilder
-		=> this.BasicBuilder
+	public override SlashCommandBuilder CompleteBuilder => this.BasicBuilder
 		.AddOption(
 			"id",
 			ApplicationCommandOptionType.Integer,

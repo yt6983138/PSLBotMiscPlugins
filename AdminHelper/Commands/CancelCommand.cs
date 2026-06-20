@@ -1,12 +1,4 @@
 using AdminHelper.Services;
-using Discord;
-using Discord.WebSocket;
-using PSLDiscordBot.Core.Command.Global.Base;
-using PSLDiscordBot.Core.Models;
-using PSLDiscordBot.Core.Services;
-using PSLDiscordBot.Core.Utility;
-using PSLDiscordBot.Framework.CommandBase;
-using PSLDiscordBot.Framework.Localization;
 
 namespace AdminHelper.Commands;
 
@@ -24,14 +16,13 @@ public class CancelCommand : AdminCommandBase
 	public override OneOf<string, LocalizedString> PSLName => "admin-cancel";
 	public override OneOf<string, LocalizedString> PSLDescription => "[Admin command] Cancel last admin operation.";
 
-	public override SlashCommandBuilder CompleteBuilder =>
-		this.BasicBuilder;
+	public override SlashCommandBuilder CompleteBuilder => this.BasicBuilder;
 
 	public override async Task Callback(SocketSlashCommand arg, UserData? data, DataBaseService.DbDataRequester requester, object executer)
 	{
 		this._statusService.CurrentStatus = Status.Normal;
 
-		await arg.ModifyOriginalResponseAsync(x => x.Content = $"Operation canceled successfully.");
+		await arg.QuickReply("Operation canceled successfully.");
 	}
 }
 
