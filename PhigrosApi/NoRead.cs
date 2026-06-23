@@ -1,4 +1,4 @@
-﻿using Microsoft.OpenApi.Models;
+﻿using Microsoft.OpenApi;
 using Swashbuckle.AspNetCore.Annotations;
 using Swashbuckle.AspNetCore.SwaggerGen;
 
@@ -17,25 +17,28 @@ public struct NoRead<T>
 
 public class NoReadFilter : ISchemaFilter
 {
-	public void Apply(OpenApiSchema schema, SchemaFilterContext context)
+	public void Apply(IOpenApiSchema schema, SchemaFilterContext context)
 	{
-		if (context.Type.IsGenericType && context.Type.GetGenericTypeDefinition() == typeof(NoRead<>))
-		{
-			Type innerType = context.Type.GetGenericArguments()[0];
+		if (!context.Type.IsGenericType || context.Type.GetGenericTypeDefinition() != typeof(NoRead<>))
+			return;
 
-			if (!context.SchemaRepository.TryLookupByType(innerType, out OpenApiSchema? innerSchema))
-				innerSchema = context.SchemaGenerator.GenerateSchema(innerType, context.SchemaRepository);
+		if (schema is not OpenApiSchema openApiSchema)
+			return;
 
-			schema.Type = innerSchema.Type;
-			schema.Properties = innerSchema.Properties;
-			schema.Required = innerSchema.Required;
-			schema.Description = innerSchema.Description;
-			schema.Format = innerSchema.Format;
-			schema.Items = innerSchema.Items;
-			schema.AdditionalProperties = innerSchema.AdditionalProperties;
-			schema.Enum = innerSchema.Enum;
-			schema.Example = innerSchema.Example;
-			schema.Reference = innerSchema.Reference;
-		}
+		Type innerType = context.Type.GetGenericArguments()[0];
+		IOpenApiSchema innerSchema;
+		if (!context.SchemaRepository.TryLookupByType(innerType, out OpenApiSchemaReference? _innerSchema))
+			innerSchema = context.SchemaGenerator.GenerateSchema(innerType, context.SchemaRepository);
+		else innerSchema = _innerSchema;
+
+		openApiSchema.Type = innerSchema.Type;
+		openApiSchema.Properties = innerSchema.Properties;
+		openApiSchema.Required = innerSchema.Required;
+		openApiSchema.Description = innerSchema.Description;
+		openApiSchema.Format = innerSchema.Format;
+		openApiSchema.Items = innerSchema.Items;
+		openApiSchema.AdditionalProperties = innerSchema.AdditionalProperties;
+		openApiSchema.Enum = innerSchema.Enum;
+		openApiSchema.Example = innerSchema.Example;
 	}
 }

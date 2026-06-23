@@ -2,6 +2,10 @@
 using PSLDiscordBot.Framework;
 using PSLDiscordBot.Framework.BuiltInServices;
 using PSLDiscordBot.Framework.Utilities;
+#if DEBUG
+using PSLDiscordBot.Core.Services;
+using PhigrosApi;
+#endif
 
 namespace PersonalWebsite;
 
@@ -44,7 +48,7 @@ public class PersonalWebsitePlugin : IPlugin
 		builder.Services.AddRazorPages();
 #if DEBUG
 		PhigrosApiPlugin phiApi = new();
-		phiApi.Load(builder, false);
+		phiApi.Load(builder);
 
 		builder.Services.AddSingleton<PhigrosService>();
 		builder.Services.AddSingleton<LocalizationService>();

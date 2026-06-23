@@ -1,10 +1,8 @@
 ﻿using AdminHelper.Services;
-using Microsoft.Extensions.Options;
+using Discord.Rest;
 using PSLDiscordBot.Core;
-using PSLDiscordBot.Core.Services;
-using PSLDiscordBot.Framework;
 using PSLDiscordBot.Framework.BuiltInServices;
-using PSLDiscordBot.Framework.Utilities;
+using System.Text.Json;
 
 namespace AdminHelper;
 
@@ -106,12 +104,7 @@ public class AdminHelperPlugin : IPlugin
 
 		public bool HasStartedSuccessfully => throw new NotImplementedException();
 
-		public Task StartBotAsync(bool failOnAlreadyStarted = false)
-		{
-			throw new NotImplementedException();
-		}
-
-		public Task<bool> TryStartBotAsync(bool failOnAlreadyStarted = false)
+		public Task<(bool Success, Exception Exception)> TryStartBotAsync()
 		{
 			throw new NotImplementedException();
 		}
