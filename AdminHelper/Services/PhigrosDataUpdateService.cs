@@ -1,9 +1,6 @@
 ﻿using LibCpp2IL.Logging;
-using Microsoft.Extensions.Options;
 using PhiInfo.CLI;
 using PSLDiscordBot.Core;
-using PSLDiscordBot.Core.Services;
-using PSLDiscordBot.Framework.Localization;
 using System.Text.Json;
 
 namespace AdminHelper.Services;
@@ -67,20 +64,20 @@ public class PhigrosDataUpdateService
 			this._logger.LogError(ex, "Failed to write json to {Location}", location);
 		}
 	}
-	public async Task UpdateData(bool reuseExistingPackage = false)
+	public async Task UpdateData(bool reuseExistingApk = false, string tpkUrl = "AUTO")
 	{
 		this._statusService.CurrentStatus = Status.UpdatingData;
 
 		try
 		{
-			await this.UpdateDataCore(reuseExistingPackage);
+			await this.UpdateDataCore(reuseExistingApk, tpkUrl);
 		}
 		finally
 		{
 			this._statusService.CurrentStatus = Status.Normal;
 		}
 	}
-	private async Task UpdateDataCore(bool reuseExistingPackage)
+	private async Task UpdateDataCore(bool reuseExistingApk, string tpkUrl)
 	{
 		using ExecuteBlockAtEnd _ = new(() =>
 		{
@@ -94,8 +91,9 @@ public class PhigrosDataUpdateService
 		using HttpClient httpClient = new();
 
 		FileInfo apkFile = new(Path.Combine(Path.GetTempPath(), "phigros_latest.apk"));
-		if (!reuseExistingPackage) apkFile = await CLI.DownloadApk("TAPTAP", apkFile, this._cliLogger);
-		FileInfo classDataFile = await CLI.DownloadClassData("AUTO", null, this._cliLogger);
+		if (!reuseExistingApk) apkFile = await CLI.DownloadApk("TAPTAP", apkFile, this._cliLogger);
+		FileInfo classDataFile = new(Path.Combine(Path.GetTempPath(), "classdata.tpk"));
+		classDataFile = await CLI.DownloadClassData(tpkUrl, classDataFile, this._cliLogger);
 
 		this.ExtractOptions.ApkFile = apkFile.OpenRead();
 		this.ExtractOptions.ObbFile = apkFile.OpenRead();

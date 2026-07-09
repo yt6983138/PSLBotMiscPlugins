@@ -21,16 +21,23 @@ public class UpdateDataCommand : AdminCommandBase
 			"reuse-existing-package",
 			ApplicationCommandOptionType.Boolean,
 			"reuse the existing package or not",
+			isRequired: false)
+		.AddOption(
+			"tpk",
+			ApplicationCommandOptionType.Attachment,
+			"tpk file, omit to get one automatically",
 			isRequired: false);
 
 	public override async Task Callback(SocketSlashCommand arg, UserData? data, DataBaseService.DbDataRequester requester, object executer)
 	{
 		await arg.QuickReply("Updating...");
 		bool reuseExistingPackage = arg.GetOptionOrDefault<bool>("reuse-existing-package");
+		// seems like the newest tpk file is kinda broken, so providing an option to use a custom one
+		IAttachment? tpk = arg.GetOptionOrDefault<IAttachment>("tpk");
 
 		try
 		{
-			await this._updateService.UpdateData(reuseExistingPackage);
+			await this._updateService.UpdateData(reuseExistingPackage, tpk?.Url ?? "AUTO");
 			await arg.QuickReply("Done.");
 		}
 		catch (Exception ex)
