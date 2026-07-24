@@ -16,8 +16,9 @@ public record class SaveData(GameProgress Progress, GameSettings Settings, GameU
 [ApiExplorerSettings(GroupName = PhigrosApiPlugin.GroupName)]
 public class CloudSaveController : CustomControllerBase
 {
-	public static ConcurrentDictionary<string, Save> TokenSaveCache { get; set; } = new();
-	public static int MaxCacheSize { get; set; } = 1000;
+	private record struct SaveTokenInfo(string Token, bool IsInternational);
+
+	private static readonly ConcurrentDictionary<SaveTokenInfo, byte> _knownValidTokens = new();
 
 	private PhigrosService _phigrosData;
 
@@ -27,27 +28,23 @@ public class CloudSaveController : CustomControllerBase
 		this._phigrosData = data;
 	}
 
-	private async Task<Save> GetSaveOrAdd(string token, bool isInternational)
-	{
-		if (TokenSaveCache.TryGetValue(token, out Save? save))
-			return save;
-
-		Save newSave = new(token, isInternational); // will throw if invalid token
-		await newSave.GetPlayerInfoAsync();
-		if (TokenSaveCache.Count >= MaxCacheSize)
-		{
-			this._logger.LogInformation("PhigrosApi cache size exceeded. Removing entries.");
-			foreach (string key in TokenSaveCache.Keys.Take(10))
-				TokenSaveCache.TryRemove(key, out _);
-		}
-		return !TokenSaveCache.TryAdd(token, newSave) ? throw new ApplicationException("Failed to add to cache") : newSave;
-	}
 	private async Task<(IActionResult?, Save?)> GetSaveAndHandleError(string token, bool isInternational)
 	{
 		Save save;
 		try
 		{
-			save = await this.GetSaveOrAdd(token, isInternational);
+			SaveTokenInfo info = new(token, isInternational);
+
+			if (_knownValidTokens.ContainsKey(info))
+			{
+				save = new Save(token, isInternational);
+			}
+			else
+			{
+				save = new Save(token, isInternational);
+				await save.GetPlayerInfoAsync();
+				_knownValidTokens[info] = 0;
+			}
 		}
 		catch (ArgumentException argEx)
 		{
