@@ -159,6 +159,7 @@ async function LoginManualNext(e) {
     });
 }
 
+let loginTapTapIntervalId = null;
 async function LoginTapTap(e) {
     DisableLoginRelatedThings();
     document.getElementById("TapTapLogin").style.display = "inherit";
@@ -166,6 +167,7 @@ async function LoginTapTap(e) {
 async function LoginTapTapCancel(e) {
     EnableLoginRelatedThings();
     document.getElementById("TapTapLogin").style.display = "none";
+    clearInterval(loginTapTapIntervalId);
 }
 async function LoginTapTapGenerate(e) {
     let isInternationalElement = document.getElementById("TapTapLoginIsInternational");
@@ -221,7 +223,7 @@ async function LoginTapTapGenerate(e) {
         let infoIntervalId = setInterval(() => {
             infoElement.textContent = `Expires in ${Math.floor((willExpireOn - Date.now()) / 1000).toString()} seconds`;
         }, 1000)
-        let intervalId = setInterval(() => {
+        loginTapTapIntervalId = setInterval(() => {
             // wish they are c# task like apis
             qrCodeApi.phiApiLoginQrCodeCheckQRCodePost({ body: currentProceedingQrCode, useChinaEndpoint: !isInternational }, (checkError, checkResult, checkResponse) => {
                 if (checkError) {
@@ -243,7 +245,7 @@ async function LoginTapTapGenerate(e) {
                         return;
                     }
                     SaveToken(tokenResult, isInternational);
-                    clearInterval(intervalId);
+                    clearInterval(loginTapTapIntervalId);
                     clearInterval(infoIntervalId);
                     clearTimeout(expireTimeoutId);
                     document.getElementById("TapTapLogin").style.display = "none";
@@ -252,7 +254,7 @@ async function LoginTapTapGenerate(e) {
 
         }, currentProceedingQrCode.interval * 1000);
         expireTimeoutId = setTimeout(() => {
-            clearInterval(intervalId);
+            clearInterval(loginTapTapIntervalId);
             clearInterval(infoIntervalId);
             SetDisabled(false);
             group.style.display = "none";
