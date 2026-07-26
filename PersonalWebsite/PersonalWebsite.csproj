@@ -4,25 +4,29 @@
 		<TargetFramework>net10.0</TargetFramework>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
-		<OutputType>Exe</OutputType>
+		<OutputType>Library</OutputType>
 	</PropertyGroup>
 
 	<ItemGroup>
-		<ProjectReference Include="..\PSLDiscordBotBase\PSLDiscordBot.Framework\PSLDiscordBot.Framework.csproj"/>
+		<ProjectReference Include="..\PSLDiscordBotBase\PSLDiscordBot.Framework\PSLDiscordBot.Framework.csproj" />
 		<ProjectReference Include="..\PhigrosApi.Client.Javascript\PhigrosApi.Client.Javascript.esproj" />
 
 		<ProjectReference Condition="'$(Configuration)' == 'Debug'" Include="..\PhigrosApi\PhigrosApi.csproj" />
 	</ItemGroup>
 
 	<ItemGroup>
-		<Content Update="Blogs\**">
+		<Content Update="Blogs\**" Condition="'$(Configuration)' == 'Release'">
 			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		</Content>
 	</ItemGroup>
 
+	<ItemGroup>
+	  <Folder Include="wwwroot\swagger\PhigrosApi\" />
+	</ItemGroup>
+
 	<Target Name="CopyClient" BeforeTargets="Build" Condition="'$(Configuration)' == 'Debug'">
-		<!--<Copy SourceFolders="../PhigrosApi.Client.Javascript/out/" DestinationFolder="./wwwroot/swagger/PhigrosApi/"></Copy>
-		<Copy SourceFolders="../PhigrosApi.Client.Javascript/src/" DestinationFolder="./wwwroot/swagger/PhigrosApi/"></Copy>-->
+		<Copy SourceFolders="../PhigrosApi.Client.Javascript/out/" DestinationFolder="./wwwroot/swagger/PhigrosApi/"></Copy>
+		<!--<Copy SourceFolders="../PhigrosApi.Client.Javascript/src/" DestinationFolder="./wwwroot/swagger/PhigrosApi/"></Copy>-->
 	</Target>
 	<Target Name="CleanUp" BeforeTargets="Clean">
 		<RemoveDir Directories="./wwwroot/swagger/"></RemoveDir>

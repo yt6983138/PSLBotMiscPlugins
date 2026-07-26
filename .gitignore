@@ -378,3 +378,6 @@ PhigrosApi/wwwroot/swagger/PhigrosApi/**
 # admin helper debug only
 AdminHelper/Secret.cs
 AdminHelper/BugReports/**
+
+# RunHelper configs
+**RunHelper/Properties/launchSettings.json

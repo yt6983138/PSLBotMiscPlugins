@@ -1,6 +1,5 @@
 using Microsoft.AspNetCore.Cors.Infrastructure;
 using Microsoft.AspNetCore.Mvc;
-using PSLDiscordBot.Core.Services;
 using PSLDiscordBot.Framework;
 using PSLDiscordBot.Framework.BuiltInServices;
 using PSLDiscordBot.Framework.Utilities;
@@ -19,40 +18,28 @@ public class PhigrosApiPlugin : IPlugin
 
 	public void Load(WebApplicationBuilder hostBuilder)
 	{
-		CommonLoad(hostBuilder);
-	}
-	public void ConfigureDiscordClient(WebApplicationBuilder builder, DiscordClientServiceConfig config) { }
-	public void Setup(WebApplication host)
-	{
-		IMvcConfigurationService configurator = host.Services.GetRequiredService<IMvcConfigurationService>();
+		hostBuilder.Services.AddExceptionHandler<ExceptionHandler>();
+		hostBuilder.Services.AddProblemDetails();
+		hostBuilder.Services.AddAssemblyToMvc<PhigrosApiPlugin>();
 
-		configurator.StaticFileOptions.ServeUnknownFileTypes = true;
-		configurator.BeforeRoutingMiddleware.Add(app => app.UseExceptionHandler());
-		configurator.BetweenRoutingAndAuthMiddleware.Add(app => app.UseCors("Everything"));
-		configurator.AfterAuthMiddleware.Add(app => app.UseSwagger());
-	}
-	public void Unload(WebApplication host, bool isSafeUnload)
-	{
-	}
-
-	private static void CommonLoad(WebApplicationBuilder builder)
-	{
-		builder.Services.AddExceptionHandler<ExceptionHandler>();
-		builder.Services.AddProblemDetails();
-		builder.Services.AddAssemblyToMvc<PhigrosApiPlugin>();
-
-		builder.Services.Configure<CorsOptions>(options => options.AddPolicy("Everything",
+		hostBuilder.Services.Configure<CorsOptions>(options => options.AddPolicy("Everything",
 			policy =>
 			{
 				policy.AllowAnyHeader()
 					.AllowAnyMethod()
 					.AllowAnyOrigin();
 			}));
-		builder.Services.Configure<MvcOptions>(x =>
+		hostBuilder.Services.Configure<MvcOptions>(x =>
 		{
 			x.InputFormatters.Add(new PlainTextFormatter());
 			x.InputFormatters.Insert(0, new NoReadInputFormatter());
 		});
+
+		// okay, so i made sure swagger works after upgrading to .net 10, but the some NoRead<> content seems to be wrong
+		// also to remind myself, the swagger spec url is /swagger/PhigrosApi/swagger.json so i don't spend 5 hours looking for it again
+
+		// also the original plan is to regenerate the PhigrosApi.Client.Javascript, because it has broken jsdoc and a bunch of other stuff
+		// but i already got enough within the url looking process, so fuck it
 		Program.Instance.SwaggerGenFilter.Add(WebUtility.SwaggerRequireInTypeAssembly<PhigrosApiPlugin>);
 		Program.Instance.SwaggerConfigurators += (_, config) =>
 		{
@@ -66,46 +53,25 @@ public class PhigrosApiPlugin : IPlugin
 		};
 	}
 
-	//#if DEBUG
-	public static void Main(string[] args)
+	public void ConfigureDiscordClient(WebApplicationBuilder builder, DiscordClientServiceConfig config) { }
+
+	public void Setup(WebApplication host)
 	{
-		WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
+		IMvcConfigurationService configurator = host.Services.GetRequiredService<IMvcConfigurationService>();
 
-
-		builder.Services.AddMvc();
-		CommonLoad(builder);
+		configurator.StaticFileOptions.ServeUnknownFileTypes = true;
+		configurator.BeforeRoutingMiddleware.Add(app => app.UseExceptionHandler());
+		configurator.BetweenRoutingAndAuthMiddleware.Add(app => app.UseCors("Everything"));
+		configurator.AfterAuthMiddleware.Add(app =>
+		{
+			app.UseSwagger();
 #if DEBUG
-		Program.Instance.ConfigureSwagger(builder);
+			app.UseSwaggerUI();
 #endif
-
-		builder.Services.AddSingleton<PhigrosService>();
-		builder.Services.AddSingleton<LocalizationService>();
-
-		WebApplication app = builder.Build();
-
-		// Configure the HTTP request pipeline.
-		if (!app.Environment.IsDevelopment())
-		{
-			// app.UseExceptionHandler("/Index");
-			// The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
-			app.UseHsts();
-		}
-		app.MapControllers().AllowAnonymous();
-		app.UseStaticFiles(new StaticFileOptions()
-		{
-			ServeUnknownFileTypes = true
 		});
-		app.UseRouting();
-		app.UseAuthorization();
-		app.UseExceptionHandler();
-		app.UseCors("Everything");
-		app.UseSwagger();
-		app.UseSwaggerUI(options =>
-		{
-			options.SwaggerEndpoint($"/swagger/{GroupName}/swagger.json", GroupName);
-		});
-
-		app.Run();
 	}
-	//#endif
+
+	public void Unload(WebApplication host, bool isSafeUnload)
+	{
+	}
 }
