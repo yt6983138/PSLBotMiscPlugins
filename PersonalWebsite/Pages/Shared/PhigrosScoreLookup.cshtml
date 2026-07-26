@@ -22,13 +22,16 @@
             height: 100vh;
             width: 100vw;
         }
-
-        #LoginTapTap {
-            margin-left: 15px;
+        select {
+            margin-top: 5px;
+            margin-bottom: 5px;
         }
 
         #LoginGroup {
             margin-top: 20px;
+        }
+        #MiscControls {
+            margin-top: 5px;
         }
 
         #TapTapLoginInfoGroupQRCode {
@@ -54,12 +57,17 @@
         Hint: Windows are draggable
     </p>
     <div id="LoginGroup">
-        <input id="SaveToken" type="checkbox" />
-        <label for="SaveToken">Save token</label>
-
-        <button id="LoginTapTap" onclick="LoginTapTap(event)">Login (TapTap)</button>
-        <button id="LoginManual" onclick="LoginManual(event)">Login (Manual)</button>
         <button id="Logout" onclick="Logout(event)">Logout</button>
+        <button id="LoginTapTap" onclick="LoginTapTap(event)">Login (TapTap)...</button>
+        <button id="LoginManual" onclick="LoginManual(event)">Login (Manual)...</button>
+
+        <label for="SaveToken">Save token</label>
+        <input id="SaveToken" type="checkbox" /><br/>
+
+        <div id="MiscControls">
+            <button id="SeeMyTokenButton" onclick="SeeMyToken(event)">See My Token...</button>
+            <button id="SelectIndexButton" onclick="SelectSaveIndex(event)">Select Index...</button>
+        </div>
     </div>
 </win-dialog>
 
@@ -98,4 +106,43 @@
 
     <button id="ManualLoginCheck" onclick="LoginManualNext(event)">Enter</button>
     <button id="ManualLoginCancel" onclick="LoginManualCancel(event)">Cancel</button>
+</win-dialog>
+
+<win-dialog id="SeeMyToken" title="Token" style="left: 60px; top: 80px; display: none; z-index: 9000">
+    <p id="SeeMyTokenContent"></p><br/>
+    <button onclick="SeeMyTokenClose(event)">Close</button>
+</win-dialog>
+
+<win-dialog id="SelectIndex" title="Select save index" style="left: 80px; top: 100px; display: none; z-index: 9000">
+    <label for="SelectIndexMenu">Select index below: (0 is always latest)</label><br/>
+    <select id="SelectIndexMenu">
+    </select><br/>
+    <button id="SelectIndexButton" onclick="SelectSaveIndexClose(event)">Close</button>
+</win-dialog>
+
+<win-dialog id="ScoreView" title="Scores" style="display: none">
+    <table id="AboutMe">
+        <tr class="TableTitle">
+            <th class="TableTitleTexts TableFirst">Avatar</th>
+            <th class="TableTitleTexts TableSecond">Nickname</th>
+            <th class="TableTitleTexts TableThird">Username</th>
+            <th class="TableTitleTexts TableForth">Last Modified</th>
+            <th class="TableTitleTexts TableFifth">Challenge Rank</th>
+        </tr>
+        <tr id="AboutMeData">
+
+        </tr>
+    </table>
+
+    <table id="ScoresTable">
+        <tr class="TableTitle">
+            <th class="TableTitleTexts TableFirst">Number</th>
+            <th class="TableTitleTexts TableSecond">Song Name</th>
+            <th class="TableTitleTexts TableThird">Chart Constant</th>
+            <th class="TableTitleTexts TableForth">Score</th>
+            <th class="TableTitleTexts TableFifth">Accuracy</th>
+            <th class="TableTitleTexts TableSixth">RKS Given</th>
+            <th class="TableTitleTexts TableSeventh">Status</th>
+        </tr>
+    </table>
 </win-dialog>

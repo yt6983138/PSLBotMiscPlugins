@@ -8,6 +8,7 @@ var localSaveApi = new PSL.LocalSaveApi();
 
 var globalToken = null;
 var globalIsInternational = false;
+var globalSaveIndex = 0;
 
 let draggableMaxIndex = 0;
 function MakeDraggable(dialog) {
@@ -49,6 +50,36 @@ function MakeDraggable(dialog) {
 }
 
 /**
+ * 
+ * @param {any} apiCall
+ * @param {any} binder
+ * @param {any} options
+ * @param {any} noReject
+ * @returns {Promise<{Error, Data, Response}>}
+ */
+function AsAsync(apiCall, binder, options, noReject = false) {
+    return new Promise((resolve, reject) => {
+        apiCall.bind(binder)(options, (error, data, response) => {
+            if (noReject) {
+                resolve({ Error: error, Data: data, Response: response });
+            }
+
+            if (error) {
+                reject({ Error: error, Response: response });
+            } else {
+                resolve({ Data: data, Response: response });
+            }
+        });
+    })
+}
+function CreateDefaultRequestParams(includeIndex = true) {
+    let obj = { body: globalToken, isInterational: globalIsInternational };
+    if (includeIndex) obj.index = globalSaveIndex;
+
+    return obj;
+}
+
+/**
  * Convert a string from camelCase/PascalCase to snake_case
  */
 function toSnakeCase(str) {
@@ -75,13 +106,33 @@ function keysToSnakeCase(obj) {
 }
 
 async function Initialize() {
+    if (LoadToken()) {
+        document.getElementById("SaveToken").checked = true;
+        DisableLoginRelatedThings();
+        SetMiscDisabled(false);
+    }
+    else {
+        EnableLoginRelatedThings();
+        SetMiscDisabled(true);
+    }
     MakeDraggable("main");
     MakeDraggable("ManualLogin");
     MakeDraggable("TapTapLogin");
+    MakeDraggable("SeeMyToken");
 }
 window.onload = () => {
     Initialize();
+};
+
+function HandleCommonError(error) {
+    let errorString = error instanceof Error ? error.toString() : JSON.stringify(error);
+
+    console.error(`Common error handler: ${errorString}`);
+    alert(`Unhandled error occoured. You can continue using or report to author.\n${errorString}`);
 }
+window.addEventListener('unhandledrejection', (event) => {
+    HandleCommonError(event.reason);
+});
 
 function SaveToken(token, isInternational) {
     globalIsInternational = isInternational;
@@ -97,7 +148,23 @@ function ClearToken() {
     localStorage.removeItem("Token");
     localStorage.removeItem("IsInternational");
 }
+function LoadToken() {
+    let token = localStorage.getItem("Token");
+    let isInternational = localStorage.getItem("IsInternational");
 
+    if (token !== null && isInternational !== null) {
+        globalToken = token;
+        globalIsInternational = isInternational ? true : false;
+        return true;
+    }
+
+    return false;
+}
+
+function SetMiscDisabled(isDisabled) {
+    document.getElementById("SeeMyTokenButton").disabled = isDisabled;
+    document.getElementById("SelectIndexButton").disabled = isDisabled;
+}
 function DisableLoginRelatedThings() {
     document.getElementById("LoginManual").disabled = true;
     document.getElementById("LoginTapTap").disabled = true;
@@ -109,15 +176,30 @@ function EnableLoginRelatedThings() {
     document.getElementById("SaveToken").disabled = false;
 }
 
-async function Logout(e) {
+async function UpdateScores() {
+    // currently, the generated api client is broken so those api calls will throw an error
+    // TODO: regenerate the api client
+    let otherData = (await AsAsync(cloudSaveApi.phiApiCloudSaveGetSaveDataPost, cloudSaveApi, CreateDefaultRequestParams())).Data.data;
+    let records = (await AsAsync(cloudSaveApi.phiApiCloudSaveGetRecordsPost, cloudSaveApi, CreateDefaultRequestParams())).Data.data;
+
+    let aboutMeRow = document.getElementById("AboutMeData");
+    let scoresTable = document.getElementById("ScoresTable");
+
+    aboutMeRow.innerHTML = `
+        
+    `;
+}
+
+function Logout(e) {
     ClearToken();
     window.location.reload();
 }
-async function LoginManual(e) {
+function LoginManual(e) {
     DisableLoginRelatedThings();
+    SetMiscDisabled(true);
     document.getElementById("ManualLogin").style.display = "inherit";
 }
-async function LoginManualCancel(e) {
+function LoginManualCancel(e) {
     EnableLoginRelatedThings();
     document.getElementById("ManualLogin").style.display = "none";
 } 
@@ -144,24 +226,26 @@ async function LoginManualNext(e) {
     isInternationalElement.disabled = true;
     cancelElement.disabled = true;
 
-    cloudSaveApi.phiApiCloudSaveGetSaveIndexesPost({ body: token, isInternational: isInternational }, (error, data, response) => {
+    try {
+        await AsAsync(cloudSaveApi.phiApiCloudSaveGetSaveIndexesPost, cloudSaveApi, CreateDefaultRequestParams(false));
+    } catch (error) {
+        HandleCommonError(error);
+
+        SaveToken(token, isInternational);
+        document.getElementById("ManualLogin").style.display = "none";
+        SetMiscDisabled(false);
+    } finally {
         e.target.disabled = false;
         tokenElement.disabled = false;
         isInternationalElement.disabled = false;
         cancelElement.disabled = false;
-
-        if (error) {
-            errorElement.textContent = JSON.parse(error.message).data.message;
-            return;
-        }
-        SaveToken(token, isInternational);
-        document.getElementById("ManualLogin").style.display = "none";
-    });
+    }
 }
 
 let loginTapTapIntervalId = null;
 async function LoginTapTap(e) {
     DisableLoginRelatedThings();
+    SetMiscDisabled(true);
     document.getElementById("TapTapLogin").style.display = "inherit";
 }
 async function LoginTapTapCancel(e) {
@@ -178,86 +262,139 @@ async function LoginTapTapGenerate(e) {
         generateElement.disabled = true;
     }
 
-    /** @type {PSL.CompleteQRCodeData} */
-    let currentProceedingQrCode = null;
-
     let isInternational = isInternationalElement.checked;
 
     SetDisabled(true); // why wont the intellisense work well bruh
-    qrCodeApi.phiApiLoginQrCodeGetNewQRCodeGet({ useChinaEndpoint: !isInternational }, (error, data, response) => {
-        currentProceedingQrCode = data.data;
-        if (error) {
-            SetDisabled(false);
-            alert(error);
+
+    /** @type {PSL.CompleteQRCodeData} */
+    let currentProceedingQrCode = null;
+    try {
+        currentProceedingQrCode = (await AsAsync(qrCodeApi.phiApiLoginQrCodeGetNewQRCodeGet, qrCodeApi, { useChinaEndpoint: !isInternational })).Data.data;
+    } catch (error) {
+        SetDisabled(false);
+        HandleCommonError(error);
+        return;
+    }
+
+    let group = document.getElementById("TapTapLoginInfoGroup");
+    let qrImage = document.getElementById("TapTapLoginInfoGroupQRCode");
+    let urlElement = document.getElementById("TapTapLoginInfoGroupURL");
+    let urlAltElement = document.getElementById("TapTapLoginInfoGroupURLAlternate");
+    let infoElement = document.getElementById("TapTapLoginInfoGroupInfo");
+
+    if (!isInternational) {
+        urlAltElement.style.display = "inherit";
+        urlAltElement.href = currentProceedingQrCode.url.replace("https://accounts.taptap.cn/device", "https://taptap.yt6983138.top/begin");
+    }
+    else urlAltElement.style.display = "none";
+
+    group.style.display = "inherit";
+    urlElement.href = currentProceedingQrCode.url;
+
+    if (!qrImage.qrCode)
+        qrImage.qrCode = new QRCode(qrImage, { width: 128, height: 128 });
+
+    qrImage.qrCode.clear();
+    qrImage.qrCode.makeCode(currentProceedingQrCode.url);
+
+    infoElement.textContent = "";
+
+    const LESS_TIMEOUT = 5000;
+
+    let willExpireOn = Date.now() + currentProceedingQrCode.expiresInSeconds * 1000 - LESS_TIMEOUT;
+
+    let expireTimeoutId = null;
+    let infoIntervalId = setInterval(() => {
+        infoElement.textContent = `Expires in ${Math.floor((willExpireOn - Date.now()) / 1000).toString()} seconds`;
+    }, 1000)
+    loginTapTapIntervalId = setInterval(async () => {
+        /** @type {PSL.TapTapTokenData} */
+        let checkedResult = null;
+        try {
+            let checkResult = (await AsAsync(qrCodeApi.phiApiLoginQrCodeCheckQRCodePost, qrCodeApi, {
+                body: currentProceedingQrCode,
+                useChinaEndpoint: !isInternational
+            })).Data;
+            if (!checkResult.success) {
+                console.log(checkResult);
+                return;
+            }
+            checkedResult = checkResult.data;
+        } catch (error) {
+            HandleCommonError(error);
             return;
         }
 
-        let group = document.getElementById("TapTapLoginInfoGroup");
-        let qrImage = document.getElementById("TapTapLoginInfoGroupQRCode");
-        let urlElement = document.getElementById("TapTapLoginInfoGroupURL");
-        let urlAltElement = document.getElementById("TapTapLoginInfoGroupURLAlternate");
-        let infoElement = document.getElementById("TapTapLoginInfoGroupInfo");
-
-        if (!isInternational) {
-            urlAltElement.style.display = "inherit";
-            urlAltElement.href = currentProceedingQrCode.url.replace("https://accounts.taptap.cn/device", "https://taptap.yt6983138.top/begin");
+        let tokenResult = null;
+        try {
+            tokenResult = (await AsAsync(qrCodeApi.phiApiLoginQrCodeGetPhigrosTokenPost, qrCodeApi, {
+                body: keysToSnakeCase(checkedResult), // had to use some hacks, serialization doesnt use name used in deserialization
+                useChinaEndpoint: !isInternational
+            })).Data;
+        } catch (error) {
+            HandleCommonError(error);
+            return;
         }
-        else urlAltElement.style.display = "none";
 
-        group.style.display = "inherit";
-        urlElement.href = currentProceedingQrCode.url;
+        SaveToken(tokenResult, isInternational);
+        clearInterval(loginTapTapIntervalId);
+        clearInterval(infoIntervalId);
+        clearTimeout(expireTimeoutId);
+        document.getElementById("TapTapLogin").style.display = "none";
+        SetMiscDisabled(false);
 
-        if (!qrImage.qrCode)
-            qrImage.qrCode = new QRCode(qrImage, { width: 128, height: 128 });
+    }, currentProceedingQrCode.interval * 1000);
+    expireTimeoutId = setTimeout(() => {
+        clearInterval(loginTapTapIntervalId);
+        clearInterval(infoIntervalId);
+        SetDisabled(false);
+        group.style.display = "none";
+    }, currentProceedingQrCode.expiresInSeconds * 1000 - LESS_TIMEOUT);
+}
 
-        qrImage.qrCode.clear();
-        qrImage.qrCode.makeCode(currentProceedingQrCode.url);
+function SeeMyToken(e) {
+    let dialog = document.getElementById("SeeMyToken");
+    let content = document.getElementById("SeeMyTokenContent");
 
-        infoElement.textContent = "";
+    content.innerHTML = `Token: <input readonly value="${globalToken}"/><br/><br/>Is international: <input readonly value="${globalIsInternational}"/>`;
+    dialog.style.display = "inherit";
+}
+function SeeMyTokenClose(e) {
+    let dialog = document.getElementById("SeeMyToken");
+    let content = document.getElementById("SeeMyTokenContent");
 
-        const LESS_TIMEOUT = 5000;
+    content.innerHTML = "";
+    dialog.style.display = "none";
+}
 
-        let willExpireOn = Date.now() + currentProceedingQrCode.expiresInSeconds * 1000 - LESS_TIMEOUT;
+async function SelectSaveIndex(e) {
+    let dialog = document.getElementById("SelectIndex");
+    let select = document.getElementById("SelectIndexMenu");
 
-        let expireTimeoutId = null;
-        let infoIntervalId = setInterval(() => {
-            infoElement.textContent = `Expires in ${Math.floor((willExpireOn - Date.now()) / 1000).toString()} seconds`;
-        }, 1000)
-        loginTapTapIntervalId = setInterval(() => {
-            // wish they are c# task like apis
-            qrCodeApi.phiApiLoginQrCodeCheckQRCodePost({ body: currentProceedingQrCode, useChinaEndpoint: !isInternational }, (checkError, checkResult, checkResponse) => {
-                if (checkError) {
-                    console.error(checkError);
-                    return;
-                }
-                if (!checkResult.success) {
-                    console.error(checkResult);
-                    return;
-                }
-                /** @type {PSL.TapTapTokenData} */
-                let checkedResult = checkResult.data;
-                qrCodeApi.phiApiLoginQrCodeGetPhigrosTokenPost({
-                    body: keysToSnakeCase(checkedResult), // had to use some hacks, serialization doesnt use name used in deserialization
-                    useChinaEndpoint: !isInternational
-                }, (tokenError, tokenResult, tokenResponse) => {
-                    if (tokenError) {
-                        console.error(tokenError);
-                        return;
-                    }
-                    SaveToken(tokenResult, isInternational);
-                    clearInterval(loginTapTapIntervalId);
-                    clearInterval(infoIntervalId);
-                    clearTimeout(expireTimeoutId);
-                    document.getElementById("TapTapLogin").style.display = "none";
-                });
-            });
+    dialog.style.display = "inherit";
+    let indexes = (await AsAsync(cloudSaveApi.phiApiCloudSaveGetSaveIndexesPost, cloudSaveApi, CreateDefaultRequestParams(false))).Data.data;
 
-        }, currentProceedingQrCode.interval * 1000);
-        expireTimeoutId = setTimeout(() => {
-            clearInterval(loginTapTapIntervalId);
-            clearInterval(infoIntervalId);
-            SetDisabled(false);
-            group.style.display = "none";
-        }, currentProceedingQrCode.expiresInSeconds * 1000 - LESS_TIMEOUT);
-    });
+    for (let index of indexes) {
+        select.innerHTML += `<option value="${index.index}">${index.index} - ${new Date(index.modificationTime)}</option>`;
+    }
+    select.value = "0";
+}
+async function SelectSaveIndexClose(e) {
+    let dialog = document.getElementById("SelectIndex");
+    let select = document.getElementById("SelectIndexMenu");
+
+    dialog.style.display = "none";
+    select.innerHTML = "";
+    globalSaveIndex = parseInt(select.value);
+    if (globalSaveIndex < 0 || globalSaveIndex === NaN) globalSaveIndex = 0;
+
+    let button = document.getElementById("SelectIndexButton");
+    button.disabled = true;
+    try {
+        await UpdateScores();
+    }
+    catch (error) {
+        alert(`Error updating scores: ${JSON.stringify(error)}`);
+    }
+    button.disabled = false;
 }
