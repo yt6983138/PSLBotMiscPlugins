@@ -4,6 +4,7 @@ using System.Runtime.CompilerServices;
 
 namespace PhigrosApi.Controllers;
 
+// TODO: NoRead<> is broken after .net 10
 [Controller]
 [ApiExplorerSettings(GroupName = PhigrosApiPlugin.GroupName)]
 public class LoginQrCodeController : CustomControllerBase

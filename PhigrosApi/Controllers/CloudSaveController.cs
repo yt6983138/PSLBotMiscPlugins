@@ -12,6 +12,7 @@ namespace PhigrosApi.Controllers;
 public record class SaveTimeIndex(int Index, DateTime ModificationTime);
 public record class SaveData(GameProgress Progress, GameSettings Settings, GameUserInfo GameUserInfo, PlayerInfo PlayerInfo, Summary Summary);
 
+// TODO: a bunch of the response types are changed or broken, need to fix them
 [Controller]
 [ApiExplorerSettings(GroupName = PhigrosApiPlugin.GroupName)]
 public class CloudSaveController : CustomControllerBase
@@ -30,6 +31,9 @@ public class CloudSaveController : CustomControllerBase
 
 	private async Task<(IActionResult?, Save?)> GetSaveAndHandleError(string token, bool isInternational)
 	{
+		if (string.IsNullOrWhiteSpace(token))
+			return (this.Error("Token is empty or whitespace.", code: ErrorCode.PhigrosTokenError), null);
+
 		Save save;
 		try
 		{
