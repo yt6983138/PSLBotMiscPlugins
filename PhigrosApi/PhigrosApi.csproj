@@ -19,7 +19,5 @@
 	</Target>
 	<Target Name="CopyClient" BeforeTargets="Build">
 		<Copy SourceFolders="../PhigrosApi.Client.Javascript/out/" DestinationFolder="./wwwroot/swagger/PhigrosApi/"></Copy>
-		
-		<Copy SourceFolders="../PhigrosApi.Client.Javascript/src/" DestinationFolder="./wwwroot/swagger/PhigrosApi/" Condition="'$(Configuration)' == 'Debug'"></Copy>
 	</Target>
 </Project>

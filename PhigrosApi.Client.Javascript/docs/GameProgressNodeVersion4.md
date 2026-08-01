@@ -1,6 +1,34 @@
-# PhigrosApi.GameProgressNodeVersion4
+
+# GameProgressNodeVersion4
+
 
 ## Properties
-Name | Type | Description | Notes
------------- | ------------- | ------------- | -------------
-**flagOfSongRecordKeyTakumi** | **Number** |  | [optional] 
+
+Name | Type
+------------ | -------------
+`flagOfSongRecordKeyTakumi` | number
+
+## Example
+
+```typescript
+import type { GameProgressNodeVersion4 } from ''
+
+// TODO: Update the object below with actual values
+const example = {
+  "flagOfSongRecordKeyTakumi": null,
+} satisfies GameProgressNodeVersion4
+
+console.log(example)
+
+// Convert the instance to a JSON string
+const exampleJSON: string = JSON.stringify(example)
+console.log(exampleJSON)
+
+// Parse the JSON string back to an object
+const exampleParsed = JSON.parse(exampleJSON) as GameProgressNodeVersion4
+console.log(exampleParsed)
+```
+
+[[Back to top]](#) [[Back to API list]](../README.md#api-endpoints) [[Back to Model list]](../README.md#models) [[Back to README]](../README.md)
+
+

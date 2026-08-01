@@ -1,48 +1,65 @@
-# PhigrosApi.LoginQrCodeApi
+# LoginQrCodeApi
 
-All URIs are relative to */*
+All URIs are relative to *http://localhost:5000*
 
-Method | HTTP request | Description
-------------- | ------------- | -------------
-[**phiApiLoginQrCodeCheckQRCodePost**](LoginQrCodeApi.md#phiApiLoginQrCodeCheckQRCodePost) | **POST** /phiApi/LoginQrCode/CheckQRCode | 
-[**phiApiLoginQrCodeGetNewQRCodeGet**](LoginQrCodeApi.md#phiApiLoginQrCodeGetNewQRCodeGet) | **GET** /phiApi/LoginQrCode/GetNewQRCode | 
-[**phiApiLoginQrCodeGetPhigrosTokenPost**](LoginQrCodeApi.md#phiApiLoginQrCodeGetPhigrosTokenPost) | **POST** /phiApi/LoginQrCode/GetPhigrosToken | 
-[**phiApiLoginQrCodeGetTapTapProfilePost**](LoginQrCodeApi.md#phiApiLoginQrCodeGetTapTapProfilePost) | **POST** /phiApi/LoginQrCode/GetTapTapProfile | 
+| Method | HTTP request | Description |
+|------------- | ------------- | -------------|
+| [**phiApiLoginQrCodeCheckQRCodePost**](LoginQrCodeApi.md#phiapiloginqrcodecheckqrcodepost) | **POST** /phiApi/LoginQrCode/CheckQRCode |  |
+| [**phiApiLoginQrCodeGetNewQRCodeGet**](LoginQrCodeApi.md#phiapiloginqrcodegetnewqrcodeget) | **GET** /phiApi/LoginQrCode/GetNewQRCode |  |
+| [**phiApiLoginQrCodeGetPhigrosTokenPost**](LoginQrCodeApi.md#phiapiloginqrcodegetphigrostokenpost) | **POST** /phiApi/LoginQrCode/GetPhigrosToken |  |
+| [**phiApiLoginQrCodeGetTapTapProfilePost**](LoginQrCodeApi.md#phiapiloginqrcodegettaptapprofilepost) | **POST** /phiApi/LoginQrCode/GetTapTapProfile |  |
 
-<a name="phiApiLoginQrCodeCheckQRCodePost"></a>
-# **phiApiLoginQrCodeCheckQRCodePost**
-> TapTapTokenDataResponse phiApiLoginQrCodeCheckQRCodePost(opts)
+
+
+## phiApiLoginQrCodeCheckQRCodePost
+
+> ResponseOfTapTapTokenData phiApiLoginQrCodeCheckQRCodePost(noReadOfCompleteQRCodeData, useChinaEndpoint)
 
 
 
 ### Example
-```javascript
-import {PhigrosApi} from 'phigros_api';
 
-let apiInstance = new PhigrosApi.LoginQrCodeApi();
-let opts = { 
-  'body': new PhigrosApi.CompleteQRCodeData(), // CompleteQRCodeData | 
-  'useChinaEndpoint': true // Boolean | 
-};
-apiInstance.phiApiLoginQrCodeCheckQRCodePost(opts, (error, data, response) => {
-  if (error) {
+```ts
+import {
+  Configuration,
+  LoginQrCodeApi,
+} from '';
+import type { PhiApiLoginQrCodeCheckQRCodePostRequest } from '';
+
+async function example() {
+  console.log("🚀 Testing  SDK...");
+  const api = new LoginQrCodeApi();
+
+  const body = {
+    // NoReadOfCompleteQRCodeData
+    noReadOfCompleteQRCodeData: ...,
+    // boolean (optional)
+    useChinaEndpoint: true,
+  } satisfies PhiApiLoginQrCodeCheckQRCodePostRequest;
+
+  try {
+    const data = await api.phiApiLoginQrCodeCheckQRCodePost(body);
+    console.log(data);
+  } catch (error) {
     console.error(error);
-  } else {
-    console.log('API called successfully. Returned data: ' + data);
   }
-});
+}
+
+// Run the test
+example().catch(console.error);
 ```
 
 ### Parameters
 
-Name | Type | Description  | Notes
-------------- | ------------- | ------------- | -------------
- **body** | [**CompleteQRCodeData**](CompleteQRCodeData.md)|  | [optional] 
- **useChinaEndpoint** | **Boolean**|  | [optional] 
+
+| Name | Type | Description  | Notes |
+|------------- | ------------- | ------------- | -------------|
+| **noReadOfCompleteQRCodeData** | [NoReadOfCompleteQRCodeData](NoReadOfCompleteQRCodeData.md) |  | |
+| **useChinaEndpoint** | `boolean` |  | [Optional] [Defaults to `undefined`] |
 
 ### Return type
 
-[**TapTapTokenDataResponse**](TapTapTokenDataResponse.md)
+[**ResponseOfTapTapTokenData**](ResponseOfTapTapTokenData.md)
 
 ### Authorization
 
@@ -50,41 +67,64 @@ No authorization required
 
 ### HTTP request headers
 
- - **Content-Type**: application/json, text/json, application/_*+json
- - **Accept**: text/plain, application/json, text/json
+- **Content-Type**: `application/json`, `text/json`, `application/*+json`
+- **Accept**: `text/plain`, `application/json`, `text/json`
 
-<a name="phiApiLoginQrCodeGetNewQRCodeGet"></a>
-# **phiApiLoginQrCodeGetNewQRCodeGet**
-> CompleteQRCodeDataResponse phiApiLoginQrCodeGetNewQRCodeGet(opts)
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+| **200** | OK |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#api-endpoints) [[Back to Model list]](../README.md#models) [[Back to README]](../README.md)
+
+
+## phiApiLoginQrCodeGetNewQRCodeGet
+
+> ResponseOfCompleteQRCodeData phiApiLoginQrCodeGetNewQRCodeGet(useChinaEndpoint)
 
 
 
 ### Example
-```javascript
-import {PhigrosApi} from 'phigros_api';
 
-let apiInstance = new PhigrosApi.LoginQrCodeApi();
-let opts = { 
-  'useChinaEndpoint': true // Boolean | 
-};
-apiInstance.phiApiLoginQrCodeGetNewQRCodeGet(opts, (error, data, response) => {
-  if (error) {
+```ts
+import {
+  Configuration,
+  LoginQrCodeApi,
+} from '';
+import type { PhiApiLoginQrCodeGetNewQRCodeGetRequest } from '';
+
+async function example() {
+  console.log("🚀 Testing  SDK...");
+  const api = new LoginQrCodeApi();
+
+  const body = {
+    // boolean (optional)
+    useChinaEndpoint: true,
+  } satisfies PhiApiLoginQrCodeGetNewQRCodeGetRequest;
+
+  try {
+    const data = await api.phiApiLoginQrCodeGetNewQRCodeGet(body);
+    console.log(data);
+  } catch (error) {
     console.error(error);
-  } else {
-    console.log('API called successfully. Returned data: ' + data);
   }
-});
+}
+
+// Run the test
+example().catch(console.error);
 ```
 
 ### Parameters
 
-Name | Type | Description  | Notes
-------------- | ------------- | ------------- | -------------
- **useChinaEndpoint** | **Boolean**|  | [optional] 
+
+| Name | Type | Description  | Notes |
+|------------- | ------------- | ------------- | -------------|
+| **useChinaEndpoint** | `boolean` |  | [Optional] [Defaults to `undefined`] |
 
 ### Return type
 
-[**CompleteQRCodeDataResponse**](CompleteQRCodeDataResponse.md)
+[**ResponseOfCompleteQRCodeData**](ResponseOfCompleteQRCodeData.md)
 
 ### Authorization
 
@@ -92,43 +132,67 @@ No authorization required
 
 ### HTTP request headers
 
- - **Content-Type**: Not defined
- - **Accept**: text/plain, application/json, text/json
+- **Content-Type**: Not defined
+- **Accept**: `text/plain`, `application/json`, `text/json`
 
-<a name="phiApiLoginQrCodeGetPhigrosTokenPost"></a>
-# **phiApiLoginQrCodeGetPhigrosTokenPost**
-> StringResponse phiApiLoginQrCodeGetPhigrosTokenPost(opts)
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+| **200** | OK |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#api-endpoints) [[Back to Model list]](../README.md#models) [[Back to README]](../README.md)
+
+
+## phiApiLoginQrCodeGetPhigrosTokenPost
+
+> ResponseOfstring phiApiLoginQrCodeGetPhigrosTokenPost(noReadOfTapTapTokenData, useChinaEndpoint)
 
 
 
 ### Example
-```javascript
-import {PhigrosApi} from 'phigros_api';
 
-let apiInstance = new PhigrosApi.LoginQrCodeApi();
-let opts = { 
-  'body': new PhigrosApi.TapTapTokenData(), // TapTapTokenData | 
-  'useChinaEndpoint': true // Boolean | 
-};
-apiInstance.phiApiLoginQrCodeGetPhigrosTokenPost(opts, (error, data, response) => {
-  if (error) {
+```ts
+import {
+  Configuration,
+  LoginQrCodeApi,
+} from '';
+import type { PhiApiLoginQrCodeGetPhigrosTokenPostRequest } from '';
+
+async function example() {
+  console.log("🚀 Testing  SDK...");
+  const api = new LoginQrCodeApi();
+
+  const body = {
+    // NoReadOfTapTapTokenData
+    noReadOfTapTapTokenData: ...,
+    // boolean (optional)
+    useChinaEndpoint: true,
+  } satisfies PhiApiLoginQrCodeGetPhigrosTokenPostRequest;
+
+  try {
+    const data = await api.phiApiLoginQrCodeGetPhigrosTokenPost(body);
+    console.log(data);
+  } catch (error) {
     console.error(error);
-  } else {
-    console.log('API called successfully. Returned data: ' + data);
   }
-});
+}
+
+// Run the test
+example().catch(console.error);
 ```
 
 ### Parameters
 
-Name | Type | Description  | Notes
-------------- | ------------- | ------------- | -------------
- **body** | [**TapTapTokenData**](TapTapTokenData.md)|  | [optional] 
- **useChinaEndpoint** | **Boolean**|  | [optional] 
+
+| Name | Type | Description  | Notes |
+|------------- | ------------- | ------------- | -------------|
+| **noReadOfTapTapTokenData** | [NoReadOfTapTapTokenData](NoReadOfTapTapTokenData.md) |  | |
+| **useChinaEndpoint** | `boolean` |  | [Optional] [Defaults to `undefined`] |
 
 ### Return type
 
-[**StringResponse**](StringResponse.md)
+[**ResponseOfstring**](ResponseOfstring.md)
 
 ### Authorization
 
@@ -136,43 +200,67 @@ No authorization required
 
 ### HTTP request headers
 
- - **Content-Type**: application/json, text/json, application/_*+json
- - **Accept**: text/plain, application/json, text/json
+- **Content-Type**: `application/json`, `text/json`, `application/*+json`
+- **Accept**: `text/plain`, `application/json`, `text/json`
 
-<a name="phiApiLoginQrCodeGetTapTapProfilePost"></a>
-# **phiApiLoginQrCodeGetTapTapProfilePost**
-> TapTapProfileDataResponse phiApiLoginQrCodeGetTapTapProfilePost(opts)
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+| **200** | OK |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#api-endpoints) [[Back to Model list]](../README.md#models) [[Back to README]](../README.md)
+
+
+## phiApiLoginQrCodeGetTapTapProfilePost
+
+> ResponseOfTapTapProfileData phiApiLoginQrCodeGetTapTapProfilePost(noReadOfTapTapTokenData, useChinaEndpoint)
 
 
 
 ### Example
-```javascript
-import {PhigrosApi} from 'phigros_api';
 
-let apiInstance = new PhigrosApi.LoginQrCodeApi();
-let opts = { 
-  'body': new PhigrosApi.TapTapTokenData(), // TapTapTokenData | 
-  'useChinaEndpoint': true // Boolean | 
-};
-apiInstance.phiApiLoginQrCodeGetTapTapProfilePost(opts, (error, data, response) => {
-  if (error) {
+```ts
+import {
+  Configuration,
+  LoginQrCodeApi,
+} from '';
+import type { PhiApiLoginQrCodeGetTapTapProfilePostRequest } from '';
+
+async function example() {
+  console.log("🚀 Testing  SDK...");
+  const api = new LoginQrCodeApi();
+
+  const body = {
+    // NoReadOfTapTapTokenData
+    noReadOfTapTapTokenData: ...,
+    // boolean (optional)
+    useChinaEndpoint: true,
+  } satisfies PhiApiLoginQrCodeGetTapTapProfilePostRequest;
+
+  try {
+    const data = await api.phiApiLoginQrCodeGetTapTapProfilePost(body);
+    console.log(data);
+  } catch (error) {
     console.error(error);
-  } else {
-    console.log('API called successfully. Returned data: ' + data);
   }
-});
+}
+
+// Run the test
+example().catch(console.error);
 ```
 
 ### Parameters
 
-Name | Type | Description  | Notes
-------------- | ------------- | ------------- | -------------
- **body** | [**TapTapTokenData**](TapTapTokenData.md)|  | [optional] 
- **useChinaEndpoint** | **Boolean**|  | [optional] 
+
+| Name | Type | Description  | Notes |
+|------------- | ------------- | ------------- | -------------|
+| **noReadOfTapTapTokenData** | [NoReadOfTapTapTokenData](NoReadOfTapTapTokenData.md) |  | |
+| **useChinaEndpoint** | `boolean` |  | [Optional] [Defaults to `undefined`] |
 
 ### Return type
 
-[**TapTapProfileDataResponse**](TapTapProfileDataResponse.md)
+[**ResponseOfTapTapProfileData**](ResponseOfTapTapProfileData.md)
 
 ### Authorization
 
@@ -180,6 +268,14 @@ No authorization required
 
 ### HTTP request headers
 
- - **Content-Type**: application/json, text/json, application/_*+json
- - **Accept**: text/plain, application/json, text/json
+- **Content-Type**: `application/json`, `text/json`, `application/*+json`
+- **Accept**: `text/plain`, `application/json`, `text/json`
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+| **200** | OK |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#api-endpoints) [[Back to Model list]](../README.md#models) [[Back to README]](../README.md)
 

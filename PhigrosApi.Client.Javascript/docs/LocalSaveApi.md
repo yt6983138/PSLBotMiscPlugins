@@ -1,43 +1,59 @@
-# PhigrosApi.LocalSaveApi
+# LocalSaveApi
 
-All URIs are relative to */*
+All URIs are relative to *http://localhost:5000*
 
-Method | HTTP request | Description
-------------- | ------------- | -------------
-[**phiApiLocalSaveDecryptNewPost**](LocalSaveApi.md#phiApiLocalSaveDecryptNewPost) | **POST** /phiApi/LocalSave/DecryptNew | 
+| Method | HTTP request | Description |
+|------------- | ------------- | -------------|
+| [**phiApiLocalSaveDecryptNewPost**](LocalSaveApi.md#phiapilocalsavedecryptnewpost) | **POST** /phiApi/LocalSave/DecryptNew |  |
 
-<a name="phiApiLocalSaveDecryptNewPost"></a>
-# **phiApiLocalSaveDecryptNewPost**
-> &#x27;String&#x27; phiApiLocalSaveDecryptNewPost(opts)
+
+
+## phiApiLocalSaveDecryptNewPost
+
+> ResponseOfstring phiApiLocalSaveDecryptNewPost(body)
 
 
 
 ### Example
-```javascript
-import {PhigrosApi} from 'phigros_api';
 
-let apiInstance = new PhigrosApi.LocalSaveApi();
-let opts = { 
-  'body': "body_example" // String | 
-};
-apiInstance.phiApiLocalSaveDecryptNewPost(opts, (error, data, response) => {
-  if (error) {
+```ts
+import {
+  Configuration,
+  LocalSaveApi,
+} from '';
+import type { PhiApiLocalSaveDecryptNewPostRequest } from '';
+
+async function example() {
+  console.log("🚀 Testing  SDK...");
+  const api = new LocalSaveApi();
+
+  const body = {
+    // string
+    body: body_example,
+  } satisfies PhiApiLocalSaveDecryptNewPostRequest;
+
+  try {
+    const data = await api.phiApiLocalSaveDecryptNewPost(body);
+    console.log(data);
+  } catch (error) {
     console.error(error);
-  } else {
-    console.log('API called successfully. Returned data: ' + data);
   }
-});
+}
+
+// Run the test
+example().catch(console.error);
 ```
 
 ### Parameters
 
-Name | Type | Description  | Notes
-------------- | ------------- | ------------- | -------------
- **body** | [**String**](String.md)|  | [optional] 
+
+| Name | Type | Description  | Notes |
+|------------- | ------------- | ------------- | -------------|
+| **body** | `string` |  | |
 
 ### Return type
 
-**&#x27;String&#x27;**
+[**ResponseOfstring**](ResponseOfstring.md)
 
 ### Authorization
 
@@ -45,6 +61,14 @@ No authorization required
 
 ### HTTP request headers
 
- - **Content-Type**: text/plain
- - **Accept**: text/plain, application/json, text/json
+- **Content-Type**: `text/plain`
+- **Accept**: `text/plain`, `application/json`, `text/json`
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+| **200** | OK |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#api-endpoints) [[Back to Model list]](../README.md#models) [[Back to README]](../README.md)
 

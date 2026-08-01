@@ -26,7 +26,6 @@
 
 	<Target Name="CopyClient" BeforeTargets="Build" Condition="'$(Configuration)' == 'Debug'">
 		<Copy SourceFolders="../PhigrosApi.Client.Javascript/out/" DestinationFolder="./wwwroot/swagger/PhigrosApi/"></Copy>
-		<!--<Copy SourceFolders="../PhigrosApi.Client.Javascript/src/" DestinationFolder="./wwwroot/swagger/PhigrosApi/"></Copy>-->
 	</Target>
 	<Target Name="CleanUp" BeforeTargets="Clean">
 		<RemoveDir Directories="./wwwroot/swagger/"></RemoveDir>
