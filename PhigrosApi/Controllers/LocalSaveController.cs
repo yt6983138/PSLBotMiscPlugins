@@ -12,7 +12,7 @@ public class LocalSaveController : CustomControllerBase
 
 	[HttpPost]
 	[Route("phiApi/[controller]/DecryptNew")]
-	[ProducesResponseType<string>(StatusCodes.Status200OK)]
+	[ProducesResponseType<Response<string>>(StatusCodes.Status200OK)]
 	[ProducesErrorResponseType(typeof(Response<ErrorData>))]
 	[Consumes(MediaTypeNames.Text.Plain)]
 	public IActionResult DecryptNew([FromBody] string data)
@@ -28,6 +28,6 @@ public class LocalSaveController : CustomControllerBase
 		}
 
 		this._logger.LogDebug("{ip} decrypted {from} to {to}", this.IP, data, decrypted);
-		return this.Content(decrypted);
+		return this.Json(decrypted);
 	}
 }

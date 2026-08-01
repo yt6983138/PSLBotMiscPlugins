@@ -12,7 +12,6 @@ namespace PhigrosApi.Controllers;
 public record class SaveTimeIndex(int Index, DateTime ModificationTime);
 public record class SaveData(GameProgress Progress, GameSettings Settings, GameUserInfo GameUserInfo, PlayerInfo PlayerInfo, Summary Summary);
 
-// TODO: a bunch of the response types are changed or broken, need to fix them
 [Controller]
 [ApiExplorerSettings(GroupName = PhigrosApiPlugin.GroupName)]
 public class CloudSaveController : CustomControllerBase
@@ -182,7 +181,7 @@ public class CloudSaveController : CustomControllerBase
 
 	[HttpPost]
 	[Route("phiApi/[controller]/GetRecords")]
-	[ProducesResponseType<Response<GameRecord>>(StatusCodes.Status200OK)]
+	[ProducesResponseType<Response<List<CompleteScore>>>(StatusCodes.Status200OK)]
 	[ProducesErrorResponseType(typeof(Response<ErrorData>))]
 	[Consumes(MediaTypeNames.Text.Plain)]
 	public async Task<IActionResult> GetRecords(int index, bool isInternational, [FromBody] string token)

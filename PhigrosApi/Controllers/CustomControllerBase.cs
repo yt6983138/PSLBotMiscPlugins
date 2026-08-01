@@ -94,7 +94,9 @@ public abstract class CustomControllerBase : CustomJsonController
 	[NonAction]
 	public JsonResult Error(string message, ErrorCode code = ErrorCode.Unspecified)
 	{
-		this._logger.LogError("{ip} encountered an error: {message} (Code: {code})", this.IP, message, code);
+		if (code != ErrorCode.LoginProcessNotDone)
+			this._logger.LogError("{ip} encountered an error: {message} (Code: {code})", this.IP, message, code);
+
 		ErrorData errorResponse = new(code, code.ToString(), message);
 		return this.Json(errorResponse, false, (int)ErrorCodeToHttpStatusCode[code]);
 	}

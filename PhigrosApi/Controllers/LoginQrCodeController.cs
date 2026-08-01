@@ -13,18 +13,25 @@ public class LoginQrCodeController : CustomControllerBase
 	[HttpGet]
 	[Route("phiApi/[controller]/GetNewQRCode")]
 	[ProducesResponseType<Response<CompleteQRCodeData>>(StatusCodes.Status200OK)]
-	//[ProducesErrorResponseType(typeof(Response<ErrorData>))]
+	[ProducesErrorResponseType(typeof(Response<ErrorData>))]
 	public async Task<IActionResult> GetNewQRCode(bool useChinaEndpoint)
 	{
-		CompleteQRCodeData qrcode = await TapTapHelper.RequestLoginQrCode(useChinaEndpoint: useChinaEndpoint);
-		this._logger.LogDebug("{ip} requested a login QrCode. Url: {url}", this.IP, qrcode.Url);
+		try
+		{
+			CompleteQRCodeData qrcode = await TapTapHelper.RequestLoginQrCode(useChinaEndpoint: useChinaEndpoint);
+			this._logger.LogDebug("{ip} requested a login QrCode. Url: {url}", this.IP, qrcode.Url);
 
-		// for some reason they now respond with interval of 1 (it was 3), and if clients check the qrcode at the interval of 1
-		// they would be responded with client checking too frequently
-		if (qrcode.Interval < 3)
-			SetQRCodeInterval(qrcode, 3);
+			// for some reason they now respond with interval of 1 (it was 3), and if clients check the qrcode at the interval of 1
+			// they would be responded with client checking too frequently
+			if (qrcode.Interval < 3)
+				SetQRCodeInterval(qrcode, 3);
 
-		return this.Json(qrcode);
+			return this.Json(qrcode);
+		}
+		catch (Exception ex)
+		{
+			return this.Error(ex, code: ErrorCode.PhigrosLibraryInternalError);
+		}
 
 		[UnsafeAccessor(UnsafeAccessorKind.Method, Name = "set_Interval")]
 		static extern void SetQRCodeInterval(CompleteQRCodeData self, int interval);
@@ -34,7 +41,7 @@ public class LoginQrCodeController : CustomControllerBase
 	[Route("phiApi/[controller]/CheckQRCode")]
 	[ProducesResponseType<Response<TapTapTokenData>>(StatusCodes.Status200OK)]
 	[ProducesErrorResponseType(typeof(Response<ErrorData>))]
-	public async Task<IActionResult> CheckQRCode(bool useChinaEndpoint, [FromBody] NoRead<CompleteQRCodeData> _body) // im leaving _body here to make swagger generate the correct schema (im lazy to change code)
+	public async Task<IActionResult> CheckQRCode(bool useChinaEndpoint, [FromBody] NoRead<CompleteQRCodeData> _)
 	{
 		(CompleteQRCodeData? result, IActionResult? error) = await this.ReadRequestBodyAs<CompleteQRCodeData>();
 		if (error is not null)
