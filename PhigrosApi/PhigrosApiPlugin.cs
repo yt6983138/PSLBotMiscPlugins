@@ -35,22 +35,13 @@ public class PhigrosApiPlugin : IPlugin
 			x.InputFormatters.Insert(0, new NoReadInputFormatter());
 		});
 
-		// okay, so i made sure swagger works after upgrading to .net 10, but the some NoRead<> content seems to be wrong
-		// also to remind myself, the swagger spec url is /swagger/PhigrosApi/swagger.json so i don't spend 5 hours looking for it again
+		// to remind myself, the openapi spec url is /openapi/PhigrosApi.json so i don't spend 5 hours looking for it again
 
-		// also the original plan is to regenerate the PhigrosApi.Client.Javascript, because it has broken jsdoc and a bunch of other stuff
-		// but i already got enough within the url looking process, so fuck it
-		Program.Instance.SwaggerGenFilter.Add(WebUtility.SwaggerRequireInTypeAssembly<PhigrosApiPlugin>);
-		Program.Instance.SwaggerConfigurators += (_, config) =>
+		hostBuilder.Services.AddOpenApi(GroupName, options =>
 		{
-			config.EnableAnnotations();
-			config.SwaggerDoc(GroupName, new()
-			{
-				Title = GroupName,
-				Description = "Phigros Api, a plugin wrapper for the wrapper of PhigrosLibraryCSharp",
-				Version = "v1"
-			});
-		};
+			options.ShouldInclude = WebUtility.OpenAPIRequireInTypeAssembly<PhigrosApiPlugin>;
+			options.AddSchemaTransformer<NoReadSchemaTransformer>();
+		});
 	}
 
 	public void ConfigureDiscordClient(WebApplicationBuilder builder, DiscordClientServiceConfig config) { }
@@ -64,10 +55,7 @@ public class PhigrosApiPlugin : IPlugin
 		configurator.BetweenRoutingAndAuthMiddleware.Add(app => app.UseCors("Everything"));
 		configurator.AfterAuthMiddleware.Add(app =>
 		{
-			app.UseSwagger();
-#if DEBUG
-			app.UseSwaggerUI();
-#endif
+			app.MapOpenApi();
 		});
 	}
 

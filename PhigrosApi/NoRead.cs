@@ -1,10 +1,8 @@
-﻿using Microsoft.OpenApi;
-using Swashbuckle.AspNetCore.Annotations;
-using Swashbuckle.AspNetCore.SwaggerGen;
+﻿using Microsoft.AspNetCore.OpenApi;
+using Microsoft.OpenApi;
 
 namespace PhigrosApi;
 
-[SwaggerSchemaFilter(typeof(NoReadFilter))]
 public struct NoRead<T>
 {
 	public T Value { get; set; }
@@ -15,30 +13,28 @@ public struct NoRead<T>
 	}
 }
 
-public class NoReadFilter : ISchemaFilter
+public class NoReadSchemaTransformer : IOpenApiSchemaTransformer
 {
-	public void Apply(IOpenApiSchema schema, SchemaFilterContext context)
+	public async Task TransformAsync(OpenApiSchema schema, OpenApiSchemaTransformerContext context, CancellationToken cancellationToken)
 	{
-		if (!context.Type.IsGenericType || context.Type.GetGenericTypeDefinition() != typeof(NoRead<>))
+		Type type = context.JsonTypeInfo.Type;
+
+		if (!type.IsGenericType || type.GetGenericTypeDefinition() != typeof(NoRead<>))
 			return;
 
-		if (schema is not OpenApiSchema openApiSchema)
-			return;
+		Type innerType = type.GetGenericArguments()[0];
+		OpenApiSchema innerSchema = await context.GetOrCreateSchemaAsync(innerType, cancellationToken: cancellationToken);
 
-		Type innerType = context.Type.GetGenericArguments()[0];
-		IOpenApiSchema innerSchema;
-		if (!context.SchemaRepository.TryLookupByType(innerType, out OpenApiSchemaReference? _innerSchema))
-			innerSchema = context.SchemaGenerator.GenerateSchema(innerType, context.SchemaRepository);
-		else innerSchema = _innerSchema;
-
-		openApiSchema.Type = innerSchema.Type;
-		openApiSchema.Properties = innerSchema.Properties;
-		openApiSchema.Required = innerSchema.Required;
-		openApiSchema.Description = innerSchema.Description;
-		openApiSchema.Format = innerSchema.Format;
-		openApiSchema.Items = innerSchema.Items;
-		openApiSchema.AdditionalProperties = innerSchema.AdditionalProperties;
-		openApiSchema.Enum = innerSchema.Enum;
-		openApiSchema.Example = innerSchema.Example;
+		schema.Type = innerSchema.Type;
+		schema.Properties = innerSchema.Properties;
+		schema.Required = innerSchema.Required;
+		schema.Description = innerSchema.Description;
+		schema.Format = innerSchema.Format;
+		schema.Items = innerSchema.Items;
+		schema.AdditionalProperties = innerSchema.AdditionalProperties;
+		schema.AdditionalPropertiesAllowed = innerSchema.AdditionalPropertiesAllowed;
+		schema.Enum = innerSchema.Enum;
+		schema.Example = innerSchema.Example;
+		schema.AllOf = innerSchema.AllOf;
 	}
 }
