@@ -16,6 +16,6 @@
     "babelify": "^10.0.0",
     "browserify": "^17.0.1",
     "dts-bundle-generator": "^9.5.1",
-    "typescript": "^7.0.2"
+    "typescript": "^6.0.3"
   }
 }

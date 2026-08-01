@@ -3,7 +3,7 @@
     <ShouldRunNpmInstall>true</ShouldRunNpmInstall>
     <!-- why cant i put it in 2 lines -->
     <BuildCommand>
-			npx tsc &amp;&amp; npx browserify out/tsc/index.js --standalone PSL -t [ babelify --extensions .js ] -o out/PhigrosApi.bundled.js
+			npx tsc &amp;&amp; npx browserify out/tsc/index.js --standalone PSL -t [ babelify --extensions .js ] -o out/PhigrosApi.bundled.js &amp;&amp; npx dts-bundle-generator -o out/PhigrosApi.bundled.d.ts out/tsc/index.d.ts
 	</BuildCommand>
   </PropertyGroup>
   <Target Name="CopyEsModules" BeforeTargets="Build">
