@@ -33,6 +33,12 @@
         #MiscControls {
             margin-top: 5px;
         }
+        #Progress {
+            margin-top: 10px;
+        }
+        #ProgressBar {
+            transform: scaleY(0.75);
+        }
 
         #TapTapLoginInfoGroupQRCode {
             content: "";
@@ -41,6 +47,20 @@
             width: fit-content;
             background-color: white;
             border: 2px solid gray
+        }
+
+        #ScoreView {
+            padding: 0;
+        }
+        #ScoreView > .dialog-header {
+            margin: 0;
+        }
+        #ScoreView > .dialog-body {
+            max-height: 90vh;
+            overflow: scroll;
+        }
+        #ScoresTable {
+            margin-top: 15px;
         }
     </style>
     <script src="/swagger/PhigrosApi/PhigrosApi.bundled.js"></script>
@@ -68,6 +88,10 @@
             <button id="SeeMyTokenButton" onclick="SeeMyToken(event)">See My Token...</button>
             <button id="SelectIndexButton" onclick="SelectSaveIndex(event)">Select Index...</button>
         </div>
+    </div>
+    <div id="Progress" style="display: none">
+        <label id="ProgressLabel" for="ProgressBar"></label><br/>
+        <progress id="ProgressBar"></progress>
     </div>
 </win-dialog>
 
@@ -120,14 +144,14 @@
     <button id="SelectIndexButton" onclick="SelectSaveIndexClose(event)">Close</button>
 </win-dialog>
 
-<win-dialog id="ScoreView" title="Scores" style="display: none">
+<win-dialog id="ScoreView" title="Scores" style="left: 80px; top: 200px; display: none; z-index: 9000">
     <table id="AboutMe">
         <tr class="TableTitle">
             <th class="TableTitleTexts TableFirst">Avatar</th>
             <th class="TableTitleTexts TableSecond">Nickname</th>
-            <th class="TableTitleTexts TableThird">Username</th>
-            <th class="TableTitleTexts TableForth">Last Modified</th>
-            <th class="TableTitleTexts TableFifth">Challenge Rank</th>
+            <th class="TableTitleTexts TableThird">Last Modified At</th>
+            <th class="TableTitleTexts TableForth">Challenge Rank</th>
+            <th class="TableTitleTexts TableFifth">Total RKS</th>
         </tr>
         <tr id="AboutMeData">
 
@@ -138,10 +162,10 @@
         <tr class="TableTitle">
             <th class="TableTitleTexts TableFirst">Number</th>
             <th class="TableTitleTexts TableSecond">Song Name</th>
-            <th class="TableTitleTexts TableThird">Chart Constant</th>
+            <th class="TableTitleTexts TableThird">Difficulty</th>
             <th class="TableTitleTexts TableForth">Score</th>
             <th class="TableTitleTexts TableFifth">Accuracy</th>
-            <th class="TableTitleTexts TableSixth">RKS Given</th>
+            <th class="TableTitleTexts TableSixth">RKS</th>
             <th class="TableTitleTexts TableSeventh">Status</th>
         </tr>
     </table>

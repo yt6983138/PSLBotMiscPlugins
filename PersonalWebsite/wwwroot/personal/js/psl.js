@@ -1,6 +1,38 @@
-﻿//import * as PSL from "../../../../PhigrosApi.Client.Javascript/src";
-// uncomment/comment above lines to trick ide for intellisense
-// this is really annoying but i cant find a better way
+﻿/// <reference path="PhigrosApi.d.ts" />
+
+const ScoreStatus = {
+    Bugged: -1,
+    NotFc: 0,
+    Fc: 1,
+    Phi: 2,
+    Vu: 3,
+    S: 4,
+    A: 5,
+    B: 6,
+    C: 7,
+    False: 8
+};
+const ScoreStatusString = SwapKeyValue(ScoreStatus);
+
+const ChallengeRank = {
+    White: 0,
+    Green: 1,
+    Blue: 2,
+    Red: 3,
+    Gold: 4,
+    Rainbow: 5
+};
+const ChallengeRankString = SwapKeyValue(ChallengeRank);
+
+const Difficulty = {
+    EZ: 0,
+    HD: 1,
+    IN: 2,
+    AT: 3,
+    Legacy: 4,
+    SP: 5
+}
+const DifficultyString = SwapKeyValue(Difficulty);
 
 var qrCodeApi = new PSL.LoginQrCodeApi();
 var cloudSaveApi = new PSL.CloudSaveApi();
@@ -9,7 +41,16 @@ var localSaveApi = new PSL.LocalSaveApi();
 var globalToken = null;
 var globalIsInternational = false;
 var globalSaveIndex = 0;
+/** @type {PSL.SaveTimeIndex[]} */
+var globalSaveIndexData = null;
 
+function SwapKeyValue(json) {
+    var ret = {};
+    for (var key in json) {
+        ret[json[key]] = key;
+    }
+    return ret;
+}
 let draggableMaxIndex = 0;
 function MakeDraggable(dialog) {
     if (typeof dialog === "string")
@@ -48,81 +89,76 @@ function MakeDraggable(dialog) {
         if (bottomOffset < 0) dialog.style.top = `${topOffset + bottomOffset}px`;
     });
 }
-
-/**
- * 
- * @param {any} apiCall
- * @param {any} binder
- * @param {any} options
- * @param {any} noReject
- * @returns {Promise<{Error, Data, Response}>}
- */
-function AsAsync(apiCall, binder, options, noReject = false) {
-    return new Promise((resolve, reject) => {
-        apiCall.bind(binder)(options, (error, data, response) => {
-            if (noReject) {
-                resolve({ Error: error, Data: data, Response: response });
-            }
-
-            if (error) {
-                reject({ Error: error, Response: response });
-            } else {
-                resolve({ Data: data, Response: response });
-            }
-        });
-    })
-}
 function CreateDefaultRequestParams(includeIndex = true) {
     let obj = { body: globalToken, isInterational: globalIsInternational };
     if (includeIndex) obj.index = globalSaveIndex;
 
     return obj;
 }
-
-/**
- * Convert a string from camelCase/PascalCase to snake_case
- */
-function toSnakeCase(str) {
-    return str
-        .replace(/([A-Z])/g, "_$1")   // insert underscore before capital letters
-        .replace(/^_/, "")            // remove leading underscore if any
-        .toLowerCase();
-}
-
-/**
- * Recursively convert object keys to snake_case
- */
-function keysToSnakeCase(obj) {
-    if (Array.isArray(obj)) {
-        return obj.map(keysToSnakeCase);
-    } else if (obj !== null && typeof obj === "object") {
-        return Object.keys(obj).reduce((acc, key) => {
-            const snakeKey = toSnakeCase(key);
-            acc[snakeKey] = keysToSnakeCase(obj[key]);
-            return acc;
-        }, {});
+async function FetchSaveIndexes(token = null, isInternational = false) {
+    if (!token) {
+        token = globalToken;
+        isInternational = globalIsInternational;
     }
-    return obj; // primitive values unchanged
+
+    SetProgressBar(1, "Loading save indexes...")
+    let data = await cloudSaveApi.phiApiCloudSaveGetSaveIndexesPost({ body: token, isInternational: isInternational });
+    CompleteProgressBar("Loaded save indexes.");
+    globalSaveIndexData = data.data;
+    return data.data;
 }
 
 async function Initialize() {
+    MakeDraggable("main");
+    MakeDraggable("ManualLogin");
+    MakeDraggable("TapTapLogin");
+    MakeDraggable("SeeMyToken");
+    MakeDraggable("ScoreView");
+
     if (LoadToken()) {
         document.getElementById("SaveToken").checked = true;
         DisableLoginRelatedThings();
         SetMiscDisabled(false);
+        await UpdateScores();
     }
     else {
         EnableLoginRelatedThings();
         SetMiscDisabled(true);
     }
-    MakeDraggable("main");
-    MakeDraggable("ManualLogin");
-    MakeDraggable("TapTapLogin");
-    MakeDraggable("SeeMyToken");
 }
 window.onload = () => {
     Initialize();
 };
+
+let progressBarProgress = NaN;
+let progressBarDivisions = 100;
+let progressBarMaxBeforeComplete = 0.95;
+function SetProgressBar(secondsToComplete, label = null, progress = 0) {
+    if (isNaN(progressBarProgress)) {
+        document.getElementById("Progress").style.display = "unset";
+
+        setInterval(() => {
+            document.getElementById("ProgressBar").value = progressBarProgress;
+
+            if (progressBarProgress > progressBarMaxBeforeComplete)
+                return;
+
+            progressBarProgress += 1 / progressBarDivisions;
+        }, 10);
+    }
+
+    progressBarDivisions = secondsToComplete * 100;
+    progressBarProgress = progress;
+
+    if (label !== null)
+        document.getElementById("ProgressLabel").innerHTML = label;
+}
+function CompleteProgressBar(label = null) {
+    progressBarProgress = 1;
+
+    if (label !== null)
+        document.getElementById("ProgressLabel").innerHTML = label;
+}
 
 function HandleCommonError(error) {
     let errorString = error instanceof Error ? error.toString() : JSON.stringify(error);
@@ -154,11 +190,15 @@ function LoadToken() {
 
     if (token !== null && isInternational !== null) {
         globalToken = token;
-        globalIsInternational = isInternational ? true : false;
+        globalIsInternational = isInternational === "true";
         return true;
     }
 
     return false;
+}
+
+function FormatUserString(num) {
+    return num.toFixed(2); // TODO: implement setting
 }
 
 function SetMiscDisabled(isDisabled) {
@@ -177,17 +217,81 @@ function EnableLoginRelatedThings() {
 }
 
 async function UpdateScores() {
-    // currently, the generated api client is broken so those api calls will throw an error
-    // TODO: regenerate the api client
-    let otherData = (await AsAsync(cloudSaveApi.phiApiCloudSaveGetSaveDataPost, cloudSaveApi, CreateDefaultRequestParams())).Data.data;
-    let records = (await AsAsync(cloudSaveApi.phiApiCloudSaveGetRecordsPost, cloudSaveApi, CreateDefaultRequestParams())).Data.data;
+    if (globalSaveIndexData === null) {
+        await FetchSaveIndexes();
+    }
 
+    SetProgressBar(3, "Loading scores...");
+
+    let otherData = (await cloudSaveApi.phiApiCloudSaveGetSaveDataPost(CreateDefaultRequestParams())).data;
+    let records = (await cloudSaveApi.phiApiCloudSaveGetRecordsPost(CreateDefaultRequestParams())).data;
+    records.sort((a, b) => b.rks - a.rks);
+
+    let scoreView = document.getElementById("ScoreView");
     let aboutMeRow = document.getElementById("AboutMeData");
     let scoresTable = document.getElementById("ScoresTable");
 
+    scoreView.style.display = "unset";
+
+    const padding = {
+        "score": {
+            "score": 0,
+            "accuracy": 0,
+            "id": "",
+            "difficulty": Difficulty.EZ,
+            "status": ScoreStatus.False
+        },
+        "nameOrDefault": "",
+        "name": "",
+        "chartConstant": 0,
+        "rks": 0
+    }
+
+    let rks = 0;
+    let phi3 = [];
+    for (let i = 0; i < records.length; i++) {
+        let record = records[i];
+
+        if (phi3.length < 3 && record.score.status === ScoreStatus.Phi) {
+            rks += record.rks / 30;
+            phi3.push(record);
+        }
+
+        if (i < 27)
+            rks += record.rks / 30;
+    }
+    while (phi3.length < 3)
+        phi3.push(padding);
+
+    records.splice(0, 0, ...phi3);
+
     aboutMeRow.innerHTML = `
-        
+        <td class="TableFirst">${otherData.gameUserInfo.avatarId}</td>
+        <td class="TableSecond">${otherData.playerInfo.nickName}</td>
+        <td class="TableThird">${globalSaveIndexData[globalSaveIndex].modificationTime.toLocaleString()}</td>
+        <td class="TableForth">${ChallengeRankString[otherData.progress.challengeModeRank.rank]} ${otherData.progress.challengeModeRank.level}</td>
+        <td class="TableFifth">${FormatUserString(rks)}</td>
     `;
+
+    while (scoresTable.childElementCount > 1)
+        scoresTable.children[1].remove();
+
+    for (let i = 0; i < records.length; i++) {
+        let record = records[i];
+        scoresTable.insertAdjacentHTML("beforeend", `
+            <tr>
+                <td class="TableFirst">${i < 3 ? 'φ' : '#'}${i + 1}</td>
+                <td class="TableSecond">${record.name}</td>
+                <td class="TableThird">${DifficultyString[record.score.difficulty]} ${record.chartConstant.toFixed(1)}</td>
+                <td class="TableForth">${record.score.score}</td>
+                <td class="TableFifth">${FormatUserString(record.score.accuracy)}</td>
+                <td class="TableSixth">${FormatUserString(record.rks) }</td>
+                <td class="TableSeventh">${ScoreStatusString[record.score.status]}</td>
+            <tr/>
+        `)
+    }
+
+    CompleteProgressBar("Scores loaded.");
 }
 
 function Logout(e) {
@@ -227,13 +331,15 @@ async function LoginManualNext(e) {
     cancelElement.disabled = true;
 
     try {
-        await AsAsync(cloudSaveApi.phiApiCloudSaveGetSaveIndexesPost, cloudSaveApi, CreateDefaultRequestParams(false));
-    } catch (error) {
-        HandleCommonError(error);
+        await FetchSaveIndexes(token, isInternational);
 
         SaveToken(token, isInternational);
         document.getElementById("ManualLogin").style.display = "none";
         SetMiscDisabled(false);
+
+        await UpdateScores();
+    } catch (error) {
+        HandleCommonError(error);
     } finally {
         e.target.disabled = false;
         tokenElement.disabled = false;
@@ -269,12 +375,14 @@ async function LoginTapTapGenerate(e) {
     /** @type {PSL.CompleteQRCodeData} */
     let currentProceedingQrCode = null;
     try {
-        currentProceedingQrCode = (await AsAsync(qrCodeApi.phiApiLoginQrCodeGetNewQRCodeGet, qrCodeApi, { useChinaEndpoint: !isInternational })).Data.data;
+        SetProgressBar(1, "Generating login QRCode...");
+        currentProceedingQrCode = (await qrCodeApi.phiApiLoginQrCodeGetNewQRCodeGet({ useChinaEndpoint: !isInternational })).data;
     } catch (error) {
         SetDisabled(false);
         HandleCommonError(error);
         return;
     }
+    CompleteProgressBar("Login QRCode generated.");
 
     let group = document.getElementById("TapTapLoginInfoGroup");
     let qrImage = document.getElementById("TapTapLoginInfoGroupQRCode");
@@ -311,10 +419,10 @@ async function LoginTapTapGenerate(e) {
         /** @type {PSL.TapTapTokenData} */
         let checkedResult = null;
         try {
-            let checkResult = (await AsAsync(qrCodeApi.phiApiLoginQrCodeCheckQRCodePost, qrCodeApi, {
-                body: currentProceedingQrCode,
+            let checkResult = await qrCodeApi.phiApiLoginQrCodeCheckQRCodePost({
+                noReadOfCompleteQRCodeData: currentProceedingQrCode,
                 useChinaEndpoint: !isInternational
-            })).Data;
+            });
             if (!checkResult.success) {
                 console.log(checkResult);
                 return;
@@ -325,24 +433,29 @@ async function LoginTapTapGenerate(e) {
             return;
         }
 
+        SetProgressBar(1, "Fetching Phigros token...");
+
         let tokenResult = null;
         try {
-            tokenResult = (await AsAsync(qrCodeApi.phiApiLoginQrCodeGetPhigrosTokenPost, qrCodeApi, {
-                body: keysToSnakeCase(checkedResult), // had to use some hacks, serialization doesnt use name used in deserialization
+            tokenResult = await qrCodeApi.phiApiLoginQrCodeGetPhigrosTokenPost({
+                noReadOfTapTapTokenData: checkedResult,
                 useChinaEndpoint: !isInternational
-            })).Data;
+            });
         } catch (error) {
             HandleCommonError(error);
             return;
         }
 
-        SaveToken(tokenResult, isInternational);
+        CompleteProgressBar("Fetched Phigros token.");
+
+        SaveToken(tokenResult.data, isInternational);
         clearInterval(loginTapTapIntervalId);
         clearInterval(infoIntervalId);
         clearTimeout(expireTimeoutId);
         document.getElementById("TapTapLogin").style.display = "none";
         SetMiscDisabled(false);
 
+        await UpdateScores();
     }, currentProceedingQrCode.interval * 1000);
     expireTimeoutId = setTimeout(() => {
         clearInterval(loginTapTapIntervalId);
@@ -372,7 +485,7 @@ async function SelectSaveIndex(e) {
     let select = document.getElementById("SelectIndexMenu");
 
     dialog.style.display = "inherit";
-    let indexes = (await AsAsync(cloudSaveApi.phiApiCloudSaveGetSaveIndexesPost, cloudSaveApi, CreateDefaultRequestParams(false))).Data.data;
+    let indexes = await FetchSaveIndexes();
 
     for (let index of indexes) {
         select.innerHTML += `<option value="${index.index}">${index.index} - ${new Date(index.modificationTime)}</option>`;
@@ -384,9 +497,11 @@ async function SelectSaveIndexClose(e) {
     let select = document.getElementById("SelectIndexMenu");
 
     dialog.style.display = "none";
-    select.innerHTML = "";
     globalSaveIndex = parseInt(select.value);
-    if (globalSaveIndex < 0 || globalSaveIndex === NaN) globalSaveIndex = 0;
+    if (globalSaveIndex < 0 || isNaN(globalSaveIndex))
+        globalSaveIndex = 0;
+
+    select.innerHTML = "";
 
     let button = document.getElementById("SelectIndexButton");
     button.disabled = true;
