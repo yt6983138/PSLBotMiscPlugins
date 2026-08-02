@@ -34,9 +34,13 @@ const Difficulty = {
 }
 const DifficultyString = SwapKeyValue(Difficulty);
 
-var qrCodeApi = new PSL.LoginQrCodeApi();
-var cloudSaveApi = new PSL.CloudSaveApi();
-var localSaveApi = new PSL.LocalSaveApi();
+let config = new PSL.Configuration({
+    basePath: window.location.origin
+});
+
+var qrCodeApi = new PSL.LoginQrCodeApi(config);
+var cloudSaveApi = new PSL.CloudSaveApi(config);
+var localSaveApi = new PSL.LocalSaveApi(config);
 
 var globalToken = null;
 var globalIsInternational = false;
