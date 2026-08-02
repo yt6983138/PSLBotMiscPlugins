@@ -41,8 +41,9 @@ var localSaveApi = new PSL.LocalSaveApi();
 var globalToken = null;
 var globalIsInternational = false;
 var globalSaveIndex = 0;
-/** @type {PSL.SaveTimeIndex[]} */
 var globalSaveIndexData = null;
+var globalSaveRecords = null;
+var globalSaveOtherData = null;
 
 function SwapKeyValue(json) {
     var ret = {};
@@ -60,19 +61,19 @@ function MakeDraggable(dialog) {
     dialog.classList.add("draggable");
 
     let draggable = dialog.getElementsByClassName("dialog-header")[0];
-    draggable.addEventListener('mousedown', (e) => {
+    draggable.addEventListener('pointerdown', (e) => {
         dialog.isDragging = true;
         offsetX = e.clientX - dialog.offsetLeft;
         offsetY = e.clientY - dialog.offsetTop;
         dialog.style.zIndex = (++draggableMaxIndex).toString();
         draggable.style.cursor = 'grabbing';
     });
-    document.addEventListener('mousemove', (e) => {
+    document.addEventListener('pointermove', (e) => {
         if (!dialog.isDragging) return;
         dialog.style.left = (e.clientX - offsetX) + 'px';
         dialog.style.top = (e.clientY - offsetY) + 'px';
     });
-    document.addEventListener('mouseup', () => {
+    document.addEventListener('pointerup', () => {
         dialog.isDragging = false;
         draggable.style.cursor = 'auto';
 
@@ -89,6 +90,19 @@ function MakeDraggable(dialog) {
         if (bottomOffset < 0) dialog.style.top = `${topOffset + bottomOffset}px`;
     });
 }
+function DownloadFile(filename, content, contentType, bom) {
+    let blobContent = bom ? [new Uint8Array([0xEF, 0xBB, 0xBF]), content] : [content];
+
+    let blob = new Blob(blobContent, { type: contentType });
+    let url = URL.createObjectURL(blob);
+    let link = document.createElement("a");
+    link.href = url;
+    link.download = filename
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+}
+
 function CreateDefaultRequestParams(includeIndex = true) {
     let obj = { body: globalToken, isInterational: globalIsInternational };
     if (includeIndex) obj.index = globalSaveIndex;
@@ -107,12 +121,26 @@ async function FetchSaveIndexes(token = null, isInternational = false) {
     globalSaveIndexData = data.data;
     return data.data;
 }
+async function FetchSaveRecords() {
+    SetProgressBar(3, "Loading save data...");
+
+    let saveOtherData = (await cloudSaveApi.phiApiCloudSaveGetSaveDataPost(CreateDefaultRequestParams())).data;
+    let saveRecords = (await cloudSaveApi.phiApiCloudSaveGetRecordsPost(CreateDefaultRequestParams())).data;
+
+    CompleteProgressBar("Save data loaded.");
+
+    globalSaveOtherData = saveOtherData;
+    globalSaveRecords = saveRecords;
+
+    return { saveOtherData, saveRecords };
+}
 
 async function Initialize() {
     MakeDraggable("main");
     MakeDraggable("ManualLogin");
     MakeDraggable("TapTapLogin");
     MakeDraggable("SeeMyToken");
+    MakeDraggable("SelectIndex");
     MakeDraggable("ScoreView");
 
     if (LoadToken()) {
@@ -221,10 +249,9 @@ async function UpdateScores() {
         await FetchSaveIndexes();
     }
 
-    SetProgressBar(3, "Loading scores...");
+    let { saveOtherData: otherData, saveRecords: records } = await FetchSaveRecords();
+    SetProgressBar(0.5, "Rendering scores...");
 
-    let otherData = (await cloudSaveApi.phiApiCloudSaveGetSaveDataPost(CreateDefaultRequestParams())).data;
-    let records = (await cloudSaveApi.phiApiCloudSaveGetRecordsPost(CreateDefaultRequestParams())).data;
     records.sort((a, b) => b.rks - a.rks);
 
     let scoreView = document.getElementById("ScoreView");
@@ -291,7 +318,54 @@ async function UpdateScores() {
         `)
     }
 
-    CompleteProgressBar("Scores loaded.");
+    CompleteProgressBar("Scores rendered.");
+}
+async function DownloadCSV(e) {
+    e.target.disabled = true;
+    SetProgressBar(0.3, "Saving as CSV...");
+    let bom = document.getElementById("DownloadBOM").checked;
+
+    let csvElements = [];
+    for (let record of globalSaveRecords) {
+        csvElements.push({
+            "ID": record.score.id,
+            "Name": record.name,
+            "Difficulty": DifficultyString[record.score.difficulty],
+            "Chart Constant": record.chartConstant,
+            "Score": record.score.score,
+            "Accuracy": record.score.accuracy,
+            "Rks": record.rks,
+            "Stat": ScoreStatusString[record.score.status]
+        });
+    }
+
+    let csv = Papa.unparse(csvElements);
+    DownloadFile(`PhigrosScores_Index${globalSaveIndex}.csv`, csv, "text/csv;charset=utf-8;", bom);
+
+    CompleteProgressBar("Saved as CSV.");
+    e.target.disabled = false;
+}
+async function DownloadJSON(e) {
+    e.target.disabled = true;
+    SetProgressBar(0.5, "Saving as JSON...");
+    let bom = document.getElementById("DownloadBOM").checked;
+
+    let data = {
+        "SaveIndex": globalSaveIndex, 
+        "SaveIndexes": globalSaveIndexData[globalSaveIndex],
+        "Progress": globalSaveOtherData.progress,
+        "Settings": globalSaveOtherData.settings,
+        "GameUserInfo": globalSaveOtherData.gameUserInfo,
+        "PlayerInfo": globalSaveOtherData.playerInfo,
+        "Summary": globalSaveOtherData.summary,
+        "Records": globalSaveRecords
+    };
+    let json = JSON.stringify(data);
+
+    DownloadFile(`PhigrosScores_Index${globalSaveIndex}.json`, json, "application/json;charset=utf-8;", bom);
+
+    CompleteProgressBar("Saved as JSON.");
+    e.target.disabled = false;
 }
 
 function Logout(e) {
