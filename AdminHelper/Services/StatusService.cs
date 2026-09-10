@@ -1,11 +1,11 @@
-﻿using Discord.WebSocket;
-using Microsoft.Extensions.Options;
-using PSLDiscordBot.Core;
+﻿using PSLDiscordBot.Core;
 using PSLDiscordBot.Framework.BuiltInServices;
 using PSLDiscordBot.Framework.MiscEventArgs;
+using SmartFormat;
 
 namespace AdminHelper.Services;
 
+public record class StatusChangeEventArgs(Status OldStatus, Status NewStatus, DateTimeOffset LastStatusChangeTime);
 public enum Status
 {
 	Normal,
@@ -18,26 +18,33 @@ public class StatusService
 	private static EventId EventId = new(114514_114, nameof(StatusService));
 	private bool _detached = false;
 
-	#region Injection
-	private readonly Config _configService;
+	private readonly IOptions<AdminConfig> _adminConfig;
+	private readonly IOptions<Config> _config;
 	private readonly ICommandResolveService _commandResolveService;
 	private readonly ILogger<StatusService> _logger;
-	#endregion
 
 	public Status CurrentStatus
 	{
 		get;
 		set
 		{
+			Status oldStatus = field;
+			DateTimeOffset oldTime = this.LastStatusChangeTime;
+			if (oldStatus == value) return;
+
 			field = value;
-			this.MaintenanceStartedAt = field == Status.UnderMaintenance ? DateTime.Now : default;
+			this.LastStatusChangeTime = DateTimeOffset.UtcNow;
+			StatusChanged?.Invoke(this, new(oldStatus, value, oldTime));
 		}
 	} = Status.Normal;
-	public DateTime MaintenanceStartedAt { get; private set; }
+	public DateTimeOffset LastStatusChangeTime { get; private set; }
 
-	public StatusService(IOptions<Config> config, ICommandResolveService commandResolver, ILogger<StatusService> logger)
+	public event EventHandler<StatusChangeEventArgs>? StatusChanged;
+
+	public StatusService(IOptions<Config> config, IOptions<AdminConfig> adminConfig, ICommandResolveService commandResolver, ILogger<StatusService> logger)
 	{
-		this._configService = config.Value;
+		this._config = config;
+		this._adminConfig = adminConfig;
 		this._commandResolveService = commandResolver;
 		this._logger = logger;
 
@@ -55,19 +62,25 @@ public class StatusService
 	private async Task BeforeSlashCommandExecutes(object? sender, SlashCommandEventArgs e)
 	{
 		if (this.CurrentStatus != Status.Normal
-			&& e.SocketSlashCommand.User.Id != this._configService.AdminUserId)
+			&& e.SocketSlashCommand.User.Id != this._config.Value.AdminUserId)
 		{
 			SocketSlashCommand arg = e.SocketSlashCommand;
 
 			e.Canceled = true;
 			string message = this.CurrentStatus switch
 			{
-				Status.UnderMaintenance =>
-					$"The bot is under maintenance since {this.MaintenanceStartedAt}. You may try again later.",
-				Status.ShuttingDown => "The service is shutting down. The service may be up later.",
-				Status.UpdatingData => "The bot is updating resources. You may try again later.",
-				_ => "Unspecified error."
+				Status.UnderMaintenance => this._adminConfig.Value.MaintenanceResponse,
+				Status.ShuttingDown => this._adminConfig.Value.ShutdownResponse,
+				Status.UpdatingData => this._adminConfig.Value.UpdateDataResponse,
+				_ => "<unknown error>"
 			};
+			message = Smart.Format(message, new
+			{
+				Arg = arg,
+				this._config.Value.AdminUserId,
+				this.LastStatusChangeTime,
+			});
+
 			try
 			{
 				await e.SocketSlashCommand.RespondAsync(message, ephemeral: true);

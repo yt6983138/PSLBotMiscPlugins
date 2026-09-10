@@ -2,7 +2,6 @@
 using Discord.Rest;
 using PSLDiscordBot.Core;
 using PSLDiscordBot.Framework.BuiltInServices;
-using System.Text.Json;
 
 namespace AdminHelper;
 
@@ -15,6 +14,7 @@ public class AdminHelperPlugin : IPlugin
 	private StatusService _statusService = null!;
 	private Program _program = null!;
 	private PSLPlugin _pslPlugin = null!;
+	private MaintenanceNotificationService _notificationService = null!;
 
 	string IPlugin.Name => "Admin helper";
 	string IPlugin.Description => "Help admins do shit";
@@ -30,17 +30,20 @@ public class AdminHelperPlugin : IPlugin
 	public ILogger<AdminHelperPlugin> Logger { get; private set; } = null!;
 	public IOptions<AdminConfig> Config { get; private set; } = null!;
 	public Timer? BackupTimer { get; private set; }
+	public RestTextChannel? NotificationChannel { get; private set; } = null;
 
 	void IPlugin.Load(WebApplicationBuilder hostBuilder)
 	{
 		hostBuilder.Services.Configure<AdminConfig>(
 			hostBuilder.Configuration.GetSection("AdminConfig"));
-		hostBuilder.Services.AddSingleton<BlackListService>()
+		hostBuilder.Services.AddSingleton(this)
+			.AddSingleton<BlackListService>()
 			.AddSingleton<CommandStatisticsService>()
 			.AddSingleton<StatusService>()
 			.AddSingleton<PhigrosDataUpdateService>()
-			.AddSingleton<BugReportDatabaseService>();
-		// i know it should be scoped or transient but commands are singletons, so it will be singleton eventually
+			// i know it should be scoped or transient but commands are singletons, so it will be singleton eventually
+			.AddSingleton<BugReportDatabaseService>()
+			.AddSingleton<MaintenanceNotificationService>();
 
 		hostBuilder.Services.AddAssemblyToMvc(this);
 
@@ -49,11 +52,32 @@ public class AdminHelperPlugin : IPlugin
 	void IPlugin.ConfigureDiscordClient(WebApplicationBuilder builder, DiscordClientServiceConfig config) { }
 	void IPlugin.Setup(WebApplication host)
 	{
+		// kinda feeling this is becoming a spaghetti, probably need to refactor this later
+
 		this._commandStatisticsService = host.Services.GetRequiredService<CommandStatisticsService>();
 		this._commandResolveService = host.Services.GetRequiredService<ICommandResolveService>();
 		this._statusService = host.Services.GetRequiredService<StatusService>();
 		this._program = host.Services.GetRequiredService<Program>();
 		this._pslPlugin = host.Services.GetRequiredService<PSLPlugin>();
+		this._notificationService = host.Services.GetRequiredService<MaintenanceNotificationService>();
+
+		this.Logger = host.Services.GetRequiredService<ILogger<AdminHelperPlugin>>();
+		this.Config = host.Services.GetRequiredService<IOptions<AdminConfig>>();
+
+		this._program.AfterMainInitialize += async (s, e) =>
+		{
+			try
+			{
+				IDiscordClientService discordService = host.Services.GetRequiredService<IDiscordClientService>();
+				RestGuild guild = await discordService.RestClient.GetGuildAsync(this.Config.Value.NotificationGuildId);
+				this.NotificationChannel = await guild.GetTextChannelAsync(this.Config.Value.NotificationChannelId);
+				await this._notificationService.SendMessage(this.Config.Value.BotRestartedNotification, new(Status.Normal, Status.Normal, DateTimeOffset.UtcNow));
+			}
+			catch (Exception ex)
+			{
+				this.Logger.LogError(EventId, ex, "Failed to send bot restarted notification.");
+			}
+		};
 
 		host.Services.GetRequiredService<BugReportHandlerService>().OnReportReceived += this.AdminHelperPlugin_OnReportReceived;
 
@@ -62,9 +86,6 @@ public class AdminHelperPlugin : IPlugin
 		// make sure the event handler is registered before any command executes
 
 		this._commandResolveService.BeforeSlashCommandExecutes += this.CommandResolveService_BeforeSlashCommandExecutes;
-
-		this.Logger = host.Services.GetRequiredService<ILogger<AdminHelperPlugin>>();
-		this.Config = host.Services.GetRequiredService<IOptions<AdminConfig>>();
 
 		host.Services.GetRequiredService<IMvcConfigurationService>().StaticFileOptions.ServeUnknownFileTypes = true;
 
@@ -95,66 +116,8 @@ public class AdminHelperPlugin : IPlugin
 	{
 	}
 
-#if DEBUG
-	private class DiscordClient : IDiscordClientService
-	{
-		public required DiscordSocketClient SocketClient { get; set; }
-		public required DiscordRestClient RestClient { get; set; }
-		public string Token { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
-
-		public bool HasStartedSuccessfully => throw new NotImplementedException();
-
-		public Task<(bool Success, Exception Exception)> TryStartBotAsync()
-		{
-			throw new NotImplementedException();
-		}
-	}
-	public static void Main(string[] args)
-	{
-		WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
-
-		// Add services to the container.
-		builder.Services.AddSingleton<BugReportDatabaseService>()
-			.AddSingleton<BugReportHandlerService>();
-
-		DiscordClient client = new()
-		{
-			RestClient = new(),
-			SocketClient = new()
-		};
-		client.RestClient.LoginAsync(Discord.TokenType.Bot, Secret.Token).Wait();
-
-		builder.Services.AddSingleton<IDiscordClientService>(new DiscordClient() { RestClient = new(new()), SocketClient = new() });
-
-		builder.Services.Configure<AdminConfig>(
-			builder.Configuration.GetSection("AdminConfig"));
-
-		builder.Services.AddControllersWithViews()
-			.AddJsonOptions(x => x.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower);
-
-		WebApplication app = builder.Build();
-
-		// Configure the HTTP request pipeline.
-		if (!app.Environment.IsDevelopment())
-		{
-			app.UseExceptionHandler("/Home/Error");
-		}
-		app.MapControllers().AllowAnonymous();
-
-		app.UseStaticFiles(new StaticFileOptions()
-		{
-			ServeUnknownFileTypes = true
-		});
-
-		app.UseRouting();
-
-		app.UseAuthorization();
-
-		app.Run();
-	}
-#else
+	// placeholder for the compiler to not complain about no Main method, this is not used
 	public static void Main() { }
-#endif
 
 	private async Task CommandResolveService_BeforeSlashCommandExecutes(object? sender, PSLDiscordBot.Framework.MiscEventArgs.SlashCommandEventArgs e)
 	{
@@ -197,6 +160,8 @@ public class AdminHelperPlugin : IPlugin
 			}
 		}
 
+		// uogh async in sync
+		this._notificationService.NotifyShutdown().GetAwaiter().GetResult();
 		this._program.CancellationTokenSource.Cancel();
 	}
 

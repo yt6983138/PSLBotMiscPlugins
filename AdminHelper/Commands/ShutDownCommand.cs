@@ -39,6 +39,7 @@ public class ShutDownCommand : AdminCommandBase
 		}
 		await message.ModifyAsync(msg => msg.Content = $"Shut down.");
 
+		// note: notifcation already done in the notification service, no need to do it here
 		this._program.CancellationTokenSource.Cancel();
 	}
 }
