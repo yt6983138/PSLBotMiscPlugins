@@ -102,20 +102,34 @@ public class PhigrosDataUpdateService
 
 		CLIExtractor extractor = await CLIExtractor.FromOptionAsync(this.ExtractOptions, this._extractorLogger);
 
-		// set to phigros service and writing files are defered to end,
-		// to prevent the service from being in an inconsistent state when exception is thrown during extraction
-		NonMultiLanguageInfos nonLanguageSpecificInfo = extractor.ExtractNonLanguageSpecificInfo();
-		Dictionary<PhiInfo.Core.Models.Language, MultiLanguageInfos> multiLanguageInfos = Enum.GetValues<PhiInfo.Core.Models.Language>()
-			.ToDictionary(x => x, extractor.ExtractLanguageSpecificInfo);
-
-		this.TrySaveJson(this._configService.Value.NonMultiLanguageInfoLocation, nonLanguageSpecificInfo);
-		this._phigrosService.NonMultiLanguageInfos = nonLanguageSpecificInfo;
-
-		foreach ((PhiInfo.Core.Models.Language lang, MultiLanguageInfos? multiLangInfo) in multiLanguageInfos)
+		try
 		{
-			this.TrySaveJson(string.Format(this._configService.Value.MultiLanguageInfoLocationFormat, lang), multiLangInfo);
-			// hacky workaround since they have same member name but different type and value
-			this._phigrosService.MultiLanguageInfos[Enum.Parse<Language>(lang.ToString())] = multiLangInfo;
+			// set to phigros service and writing files are defered to end,
+			// to prevent the service from being in an inconsistent state when exception is thrown during extraction
+			NonMultiLanguageInfos nonLanguageSpecificInfo = extractor.ExtractNonLanguageSpecificInfo();
+
+			this.TrySaveJson(this._configService.Value.NonMultiLanguageInfoLocation, nonLanguageSpecificInfo);
+			this._phigrosService.NonMultiLanguageInfos = nonLanguageSpecificInfo;
+		}
+		catch (Exception ex)
+		{
+			this._logger.LogError(ex, "Failed to extract non-language specific info");
+		}
+
+		try
+		{
+			Dictionary<PhiInfo.Core.Models.Language, MultiLanguageInfos> multiLanguageInfos = Enum.GetValues<PhiInfo.Core.Models.Language>()
+				.ToDictionary(x => x, extractor.ExtractLanguageSpecificInfo);
+			foreach ((PhiInfo.Core.Models.Language lang, MultiLanguageInfos? multiLangInfo) in multiLanguageInfos)
+			{
+				this.TrySaveJson(string.Format(this._configService.Value.MultiLanguageInfoLocationFormat, lang), multiLangInfo);
+				// hacky workaround since they have same member name but different type and value
+				this._phigrosService.MultiLanguageInfos[Enum.Parse<Language>(lang.ToString())] = multiLangInfo;
+			}
+		}
+		catch (Exception ex)
+		{
+			this._logger.LogError(ex, "Failed to extract multi-language info");
 		}
 
 		AssetExtractionContext context = extractor.CreateAssetExtractionContext(this.HandleFile);
