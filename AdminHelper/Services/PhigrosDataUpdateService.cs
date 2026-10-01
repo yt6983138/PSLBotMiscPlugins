@@ -81,11 +81,12 @@ public class PhigrosDataUpdateService
 	{
 		using ExecuteBlockAtEnd _ = new(() =>
 		{
-			this.ExtractOptions.ApkFile?.Dispose();
-			this.ExtractOptions.ObbFile?.Dispose();
+			foreach (Stream item in this.ExtractOptions.Packages)
+			{
+				item.Dispose();
+			}
+			this.ExtractOptions.Packages = [];
 			this.ExtractOptions.ClassDataFile?.Dispose();
-			this.ExtractOptions.ApkFile = null;
-			this.ExtractOptions.ObbFile = null;
 			this.ExtractOptions.ClassDataFile = null;
 		});
 		using HttpClient httpClient = new();
@@ -95,9 +96,7 @@ public class PhigrosDataUpdateService
 		FileInfo classDataFile = new(Path.Combine(Path.GetTempPath(), "classdata.tpk"));
 		classDataFile = await CLI.DownloadClassData(tpkUrl, classDataFile, this._cliLogger);
 
-		this.ExtractOptions.ApkFile = apkFile.OpenRead();
-		this.ExtractOptions.ObbFile = apkFile.OpenRead();
-		this.ExtractOptions.AuxObbFile = null;
+		this.ExtractOptions.Packages = [apkFile.OpenRead()];
 		this.ExtractOptions.ClassDataFile = classDataFile.OpenRead();
 
 		CLIExtractor extractor = await CLIExtractor.FromOptionAsync(this.ExtractOptions, this._extractorLogger);
