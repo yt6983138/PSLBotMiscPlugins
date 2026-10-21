@@ -25,6 +25,12 @@ public sealed class MaintenanceNotificationService : IDisposable
 	internal async Task SendMessage(string? message, StatusChangeEventArgs e, object? args = null)
 	{
 		if (this._plugin.NotificationChannel is null || message is null) return;
+		if (File.Exists("./SUPPRESS_NOTIFICATIONS"))
+		{
+			this._logger.LogInformation("Notification suppressed due to SUPPRESS_NOTIFICATIONS file");
+			return;
+		}
+
 		await this._plugin.NotificationChannel.SendMessageAsync(Smart.Format(message, new
 		{
 			ExtraArgs = args,
