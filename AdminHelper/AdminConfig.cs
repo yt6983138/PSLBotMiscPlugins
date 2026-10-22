@@ -1,4 +1,7 @@
-﻿namespace AdminHelper;
+﻿using PSLDiscordBot.Core.ImageGenerating;
+
+namespace AdminHelper;
+
 public class AdminConfig
 {
 	public LocalizedString BlackListedDefaultMessage { get; set; } = LocalizedString.CreateDefault("Oops, something is wrong!");
@@ -42,4 +45,12 @@ public class AdminConfig
 	public string MaintenanceResponse { get; set; } = "The bot is under maintenance since <t:{LastStatusChangeTime.ToUnixTimeMilliseconds:calc(/1000)}:f>. You may try again later.";
 	public string ShutdownResponse { get; set; } = "The service is shutting down. The service may be up later.";
 	public string UpdateDataResponse { get; set; } = "The bot is updating assets. You may try again later.";
+
+	public BasicHtmlImageInfo ImageGeneratorTestImageInfo { get; set; } = new()
+	{
+		DynamicSize = false,
+		InitialWidth = 1920,
+		InitialHeight = 1080,
+		HtmlPath = "./Assets/Misc/Html/Test.html"
+	};
 }
