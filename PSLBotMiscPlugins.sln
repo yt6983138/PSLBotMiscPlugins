@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 17
-VisualStudioVersion = 17.10.35013.160
+# Visual Studio Version 18
+VisualStudioVersion = 18.10.12210.168 stable
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FunPlugin", "FunPlugin\FunPlugin.csproj", "{B5862DF7-3B18-4012-BBD5-30E361FD384B}"
 EndProject
@@ -45,6 +45,8 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Run Helpers", "Run Helpers", "{02EA681E-C7D8-13C7-8484-4AC65E1B71E8}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PhigrosApiRunHelper", "PhigrosApiRunHelper\PhigrosApiRunHelper.csproj", "{8C1621DF-AB1A-4984-B669-3B39D465D19B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AdminHelperRunHelper", "AdminHelperRunHelper\AdminHelperRunHelper.csproj", "{FF05620B-AD9A-434C-B1AF-740CFD159B21}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -114,6 +116,10 @@ Global
 		{8C1621DF-AB1A-4984-B669-3B39D465D19B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8C1621DF-AB1A-4984-B669-3B39D465D19B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8C1621DF-AB1A-4984-B669-3B39D465D19B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FF05620B-AD9A-434C-B1AF-740CFD159B21}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FF05620B-AD9A-434C-B1AF-740CFD159B21}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FF05620B-AD9A-434C-B1AF-740CFD159B21}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FF05620B-AD9A-434C-B1AF-740CFD159B21}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -122,6 +128,7 @@ Global
 		{59100506-2A81-38C1-8D85-ED4EC73D0110} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
 		{66551AF1-3859-4705-BDF7-D83847F9629D} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
 		{8C1621DF-AB1A-4984-B669-3B39D465D19B} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
+		{FF05620B-AD9A-434C-B1AF-740CFD159B21} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {0526754D-1597-4F37-87C8-C7BF45E0C9E4}
