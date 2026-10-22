@@ -48,6 +48,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PhigrosApiRunHelper", "Phig
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AdminHelperRunHelper", "AdminHelperRunHelper\AdminHelperRunHelper.csproj", "{FF05620B-AD9A-434C-B1AF-740CFD159B21}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SaveArchiveProgram", "SaveArchiveProgram\SaveArchiveProgram.csproj", "{022FC4E3-8896-4D7B-9509-903369725325}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -120,6 +122,10 @@ Global
 		{FF05620B-AD9A-434C-B1AF-740CFD159B21}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FF05620B-AD9A-434C-B1AF-740CFD159B21}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FF05620B-AD9A-434C-B1AF-740CFD159B21}.Release|Any CPU.Build.0 = Release|Any CPU
+		{022FC4E3-8896-4D7B-9509-903369725325}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{022FC4E3-8896-4D7B-9509-903369725325}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{022FC4E3-8896-4D7B-9509-903369725325}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{022FC4E3-8896-4D7B-9509-903369725325}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
