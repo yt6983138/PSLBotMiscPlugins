@@ -1,0 +1,70 @@
+# ADR 0004: Command-owned Discord component routing
+
+- **Status:** Accepted. Architecture and rollout scope are settled; exact API and lifecycle mechanics are implementation details within these decisions.
+- **Recorded:** 2026-10-23.
+- **Source:** Owner's component-infrastructure planning request and answers on 2026-10-23.
+
+Apply [RepositoryGuide.md](../RepositoryGuide.md) and [PlanningGuidelines.md](../PlanningGuidelines.md). This is a planning decision record, not authorization to implement, build, deploy, or perform live checks.
+
+## Context
+
+[ADR 0003](0003-ChinaSaveTransfer.md) motivates a multi-step save-selection and replacement-confirmation flow. The required infrastructure belongs in the reusable command framework, with the transfer command as an example consumer. Existing commands are keyed singletons; each component interaction needs its own acknowledgement.
+
+## Accepted decisions
+
+- Design shared routing that returns button and dropdown interactions to the command that created them, extending existing abstractions and helpers. Include consistent localization, acknowledgement, authorization, and error handling.
+- **Modals are out of scope.**
+- **Support slash commands first.** User-context and message-context command support is not required in the first version. Their future integration remains a design consideration.
+- **Route directly to the owning command.** Add a command-level interaction handler receiving the raw Discord interaction. The owner's proposed shape is `HandleInteraction(SocketInteraction ...)`; exact signature and optional parameters remain to be finalized. Commands dispatch their own actions; a Framework action-to-method registry is not required.
+- **Keep the central wrapper in `CommandResolveService` thin.** It is the entry point for routing and hooks, then forwards to the command base. It must not impose a Core account/TOS/automatic-deferral template before calling the command. Commands handle acknowledgement and workflow-specific behavior.
+- **Use a cancellable asynchronous before-interaction hook, analogous to the existing slash hook.** Await subscribed handlers sequentially. A rejecting hook is responsible for acknowledging the interaction and marking it canceled/handled; stop invoking subsequent hooks and do not forward to the command. If allowed, forward the interaction without automatic acknowledgement. Exact event/argument names remain to be finalized.
+- **Preserve the existing slash before-hook exception policy in the first version.** Report a hook exception through `OnEventHandlerError`, then continue under the ordinary cancellation rules. An exception alone must not automatically cancel dispatch. The owner declined the proposed stop-on-hook-error behavior in favor of consistency; reconsider exception policy across command families in a future refactor plan. This deferral does not approve a future behavior change.
+- **Expose routing validity and the invalidity reason in component event arguments.** Hooks must be able to inspect invalid framework-owned interactions, including old-process, removed/unregistered-command, and malformed routes, even when no command can be resolved. Exact property/enum names are implementation details; `IsValid` and an invalid-reason property describe the intended contract. Invalid routing must never reach a command, regardless of whether a hook responds or cancels.
+- **Core owns the unavailable-control reply.** A Core hook handles invalid-route notifications with a localized ephemeral response asking the user to run the command again. Framework exposes validation information, logs the invalid route, and aborts command dispatch; it does not supply that Discord response itself. A Framework-only installation therefore logs/aborts unless a consuming plugin supplies a responding hook. Command-owned workflow expiry remains the consuming command/service's concern.
+- **Status-hook integration is required as part of the component rollout, using the same policy as slash commands.** Extend `AdminHelper/Services/StatusService.cs` to subscribe to the component before-hook. Block users other than the configured admin whenever `CurrentStatus != Status.Normal`, covering `UnderMaintenance`, `ShuttingDown`, and `UpdatingData`; preserve the configured-admin exemption. This applies to clicks on messages created before the status changed. Existing maintenance/shutdown/data-update entry points continue controlling the shared status.
+- **Leave `AdminHelper/Services/BlackListService.cs` as-is.** Component blacklist integration and changes to its existing slash-expression context are outside this rollout. This is not a commitment to a later blacklist migration.
+- **Assume TOS consent when the component is issued.** Do not add a central TOS recheck for every component interaction. This decision concerns component execution; it does not remove existing slash-command TOS checks. Ownership, resource access, and other command-specific authorization remain command responsibilities.
+- **Use command `Type.TypeHandle` as process-local routing identity, paired with an identifier for the process instance.** The owner suggested process ID plus process start time. Exact wire encoding is still open. Old-process IDs must not resolve a type in the new process.
+- **Commands own workflow state.** Small state may be encoded in custom IDs/option values; other state and concurrency/duplicate-operation coordination can live in command-owned services. A mandatory Framework UI-session service is not part of the selected architecture.
+- **Use thin extensions over Discord's existing component builders.** Reuse `ComponentBuilder`, `ButtonBuilder`, `SelectMenuBuilder`, and `SelectMenuOptionBuilder`, with separate routing-ID/payload helpers and localized label/placeholder/description helpers. Reuse existing `LocalizedString` formatting; custom IDs and option values remain language-independent. Exact helper signatures remain open.
+- **Default localized rendering to the current interaction's `UserLocale`, with an explicit locale override available.** A command that wants to preserve the original message's language can retain and supply that locale; the Framework does not require stored message-language state. Shared messages may change language when another user updates them using the default.
+- **QuickReply should conveniently select the operation, with editing as the default for component interactions.** On a fresh button/dropdown interaction, acknowledge by updating the message containing the component. After an update acknowledgement/deferral, edit that message; existing deferred slash-command calls continue editing their original response. Repeated QuickReply calls are edits, not automatic follow-ups. The owner explicitly confirmed that creating separate replies was not the intention of this helper. This supersedes the assistant's unaccepted edit-only/no-automatic-acknowledgement proposal.
+- A command calling QuickReply is choosing acknowledgement through a helper; this does not introduce automatic acknowledgement in the dispatcher. Long-running component handlers still need to acknowledge/defer before lengthy work.
+- **Routed controls expire across process restarts**, including controls whose workflow payload is self-contained. This expands the earlier decision permitting in-memory UI sessions to expire on restart. Framework-managed sessions and restart-surviving stateless routes had only been proposals and were never accepted requirements.
+- Component expiration does not authorize replaying external operations or treating an uncertain/completed upload as unperformed. Business-operation recovery remains a separate concern.
+
+## Consequences
+
+- Persistent UI-session storage and restoration are not required for the first version.
+- Per-user session state must not be stored directly on singleton command instances.
+- Old visible controls are invalid after restart. Framework must expose that outcome to hooks before ending dispatch; Core provides the user-facing unavailable response.
+- Routing identity need not survive a deployment or a CLR type rename, because all old-process controls expire. A stable public command-name registry is not required.
+- Routing identity and process-instance matching identify a destination; they do not establish the clicking user's authorization.
+- Existing helper families should support command-owned acknowledgement/localization without requiring a generic session or custom interaction-context object.
+- The agreed component hook short-circuits on cancellation. Current slash dispatch checks cancellation after invoking all handlers; this decision does not authorize changing existing slash-hook behavior.
+- Adding a component before-hook without connecting AdminHelper's status gate is incomplete delivery of this infrastructure. Subscription lifetime and matching unsubscription must be included in the integration.
+- Event arguments cannot require a successfully resolved command for invalid-route notifications. Routing validity is separate from hook cancellation and command-specific authorization.
+
+## Planning status
+
+No owner-facing architecture or rollout decisions remain open for this component-infrastructure plan. Transfer-specific workflow decisions remain under ADR 0003 and command-level planning. Implementation still requires a separate instruction; this record does not authorize code changes or execution.
+
+## Implementation details to resolve within the accepted design
+
+These are not additional accepted API signatures or permission to change the policies above.
+
+- Exact raw handler signature, optional cancellation/executer parameters, hook argument types (including routing validity/reason and an optional resolved command), and a compatible virtual default for existing commands.
+- Process-instance/type-handle envelope encoding, registered-command lookup, payload extraction, and Discord custom-ID validation.
+- Optional reusable ownership/expiry/message-binding and Core access helpers. Workflow state, stale revisions, concurrency, completion, and duplicate-confirmation policy belong to the consuming command/service.
+- Registration/unsubscription, shutdown task tracking/cancellation plumbing, and component command-error hooks/reporting. Preserve the accepted before-hook exception policy; a cross-family policy refactor is deferred.
+- Exact QuickReply/localized-modification/attachment overloads and acknowledgement coordination. Preserve existing deferred slash-call behavior; define unsupported/mixed response modes explicitly rather than introducing automatic follow-ups.
+- Localized helper/locale-override signatures, fallback handling, dynamic-label formatting/overflow, and compatible overload binding.
+
+## Implementation work areas
+
+- **Framework:** existing command resolver/interface, command base, component event arguments, routing-ID/payload helpers, BuilderUtility, and MessageUtility; use the existing keyed command instances and task lifecycle.
+- **Core:** register the invalid-route response hook and provide its localization keys/defaults through the existing localization system. Core must not turn this into a mandatory per-click account/TOS wrapper.
+- **AdminHelper:** connect StatusService to the component before-hook and matching cleanup, using the confirmed status/admin policy.
+- **Compatibility:** preserve existing command callbacks and helper call sites, retain the current hook-exception policy, and leave blacklist code unchanged.
+
+Working proposals and source findings are in gitignored `DocsForLLM/Notes/ComponentRoutingDesign.md`; they are not additional accepted decisions.

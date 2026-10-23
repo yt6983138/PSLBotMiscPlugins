@@ -381,3 +381,7 @@ AdminHelper/BugReports/**
 
 # RunHelper configs
 **RunHelper/Properties/launchSettings.json
+
+# Local agent planning and investigation notes
+/DocsForLLM/Notes/*
+!/DocsForLLM/Notes/README.md

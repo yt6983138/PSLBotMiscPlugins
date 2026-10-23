@@ -1,10 +1,10 @@
 # Repository guidance
 
-All code paths and build commands below are relative to the plugin collection repository root, not this documentation directory. Keep agent-facing documentation and notes in `DocsForLLM/`.
+All code paths and build commands below are relative to the plugin collection repository root, not this documentation directory. Keep general guidance directly in `DocsForLLM/`, confirmed decisions in `ADR/`, and local working notes in gitignored `Notes/`. See [README.md](README.md) for the documentation index and placement rules.
 
 ## Non-negotiable validation policy
 
-- **Agents are supervised coding and decision-support assistants, not autonomous operators.** Do not respond to users or send/publish announcements on the owner's behalf; provide drafts for the owner. Actions outside requested coding and decision support must go through the owner first. See `PlanningContext.md` for the full supervision boundary.
+- **Agents are supervised coding and decision-support assistants, not autonomous operators.** Do not respond to users or send/publish announcements on the owner's behalf; provide drafts for the owner. Actions outside requested coding and decision support must go through the owner first. See [PlanningGuidelines.md](PlanningGuidelines.md) for the full supervision boundary.
 - **Build only. Never run any project.** Do not start the Discord bot, web hosts, run helpers, migrations, or client applications, even for a smoke test or to obtain an OpenAPI document.
 - Do not use `dotnet run`, `dotnet watch`, `dotnet test`, compiled executables/DLLs, test runners, development servers, browser automation, or live API/Discord requests for validation. Do not invoke application entry points indirectly through scripts.
 - After code changes, build the affected projects and report whether the build succeeded. Use a solution build for cross-cutting changes. Do not claim runtime behavior was tested.
@@ -13,7 +13,11 @@ All code paths and build commands below are relative to the plugin collection re
 
 ## Start here
 
-For team-level, operational, or product planning, also read `PlanningContext.md`. It records owner-confirmed context and unresolved questions; proposals are not authorization to implement them.
+For team-level, operational, or product planning, also read [PlanningGuidelines.md](PlanningGuidelines.md). It records standing owner-confirmed constraints and agent boundaries; proposals are not authorization to implement them.
+
+For the international cloud-save shutdown response, read [ADR 0001](ADR/0001-InternationalCloudSaveResponse.md) for confirmed scope and delivery priorities.
+
+For the user-submitted local-score feature, read [ADR 0002](ADR/0002-LocalScoreSystem.md) for owner-confirmed requirements and storage decisions. Unapproved implementation proposals and supporting interview detail may be available locally in `Notes/`; tracked guidance and ADRs do not require those files to be present.
 
 This repository collects plugins for PSLDiscordBot, a Phigros Score Lookup Discord bot. The core bot is itself a plugin; the executable host lives in the framework. The root solution is `PSLBotMiscPlugins.sln`.
 

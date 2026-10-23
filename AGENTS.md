@@ -2,6 +2,8 @@
 
 Keep agent-facing documentation and notes in the repository-root `DocsForLLM/` directory. This file is the discovery entry point.
 
+Keep general guidelines/instructions directly in `DocsForLLM/`, confirmed decisions in `DocsForLLM/ADR/`, and local working notes/proposals in gitignored `DocsForLLM/Notes/`. See `DocsForLLM/README.md` for the index and placement rules. Ignored notes are optional; standing rules and accepted decisions must remain available in tracked documentation.
+
 **Before making repository changes, read `DocsForLLM/RepositoryGuide.md`.** It contains the codebase overview, build commands, development conventions, and submodule boundaries. Paths in that guide are relative to the repository root.
 
 **Before writing or changing code, read `DocsForLLM/CodingStandards.md`.** Follow the established style and local conventions; do not reformat unrelated code.
