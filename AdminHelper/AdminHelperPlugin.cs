@@ -114,6 +114,7 @@ public class AdminHelperPlugin : IPlugin
 
 	void IPlugin.Unload(WebApplication host, bool isSafeUnload)
 	{
+		this._statusService?.ForceDetach();
 	}
 
 	// placeholder for the compiler to not complain about no Main method, this is not used

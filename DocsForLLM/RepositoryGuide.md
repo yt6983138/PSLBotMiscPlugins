@@ -97,9 +97,10 @@ Primary references under `PSLDiscordBotBase/PSLDiscordBot.Framework/`: `IPlugin.
 References: `PSLDiscordBotBase/PSLDiscordBot.Framework/CommandBase/`, `PSLDiscordBotBase/PSLDiscordBot.Framework/BuiltInServices/CommandResolveService.cs`, and `PSLDiscordBotBase/PSLDiscordBot.Core/Command/Global/Base/`.
 
 - Discoverable commands inherit the appropriate command base and have `[AddToGlobal]`. The framework registers them as keyed singletons; do not retain per-interaction mutable state on command instances.
-- Follow `PSLDiscordBotBase/PSLDiscordBot.Core/Command/Global/Template/` or a nearby plugin command. Implement `PSLName`, `PSLDescription`, `CompleteBuilder`, and `Callback` for Core-based slash commands.
+- Follow `PSLDiscordBotBase/PSLDiscordBot.Core/Command/Global/Template/` or a nearby plugin command. Implement `PSLName`, `PSLDescription`, `CompleteBuilder`, and `Callback` for Core-based slash commands. For command-owned buttons/selects, also read [ComponentRouting.md](ComponentRouting.md) and the unregistered `Template/ComponentCommand.cs` compile example.
 - `CommandBase` requires a registered user and, by default, TOS acceptance. `GuestCommandBase` permits unregistered users. `AdminCommandBase` checks the configured admin ID and skips registration/TOS requirements. Guest/admin callbacks receive nullable user data.
 - These bases defer interactions before `Callback`; use existing `QuickReply`/attachment helpers rather than acknowledging the same interaction again.
+- Routed component callbacks receive the raw interaction without automatic deferral, account/TOS checks, or workflow authorization. The command must acknowledge and authorize each action; component pipelines use the existing `Program.RunningTasks` tracking and shutdown conventions rather than a separate resolver lifecycle service.
 - Admin commands default to BotDm context, but derived commands can broaden it. Preserve both runtime admin checks and the intended command context/integration settings.
 - Preserve existing localization helpers, `OneOf<string, LocalizedString>`, and Discord name/description constraints. For localized Core additions, update key declarations and `LocalizationService.Generate()` defaults, not emitted generated keys or local runtime JSON.
 

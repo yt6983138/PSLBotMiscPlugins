@@ -49,14 +49,33 @@ public class StatusService
 		this._logger = logger;
 
 		this._commandResolveService.BeforeSlashCommandExecutes += this.BeforeSlashCommandExecutes;
+		this._commandResolveService.BeforeComponentInteractionExecutes += this.BeforeComponentInteractionExecutes;
 	}
 
 	public void ForceDetach()
 	{
 		if (this._detached)
 			return;
-		this._commandResolveService!.BeforeSlashCommandExecutes -= this.BeforeSlashCommandExecutes;
+		this._commandResolveService.BeforeSlashCommandExecutes -= this.BeforeSlashCommandExecutes;
+		this._commandResolveService.BeforeComponentInteractionExecutes -= this.BeforeComponentInteractionExecutes;
 		this._detached = true;
+	}
+
+	private string FormatMessage(IDiscordInteraction arg)
+	{
+		string message = this.CurrentStatus switch
+		{
+			Status.UnderMaintenance => this._adminConfig.Value.MaintenanceResponse,
+			Status.ShuttingDown => this._adminConfig.Value.ShutdownResponse,
+			Status.UpdatingData => this._adminConfig.Value.UpdateDataResponse,
+			_ => "<unknown error>"
+		};
+		return Smart.Format(message, new
+		{
+			Arg = arg,
+			this._config.Value.AdminUserId,
+			this.LastStatusChangeTime,
+		});
 	}
 
 	private async Task BeforeSlashCommandExecutes(object? sender, SlashCommandEventArgs e)
@@ -67,19 +86,7 @@ public class StatusService
 			SocketSlashCommand arg = e.SocketSlashCommand;
 
 			e.Canceled = true;
-			string message = this.CurrentStatus switch
-			{
-				Status.UnderMaintenance => this._adminConfig.Value.MaintenanceResponse,
-				Status.ShuttingDown => this._adminConfig.Value.ShutdownResponse,
-				Status.UpdatingData => this._adminConfig.Value.UpdateDataResponse,
-				_ => "<unknown error>"
-			};
-			message = Smart.Format(message, new
-			{
-				Arg = arg,
-				this._config.Value.AdminUserId,
-				this.LastStatusChangeTime,
-			});
+			string message = this.FormatMessage(arg);
 
 			try
 			{
@@ -91,6 +98,44 @@ public class StatusService
 				this._logger.LogWarning(ex, "Failed to send maintenance message to {name}({id})", arg.User.GlobalName, arg.User.Id);
 			}
 			return;
+		}
+	}
+
+	private async Task BeforeComponentInteractionExecutes(object? sender, ComponentInteractionEventArgs e)
+	{
+		SocketMessageComponent arg = e.Interaction;
+		if (this.CurrentStatus == Status.Normal
+			|| arg.User.Id == this._config.Value.AdminUserId)
+		{
+			return;
+		}
+
+		e.Canceled = true;
+		string message = this.FormatMessage(arg);
+
+		try
+		{
+			if (arg.HasResponded)
+			{
+				await arg.FollowupAsync(message, ephemeral: true);
+			}
+			else
+			{
+				await arg.RespondAsync(message, ephemeral: true);
+			}
+
+			this._logger.LogInformation(EventId,
+				"Blocked component interaction for command {cmd} from {name}({id})",
+				e.Command?.Name ?? "<unresolved>",
+				arg.User.GlobalName,
+				arg.User.Id);
+		}
+		catch (Exception ex)
+		{
+			this._logger.LogWarning(ex,
+				"Failed to send maintenance message for component interaction to {name}({id})",
+				arg.User.GlobalName,
+				arg.User.Id);
 		}
 	}
 }
