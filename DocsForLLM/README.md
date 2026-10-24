@@ -24,7 +24,7 @@ General guidance and ADRs must be self-contained: a fresh clone will not contain
 ## Decision records
 
 - [ADR 0001: International cloud-save shutdown response](ADR/0001-InternationalCloudSaveResponse.md): response scope, archive expectations, and delivery priorities.
-- [ADR 0002: Local user-submitted score system](ADR/0002-LocalScoreSystem.md): collection/account requirements and SQL/MemoryPack storage direction.
+- [ADR 0002: Local user-submitted score system](ADR/0002-LocalScoreSystem.md): collection/account requirements, single-BLOB SQLite storage with native serialization, and the shared-library abstraction direction.
 - [ADR 0003: International-to-China save transfer](ADR/0003-ChinaSaveTransfer.md): transfer sources, replacement behavior, optional account switching, and the public/private integration boundary.
 - [ADR 0004: Command-owned Discord component routing](ADR/0004-CommandComponentRouting.md): accepted component-infrastructure plan covering thin dispatch, process-local identity, command-owned state, automatic editing-first replies, Core-owned invalid-route responses, and shared status gating.
 

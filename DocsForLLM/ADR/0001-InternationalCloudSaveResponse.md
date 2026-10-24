@@ -33,6 +33,7 @@ This record does not authorize implementation, deployment, public communication,
 - User self-service archive download and international-to-China transfer are **nice-to-have before shutdown and required afterward**, with **no strict delivery deadlines**. Do not treat an undated requirement as optional.
 - **Plan China transfer before self-service archive download.** The owner explains that users generally lack the technical background to make practical use of downloaded archives. This establishes the next planning focus; it does not establish a delivery deadline or remove the archive-download requirement.
 - Transfer-source scope, replacement behavior, optional bot-account switching, and the public-flow/private-upload-package boundary are recorded in [ADR 0003](0003-ChinaSaveTransfer.md).
+- **2026-10-24 priority update:** the owner reports completing China-transfer work in another session, documented in ADR 0003, and selects completion of the local-storage API/interface design as the current focus. Self-service archive download has lower priority because users generally lack the technical background to use downloaded archives. This supersedes transfer as the next planning focus; it does not remove the eventual archive-download requirement or establish a delivery deadline.
 - Gradual delivery without fixed dates is acceptable. These are the owner's current priorities, not unconditional or dated public guarantees; the owner will announce actual release details and differences from earlier plans.
 
 ### Preservation scope
