@@ -52,8 +52,8 @@ For coding tasks, also read:
 | `MinimalDependency/` | Minimal token/configuration and Discord logging plugin for framework-only use, without Core business services. |
 | `VerifierAndBanner/` | Server verification, role assignment, and anti-raid bans; requests the MessageContent gateway intent. Depends on Framework only. |
 | `MigratorPlugin/` | Alias-data migration attached to initialization. Its copied plugin metadata does not describe its actual behavior. Never execute it. |
-| `SaveArchiveProgram/` | `/archive-save` enrollment/consent, background archive queue, and hashed cloud-save archive files. Depends on Core. |
-| `AdminHelperRunHelper/`, `PhigrosApiRunHelper/`, `PersonalWebsiteRunHelper/` | Launchers that stage plugin DLLs and chain into CoreRunHelper. Never run them. |
+| `SaveArchiveProgram/` | `/archive-save` enrollment/consent, background archive queue, hashed cloud-save archive files, and `/transfer-to-china`. Depends on Core and the private upload package; see [ChinaSaveTransfer.md](ChinaSaveTransfer.md). |
+| `AdminHelperRunHelper/`, `PhigrosApiRunHelper/`, `PersonalWebsiteRunHelper/`, `ArchiveProgramRunHelper/` | Launchers that stage plugin DLLs and chain into CoreRunHelper. Never run them. |
 
 ## Build checks
 
