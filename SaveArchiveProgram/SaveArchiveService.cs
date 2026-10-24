@@ -33,6 +33,8 @@ public class SaveArchiveService
 {
 	private record struct ArchiveQueueItem(ulong UserId, Save Save);
 
+	public const string ArchiveProgramDir = "./ArchiveProgram";
+
 	private readonly ILogger<SaveArchiveService> _logger;
 
 	private readonly Queue<ArchiveQueueItem> _archiveQueue = new();
@@ -110,7 +112,7 @@ public class SaveArchiveService
 		ExtendedSave wrapped = new(save);
 		byte[] playerInfo = Encoding.UTF8.GetBytes(await wrapped.GetPlayerInfoRaw());
 
-		string saveDir = $"./ArchiveProgram/{userId}";
+		string saveDir = $"{ArchiveProgramDir}/{userId}";
 		Directory.CreateDirectory(saveDir);
 
 		string infoHash = Convert.ToHexStringLower(SHA256.HashData(playerInfo));

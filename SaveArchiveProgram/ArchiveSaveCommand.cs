@@ -27,6 +27,12 @@ public class ArchiveSaveCommand : CommandBase
 
 	public override async Task Callback(SocketSlashCommand arg, UserData data, DataBaseService.DbDataRequester requester, object executer)
 	{
+		if (!data.IsInternational)
+		{
+			await arg.QuickReply("Sorry, this command is only available for international users.");
+			return;
+		}
+
 		if (this._saveArchiveService.TryAgreeTerms(arg.User.Id))
 		{
 			await arg.QuickReply("""

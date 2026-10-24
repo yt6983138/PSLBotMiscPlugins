@@ -50,6 +50,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AdminHelperRunHelper", "Adm
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SaveArchiveProgram", "SaveArchiveProgram\SaveArchiveProgram.csproj", "{022FC4E3-8896-4D7B-9509-903369725325}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ArchiveProgramRunHelper", "ArchiveProgramRunHelper\ArchiveProgramRunHelper.csproj", "{5D822497-17C7-4C04-840A-2FEF31D61859}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -126,6 +128,10 @@ Global
 		{022FC4E3-8896-4D7B-9509-903369725325}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{022FC4E3-8896-4D7B-9509-903369725325}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{022FC4E3-8896-4D7B-9509-903369725325}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5D822497-17C7-4C04-840A-2FEF31D61859}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5D822497-17C7-4C04-840A-2FEF31D61859}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5D822497-17C7-4C04-840A-2FEF31D61859}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5D822497-17C7-4C04-840A-2FEF31D61859}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -135,6 +141,7 @@ Global
 		{66551AF1-3859-4705-BDF7-D83847F9629D} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
 		{8C1621DF-AB1A-4984-B669-3B39D465D19B} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
 		{FF05620B-AD9A-434C-B1AF-740CFD159B21} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
+		{5D822497-17C7-4C04-840A-2FEF31D61859} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {0526754D-1597-4F37-87C8-C7BF45E0C9E4}
