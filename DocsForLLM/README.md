@@ -17,6 +17,8 @@ General guidance and ADRs must be self-contained: a fresh clone will not contain
 - [RepositoryGuide.md](RepositoryGuide.md): codebase map, validation policy, build commands, and repository boundaries.
 - [CodingStandards.md](CodingStandards.md): coding conventions and completion checklist.
 - [ExistingUtilities.md](ExistingUtilities.md): reuse-first catalogue of existing utilities and patterns.
+- [ComponentRouting.md](ComponentRouting.md): implemented command-owned button/select routing APIs, acknowledgement behavior, lifecycle, and integration responsibilities.
+- [ChinaSaveTransfer.md](ChinaSaveTransfer.md): current `/transfer-to-china` flow, owner-confirmed archive/auth/cancellation/error boundaries, button-removal and payload semantics, dependencies, and observable limits.
 - [PlanningGuidelines.md](PlanningGuidelines.md): team constraints, decision authority, and supervised planning boundaries.
 
 ## Decision records
