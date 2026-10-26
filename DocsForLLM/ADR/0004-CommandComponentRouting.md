@@ -61,6 +61,12 @@ The owner reworked the routing envelope after the accepted plan. This addendum r
 - **Capacity.** The 100-character custom-ID limit bounds the payload to approximately 138 bytes (175 encoded bytes minus 37 bytes of fixed envelope overhead and embedded identifier; 14 bits per CJK character). Payloads must stay small binary data (raw MemoryPack), not Base64-inflated strings.
 - **Accepted residual risks.** Nothing in the envelope binds an ID to a specific clicking user; there is no per-user AAD binding. The accepted policy is that commands use the authenticated `interaction.User.Id` for identity, rely on ephemeral replies, and treat public messages as intentionally clickable by anyone. This residual risk is recorded as accepted; proposals for session stores/user-binding AAD were not adopted.
 
+## Current implementation addendum: LocalCommand payload routing
+
+- `LocalCommand` components route on the first payload byte: `0x01` score-select menu (pending `LocalWorkflowStore<LocalScoreDraft>` entry), `0x02` import Proceed (pending `StagedLocalImport`). `LogoutCommand` uses `0x42` for its confirm button.
+- Owner-bound component-level state recheck: `LogoutCommand.HandleInteraction` re-reads the user record, TOS agreement, and local-data presence before deleting. `LocalCommand` Proceed takes its pending entry owner-bound and atomically, then commits the prepared snapshot. Its recheck is registration only and does not re-verify local mode (see ADR 0002). Score-select re-reads the local collection at selection time.
+- Pending local entries expire after a fixed 15 minutes and are process-local.
+
 ## Planning status
 
 No owner-facing architecture or rollout decisions remain open for this component-infrastructure plan. Transfer-specific workflow decisions remain under ADR 0003 and command-level planning. Implementation was separately authorized; this record does not by itself authorize further code changes, deployment, or execution.

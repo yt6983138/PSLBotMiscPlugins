@@ -1,11 +1,11 @@
 # ADR 0002: Local user-submitted score system
 
-- **Status:** Accepted behavior and architecture from the planning interview. Concrete C# signatures and binary layout are proposed for implementation review.
+- **Status:** Implemented. Command names are final (see the command list under "Import sources and Discord workflows"). Known gaps and open items are listed under "Open questions". Concrete C# signatures and binary layout are in the interface-design notes and are not approved decisions.
 - **Recorded:** 2026-10-23.
-- **Updated:** 2026-10-24, during C#/Discord interface design.
+- **Updated:** 2026-10-24, during C#/Discord interface design; implementation status recorded 2026-10-26.
 - **Source:** Owner decisions in the local-score planning discussions on 2026-10-23 and 2026-10-24.
 
-This record does not authorize implementation, deployment, or live data changes. Apply [RepositoryGuide.md](../RepositoryGuide.md) and [PlanningGuidelines.md](../PlanningGuidelines.md). Shutdown-response priorities remain as recorded in [ADR 0001](0001-InternationalCloudSaveResponse.md).
+This record does not authorize deployment or live data changes. Apply [RepositoryGuide.md](../RepositoryGuide.md) and [PlanningGuidelines.md](../PlanningGuidelines.md). Shutdown-response priorities remain as recorded in [ADR 0001](0001-InternationalCloudSaveResponse.md).
 
 ## Context
 
@@ -25,8 +25,8 @@ After comparing combined and sectioned SQLite payloads, the owner chose a single
 - Editable profile fields are nickname, intro, avatar ID, background ID, challenge rank, and currency. Missing data uses ordinary displayed defaults; separate availability tracking is not selected. Supported imported native entries are retained even when their fields are not manually editable; GameKey and GameSettings are explicitly excluded below.
 - Each user has **one active account type: cloud or local**. Keeping both sources selectable is not the requested model.
 - **2026-10-24 switching decision:** switching from local to cloud through `/login` or `/link-token` retains the local collection as dormant data. Cloud becomes the active source; returning to local resumes that collection. Local-collection deletion is a separate explicit operation.
-- Switching from cloud to local retains the inactive cloud token and region, allowing a later switch back if the binding still works. Existing ordinary score commands use the active mode. The later loader/edit decision supersedes initial permission to edit dormant collections: edit commands use the explicit local loader, which requires local mode.
-- Local onboarding uses a start-then-import flow: a provisional `/local start` command creates an empty collection or resumes an existing one and activates local mode. Import is a separate operation; final command names remain to be specified.
+- Switching from cloud to local retains the inactive cloud token and region, allowing a later switch back if the binding still works. Existing ordinary score commands use the active mode. Edit commands use the explicit local loader, which requires local mode, so dormant collections are not edited directly.
+- Local onboarding uses a start-then-import flow: `/local start` creates an empty collection or resumes an existing one and activates local mode. Import is a separate operation.
 - Mode switches preserve existing bot preferences, including visibility, numeric formatting, and default image count, and preserve the recorded consent level subject to normal current-TOS checks.
 - Switching to a retained cloud binding is immediate, without a verification fetch. Missing bindings must still be reported rather than creating a cloud account implicitly.
 - `/logout` also deletes the stored local collection, including dormant data, alongside existing registration/preferences/leaderboard removal. The deletion consequence must be clear before execution. Retention across mode switches does not imply retention across logout.
@@ -66,49 +66,67 @@ After comparing combined and sectioned SQLite payloads, the owner chose a single
 
 ### Score and profile editing
 
-- Set a complete chart record: require song, difficulty, score, and accuracy; optional FC defaults false. The record replaces existing values, including lower-value corrections.
-- Enforce score 0–1,000,000 and finite accuracy 0–100. Do not reject otherwise in-range values merely because score and accuracy imply inconsistent phi status.
-- Use the existing alias search and a select menu for ambiguous manual song matches.
-- Profile avatar/background selection may use any known available asset, independent of unlock progress.
-- Challenge input uses color and level options, accepting native enum members and native numeric bounds without additional game-achievability restrictions.
-- Currency has independent optional KiB/MiB/GiB/TiB/PiB inputs. Lower units must be 0–1023; PiB uses the native nonnegative bound. Omitted units retain their values.
+- Set a complete chart record: require song, difficulty, score, accuracy, and FC (the FC option is required in the slash command, not optional). The record replaces existing values, including lower-value corrections.
+- Enforce score 0–1,000,000 and accuracy 0–100 via the slash option bounds. **Implemented phi consistency:** `LocalCommand.Scores.cs` rejects a score of 1,000,000 when accuracy is below 100 or FC is false. The import path (`LocalImportService.cs`) also rejects 1,000,000 when the status is not Phi. Phi-status mismatches are rejected in both paths (owner decision).
+- Use the existing alias search. Zero matches reply with no-match; more than 25 candidate charts reply asking for a narrower search (no pagination); one match applies directly; 2–25 matches open an owner-bound select menu.
+- Profile avatar/background selection may use any known available asset, independent of unlock progress. The values are free text validated by lookup; autocomplete or alias-like search is future work.
+- Challenge input uses the native color enum and a level option bounded 0–99, without additional game-achievability restrictions.
+- Currency has independent optional KiB/MiB/GiB/TiB/PiB inputs. Every unit, including PiB, is bounded 0–1023 in the slash options (the code comment notes the native limit is higher). Omitted units retain their values.
 
 ### Import application
 
 - **Upsert:** replace matching whole chart records and add missing charts; retain charts absent from the source.
 - **Fill missing:** add only absent charts.
-- **Replace all:** use the accepted imported chart collection, removing other charts.
+- **Replace all:** use the accepted imported chart collection as the chart collection, removing other charts. An import with zero valid rows therefore empties the score collection; this is accepted behavior.
 - **Keep better:** choose a whole record by accuracy, then score, then FC. Keep the existing record when all comparison values tie; do not independently combine maxima from different records.
-- Unknown charts are skipped and reported. Malformed/invalid records are skipped and reported. If no records are valid, make no score changes.
-- Reject all occurrences of duplicated chart keys, importing other valid unique records. Duplicate charts do not abort the entire import.
-- Always overwrite supported non-score models supplied by the source, independent of score mode; retain models absent from the source. Recalculate score-derived summary values. Discard GameKey/GameSettings as specified above.
+- Unknown charts, out-of-range scores/accuracy, and phi-status mismatches are rejected and reported as issues. Malformed rows are skipped by the parser.
+- Duplicated chart keys: all occurrences are rejected and reported; other valid unique records are still imported. Duplicates do not abort the import, and a chart already in the collection is not changed by a duplicated row.
+- Rejected keys are kept: a local chart whose key appears in the source but whose row is rejected is retained, because missing-in-import is computed from all parsed keys.
+- Warnings do not reject a row: a warned row IS accepted. The import report shows an issue count (rejected rows plus warnings), not a skipped count. CSV rows with an unknown status are tolerated: kept as not full combo with a warning.
+- Always overwrite supported non-score models supplied by the source, independent of score mode; retain models absent from the source. Discard GameKey/GameSettings as specified above.
+- **Summary is intentionally not recalculated.** Stored `$summary` values act as an expiring, untrusted cache; `LocalSaveData.SaveSummary` has no callers, so imports and score edits leave the stored entry unchanged. Nothing meaningful depends on it (the leaderboard reads only the game version, which is unused). Reads use `ReadSummary()`, which returns the stored entry or `Summary.Default`.
 - CSV initially uses the existing export headers: `ID`, `Name`, `Difficulty`, `Chart Constant`, `Score`, `Acc`, `Rks Given`, `Stat`. Require stable IDs; name/derived columns do not determine imported records. Native XLSX support is later work.
+- Attachment imports (CSV, Android) have a 5 MiB size limit and a 30 s download timeout.
+- Accepted failure handling: a player-info fetch failure during cloud import, and a missing user or local row at Proceed, throw and are handled by the global exception handler.
 
 ### Import sources and Discord workflows
 
-- Use one `/local` command family for activation, score/profile edits, and imports. Existing score/image/export commands consume the shared read abstraction.
+- Use one `/local` command family for activation, score/profile edits, and imports. Implemented subcommands: `start`, `use-cloud` (returns to the retained cloud binding), `profile`, `challenge`, `currency`, score `set`/`remove`, and imports `csv`, `cloud`, `android`. Existing score/image/export commands consume the shared read abstraction. The full command list is in the command registration code.
+- The cloud import has no save-index option; users cannot choose the save index for local cloud import.
 - First import entry points are CSV, server archive, Android PlayerPrefs XML, and live cloud using the retained logged-in token. A standalone uploaded cloud ZIP is not part of this selected first set.
-- The Android parser is an owner-filled scaffold. The owner confirms that the library already has local decryption code; agents must not inspect or implement library changes to fill the parser.
-- Require local mode for live-cloud import. Its dedicated source-read path can use the retained cloud binding without changing active mode or weakening the public explicit-loader checks.
-- Server archive import uses interactive archive/save selection.
-- Local service/storage/commands live in Core. SaveArchiveProgram supplies archive access through a small Core-defined provider interface.
+- The Android PlayerPrefs XML parser is fully implemented, not a scaffold.
+- **Import access requirements:** imports do not depend on the user's main account mode. CSV, Android, cloud, and `/local-import-archive` imports require only registration (`GetRegisteredUserOrReplyAsync`). Cloud import additionally requires a cloud binding (`LocalImportCloudNoBinding`). Other local edits (manual score set, profile edits) still require local mode.
+- Cloud import reads through a dedicated source-read path that uses the retained cloud binding without changing active mode or weakening the public explicit-loader checks. It does not raise the cloud-fetched hook.
+- **Known limitation (deferred to the future dedicated register/login path):** only local activation creates the local collection row. A cloud-mode user who never activated local mode gets the "local save missing" reply on import.
+- Server archive import is implemented as a separate top-level command, `/local-import-archive`, in the root `SaveArchiveProgram` plugin (not a `/local` subcommand). It takes a required import mode (Core `LocalImportMode`) and is ephemeral, so no requester-ID check is needed.
+- Flow: the bot checks that the user is registered and has an archived save; it then asks for Proceed/Cancel. On Proceed it reads and decrypts the newest readable `ArchivedInfo_*.json` archive (newer unreadable archives are skipped) and uses its first save. `TransferToChinaCommand` instead takes the newest-timestamp archive without a readability check. The archive import passes the result to Core's public `LocalCommand.HandleLocalImportAsync` with the chosen mode. Core's existing flow then applies the import or shows its own preview/Proceed. The archive reader enforces a 16 MiB limit (`MaxArchiveBytes`).
+- Archive imports use the same validation and commit rules as live-cloud import.
+- `ArchiveSaveCommand` blocks archiving while the account is in local mode (`IsLocal` guard).
+- `TransferToChinaCommand` blocks users who are neither international nor have an archive directory; the message references the 2026/10/31 international save discontinuation. This is not a local-mode check.
+- Local service/storage/commands live in Core. The archive reader is a static helper in the plugin (`LocalSaveArchiveProvider`); no Core provider interface, archive select menu, or draft store was added. Import-mode choices reuse the Core enum, while plugin text uses plain strings rather than Core localization keys.
 - Apply an import directly only when there is no conflict or rejection. Prompt on **any chart overlap**, including identical or intentionally kept records, rejected/skipped input, removed charts, or changed existing non-score data.
 - Proceed commits exactly the prepared complete result, consistent with last-write-wins. It does not reload/reapply the merge against newer contents.
-- Hold prepared imports in process-local memory with a configurable ten-minute lifetime. Buttons reference an ID; restart/expiry requires rerunning the import. Proceed consumes the pending result and rechecks registration/local mode before applying it.
+- Hold prepared imports in process-local memory with a fixed 15-minute lifetime (`LocalWorkflowStore.LifeTime`). Buttons reference an ID; restart/expiry requires rerunning the import. Proceed takes the entry atomically and owner-bound, then commits the prepared snapshot without reloading or remerging. Proceed rechecks registration only (the user record must exist). Score-select menus use the same owner-bound store and lifetime, and re-read the current local collection at selection time, also without an explicit local-mode check.
 
 ## Consequences
 
 - Best-list/RKS views are derived from the current collection, not a retained play history.
-- The account model has one active read source with retained inactive data. Ordinary mode changes preserve the local collection, cloud binding, and preferences; logout removes local data. Explicit local edits require local mode.
+- The account model has one active read source with retained inactive data. Ordinary mode changes preserve the local collection, cloud binding, and preferences; logout removes local data. Explicit local score and profile edits require local mode. Imports require only registration (cloud import also requires a cloud binding).
+- Cloud-only commands such as `/get-time-index` reply with the wrong-account-mode message in local mode.
+- Viewing another user's local collection through `generate_for` (AboutMe, GetPhoto, SongScores) is accepted behavior.
 - The selected native-wrapper strategy does not approve the proposed exact table schema or binary framing/version-evolution contract. Last-write-wins and per-operation local loading are accepted.
 - The combined layout keeps collection loading and updates simple. Ordinary edits replace the packed payload as a whole; separate per-section database updates are not part of the selected layout.
-- Leaderboard eligibility remains unresolved; imported cloud records are still part of an editable local collection.
+- Leaderboard eligibility is implemented as exclusion: `LeaderboardService` omits users whose `AccountMode` has the Local bit and users without a token, at each query and per-user lookup site. Local activation and account deletion also remove the stale leaderboard entry through `SaveService.OnCloudRankingInvalidated`, handled by `LeaderboardService` under the leaderboard lock after commit (no in-transaction removal). Imported cloud records are still part of an editable local collection.
+- **Migration (manual, owner-run):** code calls only `EnsureCreated` (`DataBaseService.cs:67`), which does not alter existing tables. Existing databases need manual schema changes: a new `AccountMode` column, a nullable `Token`, a new `LocalSaves` table, and `IsInternational` is now `[NotMapped]`. Existing international users need an `AccountMode` backfill. No migration code is provided.
 - The local-score feature does not alter the owner's archive-download/China-transfer priorities or introduce a delivery deadline.
 
 ## Open questions
 
-- Owner review/implementation of the shared-library contract, exact native model defaults/bounds, and Android parser scaffold.
-- Review of concrete C# signatures, table schema, binary layout, and proposed operational defaults in the interface-design notes.
-- Leaderboard policy after the poll; source information is not an already approved eligibility rule.
+- Owner review of the shared-library contract, exact native model defaults/bounds, and the concrete C# signatures, table schema, binary layout, and operational defaults in the interface-design notes.
+- **Blocker:** Core references PhigrosLibraryCSharp 5.2.1 from a temporary offline NuGet source; other developers cannot restore it.
+- Leaderboard policy: current code excludes local and unbound users; owner confirmation after the poll is still required.
+- Owner-run migration of existing databases (see Consequences).
+- Lookup-based profile avatar/background input: autocomplete or alias-like search is future work.
+- Deferred to the future dedicated register/login path: creating the local collection row for cloud-mode users who never activated local mode (see Import sources).
 
 The current complete contract proposal is in gitignored `DocsForLLM/Notes/LocalScoreInterfaceDesign.md` (repository-root path). Earlier investigation and superseded proposals remain in `Notes/LocalScoreSystemPlan.md`. Exact proposed symbols/defaults are not additional approved decisions; this ADR is self-contained for accepted behavior.

@@ -82,6 +82,12 @@ public partial class TransferToChinaCommand : CommandBase
 			await arg.QuickReply("Sorry, non-international accounts cannot use this command. This is for 2026/10/31 international save discontinuation.");
 			return;
 		}
+		if (!data.HasCloudBinding && !useArchive)
+		{
+			await arg.QuickReply("Sorry, this command is only available while your account has cloud save binding. If you have archived before, please specify the `use_archived_data` option.");
+			return;
+		}
+
 		// quick defense to not waste the user's time
 		if (useArchive && !userArchiveDirExists)
 		{

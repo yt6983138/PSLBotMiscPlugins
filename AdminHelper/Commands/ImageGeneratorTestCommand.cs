@@ -10,12 +10,14 @@ public class ImageGeneratorTestCommand : AdminCommandBase
 {
 	private readonly ImageGenerator _imageGenerator;
 	private readonly IOptions<AdminConfig> _adminConfig;
+	private readonly SaveService _saveService;
 
-	public ImageGeneratorTestCommand(IServiceProvider provider, ImageGenerator imageGenerator, IOptions<AdminConfig> adminConfig)
+	public ImageGeneratorTestCommand(IServiceProvider provider, ImageGenerator imageGenerator, IOptions<AdminConfig> adminConfig, SaveService saveService)
 		: base(provider)
 	{
 		this._imageGenerator = imageGenerator;
 		this._adminConfig = adminConfig;
+		this._saveService = saveService;
 	}
 
 	public override OneOf<string, LocalizedString> PSLName => "image-generator-test";
@@ -59,11 +61,11 @@ public class ImageGeneratorTestCommand : AdminCommandBase
 
 		Stopwatch stopwatch = Stopwatch.StartNew();
 
-		SaveContext? context = await this._phigrosService.TryHandleAndFetchContext(data.SaveCache, arg);
+		ISaveContext? context = await this._saveService.TryHandleAndFetchAsync(data, arg);
 		if (context is null) return;
 		TimeSpan contextTook = stopwatch.GetElapsedAndRestart();
 
-		PlayerInfo playerInfo = await data.SaveCache.GetPlayerInfoAsync();
+		PlayerInfo playerInfo = await this._saveService.GetPlayerInfoAsync(data, context);
 		TimeSpan playerInfoTook = stopwatch.GetElapsedAndRestart();
 
 		// note: the image generator still uses newtonsoft.json, might need to unify json usage in the future
