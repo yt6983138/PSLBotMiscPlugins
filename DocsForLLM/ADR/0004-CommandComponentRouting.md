@@ -89,4 +89,4 @@ These are implementation choices, not permission to change the policies above.
 - **AdminHelper:** connect StatusService to the component before-hook and matching cleanup, using the confirmed status/admin policy.
 - **Compatibility:** preserve existing command callbacks and helper call sites, retain the current hook-exception policy, and leave blacklist code unchanged.
 
-Working proposals and source findings are in gitignored `DocsForLLM/Notes/ComponentRoutingDesign.md`; they are not additional accepted decisions.
+The implemented API is documented in [ComponentRouting.md](../ComponentRouting.md). Deferred follow-up refactor topics are kept in gitignored `DocsForLLM/Notes/CommandDispatchRefactorPlan.md`; they are not additional accepted decisions.

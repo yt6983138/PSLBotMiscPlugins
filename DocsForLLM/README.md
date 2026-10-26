@@ -32,6 +32,6 @@ Use a numbered filename (`0001-Topic.md`) and record status, source/date, contex
 
 ## Local notes
 
-The original planning documents are preserved locally as `Notes/PlanningContext.md`, `Notes/InternationalCloudSaveResponse.md`, and `Notes/LocalScoreSystemPlan.md`. They retain the full announcement, interview context, unapproved designs, and static source findings, but are not required reading in a fresh clone.
+The original planning documents are preserved locally as `Notes/PlanningContext.md` and `Notes/InternationalCloudSaveResponse.md`. They retain the full announcement, interview context, unapproved designs, and static source findings, but are not required reading in a fresh clone.
 
 The root `.gitignore` ignores all contents of `Notes/` except [its README](Notes/README.md). Do not force-add notes. Ignoring files does not remove previously committed content from Git history and is not a substitute for protecting credentials.

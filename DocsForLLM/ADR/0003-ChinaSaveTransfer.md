@@ -66,4 +66,4 @@ The current [`TransferToChinaCommand`](../../SaveArchiveProgram/TransferToChinaC
 - Verification criteria for any future transfer-owned binding switch. No new read-back or retry workflow is authorized by this record's implementation review.
 - User instructions for loading the transferred cloud save in a compatible China-side game build.
 
-A proposed workflow and static source findings may be available in gitignored `DocsForLLM/Notes/ChinaSaveTransferPlan.md`. They are not additional approved requirements.
+The earlier proposed workflow and source findings were removed from the local notes after implementation; this ADR and [ChinaSaveTransfer.md](../ChinaSaveTransfer.md) are the durable record.

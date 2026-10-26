@@ -129,4 +129,4 @@ After comparing combined and sectioned SQLite payloads, the owner chose a single
 - Lookup-based profile avatar/background input: autocomplete or alias-like search is future work.
 - Deferred to the future dedicated register/login path: creating the local collection row for cloud-mode users who never activated local mode (see Import sources).
 
-The current complete contract proposal is in gitignored `DocsForLLM/Notes/LocalScoreInterfaceDesign.md` (repository-root path). Earlier investigation and superseded proposals remain in `Notes/LocalScoreSystemPlan.md`. Exact proposed symbols/defaults are not additional approved decisions; this ADR is self-contained for accepted behavior.
+Exact proposed symbols/defaults are not additional approved decisions; this ADR is self-contained for accepted behavior.
