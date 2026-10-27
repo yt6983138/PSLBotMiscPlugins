@@ -27,6 +27,8 @@ General guidance and ADRs must be self-contained: a fresh clone will not contain
 - [ADR 0002: Local user-submitted score system](ADR/0002-LocalScoreSystem.md): collection/account requirements, single-BLOB SQLite storage with native serialization, and the shared-library abstraction direction.
 - [ADR 0003: International-to-China save transfer](ADR/0003-ChinaSaveTransfer.md): transfer sources, replacement behavior, optional account switching, and the public/private integration boundary.
 - [ADR 0004: Command-owned Discord component routing](ADR/0004-CommandComponentRouting.md): accepted component-infrastructure plan covering thin dispatch, process-local identity, command-owned state, automatic editing-first replies, Core-owned invalid-route responses, and shared status gating.
+- [ADR 0005: `/account` command and `LocalCommand` restructure](ADR/0005-AccountCommand.md): account lifecycle consolidation (register, switch, delete, status), removal of `/login`, `/link-token`, `/logout`, `/get-token`, `/local start`, `/local use-cloud`, `LocalCommand` moving to `CommandBase`, and local-collection creation on first import. Accepted, not implemented.
+- [ADR 0006: `/settings` command](ADR/0006-SettingsCommand.md): cosmetic per-user preferences split from `/account`. Accepted, deferred until after the 2026-10-31 discontinuation work.
 
 Use a numbered filename (`0001-Topic.md`) and record status, source/date, context, decision, consequences, and open questions. Keep proposals distinct from accepted decisions and explicitly record when a later decision supersedes an earlier one. Acceptance of an ADR is not implementation or operational authorization.
 

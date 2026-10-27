@@ -67,5 +67,7 @@ The owner's default priority order is:
 
 - [ADR 0001](ADR/0001-InternationalCloudSaveResponse.md): international cloud-save shutdown response and archive/transfer priorities.
 - [ADR 0002](ADR/0002-LocalScoreSystem.md): local-score requirements and storage decisions; unapproved design recommendations are not policy.
+- [ADR 0005](ADR/0005-AccountCommand.md): `/account` command (register, switch, delete, status), removal of the old login/logout/token/mode commands, and `LocalCommand` restructure.
+- [ADR 0006](ADR/0006-SettingsCommand.md): `/settings` command for cosmetic per-user preferences; accepted, deferred until after the 2026-10-31 discontinuation work.
 
 Ask about unresolved details only when the next decision depends on them. Record new answers as attributed facts or explicit decisions, not inferred commitments.
