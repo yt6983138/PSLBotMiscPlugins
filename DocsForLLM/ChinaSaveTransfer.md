@@ -7,7 +7,7 @@ This guide describes the current source implementation and reconciles the owner'
 - [`SaveArchiveProgram/TransferToChinaCommand.cs`](../SaveArchiveProgram/TransferToChinaCommand.cs) adds the global `/transfer-to-china` command to the existing `SaveArchiveProgram` plugin.
 - The project references the private `PhigrosLibraryCSharp.Modification` package at version `1.1.0`. The public command calls its upload API directly; the package source and upload mechanics remain outside this repository and must not be copied into public documentation.
 - That package's dependency metadata requires `PhigrosLibraryCSharp` `5.2.0` or later; Core's project still declares `5.1.0`. This is a dependency/deployment fact, not a claimed restore or build failure. No dependency resolution was executed during this review.
-- Core's `LoginCommand.ListenQrCodeChange` now returns the acquired token without changing the bot binding. Its ordinary `/login` callback still performs the existing binding update after polling.
+- Core's `AccountCommand.ListenQrCodeChange` (moved from the removed `LoginCommand`, ADR 0005) returns the acquired token without changing the bot binding. The ordinary `/account register qrcode` callback still performs the binding update after polling.
 - Framework commands expose the protected `CreateComponentId(payload)` helper. The transfer command handles its own routed buttons through `HandleInteraction`.
 - `SaveArchiveProgramPlugin.Load` still registers only the existing `SaveArchiveService`. There is no transfer session/service registration.
 - `ArchiveProgramRunHelper` is a development launcher that stages this plugin before delegating to `CoreRunHelper`. It is not a production deployment procedure and must not be run for validation.
@@ -43,7 +43,7 @@ The command inherits `CommandBase`, so the normal registered-user and TOS gates 
 - Authentication is kept separate from the existing bot binding. The command displays the destination nickname and creation time before showing a danger-styled **Proceed** button.
 - The remaining transfer text and controls are currently plain English. No transfer-specific localization keys were added.
 - The auth choice is the optional slash token versus the QR-start button; there is no auth select menu, modal, or create-account control.
-- **Owner-confirmed QR behavior:** login requires an existing initialized China account and cannot create one. Source lines 116 and 130 show China QR acquisition and reuse of `LoginCommand.ListenQrCodeChange`; Core `LoginCommand.cs` line 99 delegates authentication to the library. The earlier account-creation warning inferred from an optional API flag is withdrawn: that signature alone does not establish account-creation behavior. No private authentication implementation or live login was inspected to replace the owner's confirmation.
+- **Owner-confirmed QR behavior:** login requires an existing initialized China account and cannot create one. Source shows China QR acquisition and reuse of `AccountCommand.ListenQrCodeChange`; the former Core `LoginCommand.cs` (login now in `AccountCommand`) delegated authentication to the library. The earlier account-creation warning inferred from an optional API flag is withdrawn: that signature alone does not establish account-creation behavior. No private authentication implementation or live login was inspected to replace the owner's confirmation.
 
 ### Replacement, completion, and binding
 
@@ -51,10 +51,10 @@ On Proceed, the command clears controls, displays **Transferring...**, and fetch
 
 With no destination saves, the command uploads the source as a new save. With existing saves, the public command downloads the current first destination ZIP, uploads a copy of it, then uploads the source against the original first save object. This describes the command's intended backup/replacement sequence, not verified backend ordering or atomicity.
 
-After the upload calls return without throwing, the command reports **Transfer complete!**, asks the user to check the destination, and displays the destination token in a Discord spoiler. It does **not** read back the result or change the bot binding. There is no in-command switch control: the completion text suggests a separate `/link-token` action. The full default-English China invocation is:
+After the upload calls return without throwing, the command reports **Transfer complete!**, asks the user to check the destination, and displays the destination token in a Discord spoiler. It does **not** read back the result or change the bot binding. There is no in-command switch control: the completion text suggests a separate `/account register token` action. The full default-English China invocation is:
 
 ```text
-/link-token token:<destination token> is_international:false
+/account register token token:<destination token> is_international:false
 ```
 
 That separate command checks that it can fetch the China save and replaces the registered `UserData` using its own normal behavior; it does not compare the save with this transfer's source. It is not a transfer-specific verified-success switch and does not preserve all existing binding preferences. The absence of automatic read-back is a source observation, separate from the owner's accepted generic error-handling policy; it is not authorization to add another verification/binding workflow now.
@@ -105,7 +105,7 @@ The command-local design is substantially simpler than the historical session/se
 
 ## Deferred refactor item
 
-The owner directed the reused QR localization/model naming mismatch to a **future refactor plan**, not a current fix. Transfer line 118 supplies `QRCodeDataModel`, which exposes `Url`/`EncodedUrl` in Core `LoginCommand.cs` lines 6–19; the checked-in `LoginBegin` default uses `BeginUrl`/`EncodedBeginUrl` in `LocalizationService.cs` lines 168–173. Existing deployed localization may differ. The durable deferral is in ADR 0003; detailed local planning is in gitignored `Notes/CommandDispatchRefactorPlan.md`. No template, model, key, or live localization change is authorized by recording this item.
+The owner directed the reused QR localization/model naming mismatch to a **future refactor plan**, not a current fix. Transfer line 118 supplies `QRCodeDataModel`, which exposes `Url`/`EncodedUrl` in Core `AccountCommand.cs` (nested class, moved from `LoginCommand`); the checked-in `AccountRegisterQrCodeBegin` default (formerly `LoginBegin`) uses `BeginUrl`/`EncodedBeginUrl` in `LocalizationService.cs`. Existing deployed localization may differ. The durable deferral is in ADR 0003; detailed local planning is in gitignored `Notes/CommandDispatchRefactorPlan.md`. No template, model, key, or live localization change is authorized by recording this item.
 
 **Separately deferred:** Core's existing before-command/error reporting includes raw slash-option values, including `account_token`. The owner explicitly deferred global token logging redaction. Do not treat this documentation review as permission to change it, and do not add new token/save logging.
 
