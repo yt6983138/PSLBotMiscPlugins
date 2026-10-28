@@ -24,12 +24,12 @@ After comparing combined and sectioned SQLite payloads, the owner chose a single
 - Include scores and a display profile. Reuse existing cloud-save models for compatibility; unavailable fields may have suitable null/default values.
 - Editable profile fields are nickname, intro, avatar ID, background ID, challenge rank, and currency. Missing data uses ordinary displayed defaults; separate availability tracking is not selected. Supported imported native entries are retained even when their fields are not manually editable; GameKey and GameSettings are explicitly excluded below.
 - Each user has **one active account type: cloud or local**. Keeping both sources selectable is not the requested model.
-- **2026-10-24 switching decision:** switching from local to cloud through `/login` or `/link-token` retains the local collection as dormant data. Cloud becomes the active source; returning to local resumes that collection. Local-collection deletion is a separate explicit operation.
+- **2026-10-24 switching decision:** switching from local to cloud through `/account register qrcode` or `/account register token` (formerly `/login` / `/link-token`, see [ADR 0005](0005-AccountCommand.md)) retains the local collection as dormant data. Cloud becomes the active source; returning to local resumes that collection. Local-collection deletion is a separate explicit operation.
 - Switching from cloud to local retains the inactive cloud token and region, allowing a later switch back if the binding still works. Existing ordinary score commands use the active mode. Edit commands use the explicit local loader, which requires local mode, so dormant collections are not edited directly.
-- Local onboarding uses a start-then-import flow: `/local start` creates an empty collection or resumes an existing one and activates local mode. Import is a separate operation.
+- Local onboarding uses a start-then-import flow: `/account register local` (new users) or `/account switch local` (existing users) creates an empty collection or resumes an existing one and activates local mode (formerly `/local start`, see [ADR 0005](0005-AccountCommand.md)). Import is a separate operation.
 - Mode switches preserve existing bot preferences, including visibility, numeric formatting, and default image count, and preserve the recorded consent level subject to normal current-TOS checks.
 - Switching to a retained cloud binding is immediate, without a verification fetch. Missing bindings must still be reported rather than creating a cloud account implicitly.
-- `/logout` also deletes the stored local collection, including dormant data, alongside existing registration/preferences/leaderboard removal. The deletion consequence must be clear before execution. Retention across mode switches does not imply retention across logout.
+- `/account delete` (formerly `/logout`, see [ADR 0005](0005-AccountCommand.md)) also deletes the stored local collection, including dormant data, alongside existing registration/preferences/leaderboard removal. The deletion consequence must be clear before execution; it now always asks for confirmation with a generic warning. Retention across mode switches does not imply retention across logout.
 - Bulk imports require an explicit mode: upsert, fill missing, replace all, or keep better. The detailed rules are recorded below.
 - **Discord commands are the initial interface.**
 - **2026-10-24 design scope:** complete the C# data/service contracts and Discord workflows together, including existing-command integration. Public HTTP API design is outside this session's selected scope.
@@ -91,13 +91,13 @@ After comparing combined and sectioned SQLite payloads, the owner chose a single
 
 ### Import sources and Discord workflows
 
-- Use one `/local` command family for activation, score/profile edits, and imports. Implemented subcommands: `start`, `use-cloud` (returns to the retained cloud binding), `profile`, `challenge`, `currency`, score `set`/`remove`, and imports `csv`, `cloud`, `android`. Existing score/image/export commands consume the shared read abstraction. The full command list is in the command registration code.
+- Use one `/local` command family for activation, score/profile edits, and imports. Mode switching (`start`, `use-cloud`) moved to `/account` ([ADR 0005](0005-AccountCommand.md)). Implemented subcommands: `profile`, `challenge`, `currency`, score `set`/`remove`, and imports `csv`, `cloud`, `android`. Existing score/image/export commands consume the shared read abstraction. The full command list is in the command registration code.
 - The cloud import has no save-index option; users cannot choose the save index for local cloud import.
 - First import entry points are CSV, server archive, Android PlayerPrefs XML, and live cloud using the retained logged-in token. A standalone uploaded cloud ZIP is not part of this selected first set.
 - The Android PlayerPrefs XML parser is fully implemented, not a scaffold.
 - **Import access requirements:** imports do not depend on the user's main account mode. CSV, Android, cloud, and `/local-import-archive` imports require only registration (`GetRegisteredUserOrReplyAsync`). Cloud import additionally requires a cloud binding (`LocalImportCloudNoBinding`). Other local edits (manual score set, profile edits) still require local mode.
 - Cloud import reads through a dedicated source-read path that uses the retained cloud binding without changing active mode or weakening the public explicit-loader checks. It does not raise the cloud-fetched hook.
-- **Known limitation (deferred to the future dedicated register/login path):** only local activation creates the local collection row. A cloud-mode user who never activated local mode gets the "local save missing" reply on import.
+- **Former known limitation (resolved by [ADR 0005](0005-AccountCommand.md)):** previously only local activation created the local collection row. Imports now create the empty collection on first import, at import start; a cancelled or expired preview leaves an empty collection.
 - Server archive import is implemented as a separate top-level command, `/local-import-archive`, in the root `SaveArchiveProgram` plugin (not a `/local` subcommand). It takes a required import mode (Core `LocalImportMode`) and is ephemeral, so no requester-ID check is needed.
 - Flow: the bot checks that the user is registered and has an archived save; it then asks for Proceed/Cancel. On Proceed it reads and decrypts the newest readable `ArchivedInfo_*.json` archive (newer unreadable archives are skipped) and uses its first save. `TransferToChinaCommand` instead takes the newest-timestamp archive without a readability check. The archive import passes the result to Core's public `LocalCommand.HandleLocalImportAsync` with the chosen mode. Core's existing flow then applies the import or shows its own preview/Proceed. The archive reader enforces a 16 MiB limit (`MaxArchiveBytes`).
 - Archive imports use the same validation and commit rules as live-cloud import.
@@ -127,6 +127,6 @@ After comparing combined and sectioned SQLite payloads, the owner chose a single
 - Leaderboard policy: current code excludes local and unbound users; owner confirmation after the poll is still required.
 - Owner-run migration of existing databases (see Consequences).
 - Lookup-based profile avatar/background input: autocomplete or alias-like search is future work.
-- Deferred to the future dedicated register/login path: creating the local collection row for cloud-mode users who never activated local mode (see Import sources).
+- Resolved by [ADR 0005](0005-AccountCommand.md): the local collection row is created on first import for cloud-mode users who never activated local mode (see Import sources).
 
 Exact proposed symbols/defaults are not additional approved decisions; this ADR is self-contained for accepted behavior.

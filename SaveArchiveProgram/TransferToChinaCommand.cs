@@ -127,7 +127,7 @@ public partial class TransferToChinaCommand : CommandBase
 		{
 			CompleteQRCodeData qrCode = await TapTapHelper.RequestLoginQrCode(useChinaEndpoint: true);
 			DateTime stopAt = DateTime.Now + new TimeSpan(0, 0, qrCode.ExpiresInSeconds - 15);
-			await arg.QuickReply(x => x.Components = null, this._localization[PSLGuestCommandKey.LoginBegin], new LoginCommand.QRCodeDataModel(qrCode, false));
+			await arg.QuickReply(x => x.Components = null, this._localization[PSLAccountCommandKey.AccountRegisterQrCodeBegin], new AccountCommand.QRCodeDataModel(qrCode, false));
 
 			await this.QRCodeLogin(qrCode, stopAt, arg, context);
 		}
@@ -139,10 +139,10 @@ public partial class TransferToChinaCommand : CommandBase
 
 	private async Task QRCodeLogin(CompleteQRCodeData qrCode, DateTime stopAt, IDiscordInteraction arg, Context context)
 	{
-		string? token = await LoginCommand.ListenQrCodeChange(qrCode, true, stopAt);
+		string? token = await AccountCommand.ListenQrCodeChange(qrCode, true, stopAt);
 		if (token is null)
 		{
-			await arg.QuickReply(this._localization[PSLGuestCommandKey.LoginTimedOut]);
+			await arg.QuickReply(this._localization[PSLAccountCommandKey.AccountRegisterQrCodeTimedOut]);
 			return;
 		}
 
@@ -253,7 +253,7 @@ public partial class TransferToChinaCommand : CommandBase
 		await arg.QuickReply($"""
 			Transfer complete! Please check your destination account. Have fun with your new cloud save!
 			The destination account's token for future use is: ||{destination.SessionToken}||
-			You can use this token to login into this bot again (`/link-token`).
+			You can use this token to login into this bot again (`/account register token`).
 			""", x => x.Components = null);
 	}
 }

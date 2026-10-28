@@ -1,6 +1,6 @@
 # ADR 0005: `/account` command and `LocalCommand` restructure
 
-- **Status:** Accepted, not implemented. Implementation steps are in the working plan `DocsForLLM/Notes/AccountCommandRefactorPlan.md` (local, gitignored). Once implemented, change this status to "Implemented (NOT TESTED)" until the owner's Discord smoke test passes.
+- **Status:** Implemented (NOT TESTED) until the owner's Discord smoke test passes. Implementation steps were in the working plan `DocsForLLM/Notes/AccountCommandRefactorPlan.md` (local, gitignored).
 - **Recorded:** 2026-10-27.
 - **Source:** Owner decisions in the `/account` planning session on 2026-10-27.
 - **Related:** [ADR 0002](0002-LocalScoreSystem.md) (account modes, local collection), [ADR 0003](0003-ChinaSaveTransfer.md) (QR login reuse), [ADR 0006](0006-SettingsCommand.md) (the sibling `/settings` command).
