@@ -1,7 +1,7 @@
 # ADR 0006: `/settings` command for cosmetic per-user preferences
 
 - **Status:** Accepted
-- **Tracking:** none
+- **Tracking:** [Project #2 item](https://github.com/users/yt6983138/projects/2?pane=issue&itemId=288355685)
 - **Recorded:** 2026-10-27.
 - **Source:** Owner decisions in the `/account` planning session on 2026-10-27.
 
