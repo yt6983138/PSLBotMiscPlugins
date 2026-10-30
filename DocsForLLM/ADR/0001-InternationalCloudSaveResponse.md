@@ -1,6 +1,7 @@
 # ADR 0001: International cloud-save shutdown response
 
-- **Status:** Accepted for response scope and priorities; remaining policies and implementation choices are unresolved.
+- **Status:** Accepted
+- **Tracking:** none
 - **Recorded:** 2026-10-23.
 - **Source:** Owner-supplied public announcement dated 2026-10-22 and subsequent owner clarifications. Announcement URL/channel and publication time were not supplied.
 

@@ -1,8 +1,9 @@
 # ADR 0002: Local user-submitted score system
 
-- **Status:** Implemented. Command names are final (see the command list under "Import sources and Discord workflows"). Known gaps and open items are listed under "Open questions". Concrete C# signatures and binary layout are in the interface-design notes and are not approved decisions.
+- **Status:** Accepted
+- **Tracking:** none
 - **Recorded:** 2026-10-23.
-- **Updated:** 2026-10-24, during C#/Discord interface design; implementation status recorded 2026-10-26.
+- **Updated:** 2026-10-24, during C#/Discord interface design.
 - **Source:** Owner decisions in the local-score planning discussions on 2026-10-23 and 2026-10-24.
 
 This record does not authorize deployment or live data changes. Apply [RepositoryGuide.md](../RepositoryGuide.md) and [PlanningGuidelines.md](../PlanningGuidelines.md). Shutdown-response priorities remain as recorded in [ADR 0001](0001-InternationalCloudSaveResponse.md).
@@ -91,7 +92,7 @@ After comparing combined and sectioned SQLite payloads, the owner chose a single
 
 ### Import sources and Discord workflows
 
-- Use one `/local` command family for activation, score/profile edits, and imports. Mode switching (`start`, `use-cloud`) moved to `/account` ([ADR 0005](0005-AccountCommand.md)). Implemented subcommands: `profile`, `challenge`, `currency`, score `set`/`remove`, and imports `csv`, `cloud`, `android`. Existing score/image/export commands consume the shared read abstraction. The full command list is in the command registration code.
+- Use one `/local` command family for activation, score/profile edits, and imports. Mode switching (`start`, `use-cloud`) moved to `/account` ([ADR 0005](0005-AccountCommand.md)). Implemented subcommands: `profile`, `challenge`, `currency`, score `set`/`remove`, and imports `csv`, `cloud`, `android`. Existing score/image/export commands consume the shared read abstraction. Command names are final. The full command list is in the command registration code.
 - The cloud import has no save-index option; users cannot choose the save index for local cloud import.
 - First import entry points are CSV, server archive, Android PlayerPrefs XML, and live cloud using the retained logged-in token. A standalone uploaded cloud ZIP is not part of this selected first set.
 - The Android PlayerPrefs XML parser is fully implemented, not a scaffold.

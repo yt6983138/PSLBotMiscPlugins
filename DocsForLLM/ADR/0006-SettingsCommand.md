@@ -1,6 +1,7 @@
 # ADR 0006: `/settings` command for cosmetic per-user preferences
 
-- **Status:** Accepted, not implemented. Implementation is deferred to a separate refactor after the 2026-10-31 international save discontinuation work. No implementation plan exists yet.
+- **Status:** Accepted
+- **Tracking:** none
 - **Recorded:** 2026-10-27.
 - **Source:** Owner decisions in the `/account` planning session on 2026-10-27.
 

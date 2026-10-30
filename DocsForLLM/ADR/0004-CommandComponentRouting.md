@@ -1,6 +1,7 @@
 # ADR 0004: Command-owned Discord component routing
 
-- **Status:** Accepted. Architecture and rollout scope are settled; exact API and lifecycle mechanics are implementation details within these decisions.
+- **Status:** Accepted
+- **Tracking:** none
 - **Recorded:** 2026-10-23.
 - **Source:** Owner's component-infrastructure planning request, answers, and implementation correction on 2026-10-23.
 

@@ -1,6 +1,7 @@
 # ADR 0003: International-to-China save transfer
 
-- **Status:** Accepted product policy. Current implementation and owner review clarifications are recorded; QR localization compatibility is deferred to a future refactor. This is not runtime validation.
+- **Status:** Accepted
+- **Tracking:** none
 - **Recorded:** 2026-10-23.
 - **Implementation reviewed:** 2026-10-23.
 - **Source:** Owner answers in the China-transfer planning discussion and subsequent implementation-review corrections on 2026-10-23.

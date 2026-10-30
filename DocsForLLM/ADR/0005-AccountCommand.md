@@ -1,6 +1,7 @@
 # ADR 0005: `/account` command and `LocalCommand` restructure
 
-- **Status:** Implemented (NOT TESTED) until the owner's Discord smoke test passes. Implementation steps were in the working plan `DocsForLLM/Notes/AccountCommandRefactorPlan.md` (local, gitignored).
+- **Status:** Accepted
+- **Tracking:** none
 - **Recorded:** 2026-10-27.
 - **Source:** Owner decisions in the `/account` planning session on 2026-10-27.
 - **Related:** [ADR 0002](0002-LocalScoreSystem.md) (account modes, local collection), [ADR 0003](0003-ChinaSaveTransfer.md) (QR login reuse), [ADR 0006](0006-SettingsCommand.md) (the sibling `/settings` command).
@@ -149,4 +150,4 @@ Existing default texts that name old commands are reworded to the new names: `Co
 
 ## Open questions
 
-- None blocking. Owner smoke test of every `/account` subcommand, `/local` subcommands, `/local-import-archive`, and the `/transfer-to-china` QR login is pending after implementation.
+- None.

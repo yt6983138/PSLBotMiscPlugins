@@ -42,6 +42,7 @@ Keep general guidelines/instructions directly in `DocsForLLM/`, confirmed decisi
 - Filter permitted noisy commands (for example, `dotnet build 2>&1 | tail -30`; use `dotnet test 2>&1 | tail -50` only where tests are permitted) and inspect full logs only when needed.
 - Subagents must return short summaries of findings, file paths, and decisions, never full file contents or raw logs.
 - Do not re-explore the repository at session start. Rely on this file for layout, conventions, and commands, and add concise reusable facts that are missing.
+- Do not read or maintain the owner's GitHub project board (Project #2). Implementation status, priority, and dates are owner-maintained there; ADRs record decisions only (see `DocsForLLM/README.md`).
 
 ### Session boundaries
 
