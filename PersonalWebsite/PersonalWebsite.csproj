@@ -2,21 +2,23 @@
 
 	<PropertyGroup>
 		<TargetFramework>net10.0</TargetFramework>
-		<ImplicitUsings>enable</ImplicitUsings>
-		<Nullable>enable</Nullable>
 		<OutputType>Library</OutputType>
 	</PropertyGroup>
 
 	<ItemGroup>
-		<ProjectReference Include="..\PSLDiscordBotBase\PSLDiscordBot.Framework\PSLDiscordBot.Framework.csproj" />
+		<ProjectReference Include="..\PSLDiscordBotBase\PSLDiscordBot.Framework\PSLDiscordBot.Framework.csproj" Private="false" />
 		<ProjectReference Include="..\PhigrosApi.Client.Javascript\PhigrosApi.Client.Javascript.esproj" />
 
-		<ProjectReference Condition="'$(Configuration)' == 'Debug'" Include="..\PhigrosApi\PhigrosApi.csproj" />
+		<ProjectReference Condition="'$(Configuration)' == 'Debug'" Include="..\PhigrosApi\PhigrosApi.csproj" Private="false" />
 	</ItemGroup>
 
 	<ItemGroup>
 		<Content Update="Blogs\**" Condition="'$(Configuration)' == 'Release'">
 			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</Content>
+		<!-- Copied to the server by hand; never part of a deploy. -->
+		<Content Update="Blogs\**">
+			<CopyToPublishDirectory>Never</CopyToPublishDirectory>
 		</Content>
 	</ItemGroup>
 

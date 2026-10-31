@@ -3,9 +3,6 @@
 	<PropertyGroup>
 		<OutputType>Exe</OutputType>
 		<TargetFramework>net10.0</TargetFramework>
-		<Nullable>enable</Nullable>
-		<ImplicitUsings>enable</ImplicitUsings>
-		<LangVersion>preview</LangVersion>
 	</PropertyGroup>
 
 	<ItemGroup>
@@ -16,7 +13,10 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<ProjectReference Include="..\PSLDiscordBotBase\PSLDiscordBot.Framework\PSLDiscordBot.Framework.csproj"/>
+		<ProjectReference Include="..\PSLDiscordBotBase\PSLDiscordBot.Core\PSLDiscordBot.Core.csproj" Private="false" />
+		<ProjectReference Include="..\PSLDiscordBotBase\PSLDiscordBot.Framework\PSLDiscordBot.Framework.csproj" Private="false">
+			<ExcludeAssets>runtime</ExcludeAssets>
+		</ProjectReference>
 	</ItemGroup>
 
 </Project>

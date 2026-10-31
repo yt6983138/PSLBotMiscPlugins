@@ -3,14 +3,14 @@
 	<PropertyGroup>
 		<OutputType>Library</OutputType>
 		<TargetFramework>net10.0</TargetFramework>
-		<Nullable>enable</Nullable>
-		<ImplicitUsings>enable</ImplicitUsings>
-		<LangVersion>preview</LangVersion>
 		<InterceptorsNamespaces>$(InterceptorsNamespaces);Microsoft.AspNetCore.OpenApi.Generated</InterceptorsNamespaces>
 	</PropertyGroup>
 
 	<ItemGroup>
-		<ProjectReference Include="..\PSLDiscordBotBase\PSLDiscordBot.Core\PSLDiscordBot.Core.csproj" />
+		<ProjectReference Include="..\PSLDiscordBotBase\PSLDiscordBot.Core\PSLDiscordBot.Core.csproj" Private="false" />
+		<ProjectReference Include="..\PSLDiscordBotBase\PSLDiscordBot.Framework\PSLDiscordBot.Framework.csproj" Private="false">
+			<ExcludeAssets>runtime</ExcludeAssets>
+		</ProjectReference>
 		<ProjectReference Include="..\PhigrosApi.Client.Javascript\PhigrosApi.Client.Javascript.esproj" />
 	</ItemGroup>
 
