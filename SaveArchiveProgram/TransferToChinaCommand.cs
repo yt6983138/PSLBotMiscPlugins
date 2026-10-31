@@ -164,6 +164,11 @@ public partial class TransferToChinaCommand : CommandBase
 			If yes, please read the following instructions carefully and click "Proceed" to continue:
 			1. Make sure you have a backup of your China account data, as this process may overwrite your current save data.
 			2. After doing so and clicking "Proceed", your latest international save data will be transferred to your China account. This process is **irreversible**.
+
+			**Warning:**
+			- This writes your save data into the China-server (TapTap China) cloud save of the destination account, and may overwrite existing data there.
+			- This uses an unofficial third-party tool that is **not authorized or endorsed** by Pigeon Games or TapTap, and may violate their applicable terms (e.g. TapTap China's terms). TapTap or Pigeon Games may restrict or take action against the accounts involved.
+			- This is done only at your request, and you are **solely responsible** for any consequences. Keep your own backup.
 			""", x => x.Components = new ComponentBuilderV2()
 				.WithActionRow([new ButtonBuilder()
 					.WithCustomId(this.CreateComponentId(ButtonOperation.ConfirmedAccount, context))
