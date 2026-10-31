@@ -382,6 +382,10 @@ AdminHelper/BugReports/**
 # RunHelper configs
 **RunHelper/Properties/launchSettings.json
 
+# Deploy script local config and staging output
+Tools/Deploy/deploy.config.json
+/artifacts/deploy/
+
 # Local agent planning and investigation notes
 /DocsForLLM/Notes/*
 !/DocsForLLM/Notes/README.md

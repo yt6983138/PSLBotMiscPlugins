@@ -60,6 +60,8 @@ For coding tasks, also read:
 - Use the .NET 10 SDK. Application/plugin projects target `net10.0`; the analyzer targets `netstandard2.0`. Several projects enable preview C# features. Do not downgrade their target framework or language version.
 - The full solution and API/website projects also require Node.js/npm and the Visual Studio JavaScript SDK used by the `.esproj`.
 - Windows is the established development environment: the framework has a Windows-command prebuild step. Do not assume builds are platform-independent.
+- NuGet versions use central package management: add or change them in `Directory.Packages.props` (root and submodule), not in `.csproj` files; shared build properties live in `Directory.Build.props`.
+- `Tools/Deploy/` is the owner-run build/deploy tooling (see its README). Agents must never run `Deploy.ps1` or touch a deploy target.
 
 Run commands from the repository root:
 

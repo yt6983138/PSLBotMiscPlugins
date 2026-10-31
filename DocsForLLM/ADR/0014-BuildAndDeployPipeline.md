@@ -16,7 +16,7 @@ Package versions and shared build properties are repeated inline in each `.cspro
 - **Central package management.** `Directory.Packages.props` in the submodule root (the submodule must build standalone) plus a root file that imports it and adds root-only packages. `Version=` is removed from `PackageReference`s and transitive pinning is on. Existing `PrivateAssets` metadata is kept. The Analyzer's Roslyn versions are not bumped along with the rest.
 - **Shared build properties.** `Directory.Build.props` laid out the same way (submodule root, plus a root file importing it). `LangVersion preview` applies to every project except the Analyzer, which keeps its own target and language version. Project-specific settings (such as `AllowUnsafeBlocks`) stay local.
 - **Local deploy script, owner-run only.** It targets the owner's production and testing server directories. Agents may write it but never run it.
-  - Root files are copied one by one using a blocklist: `appsettings.*`, `nlog.config`, `*.sh`, and all-caps flag-file names. Nothing in the root is ever deleted.
+  - Root files are copied one by one using a blocklist: `appsettings.*`, `nlog.config`, `*.sh`, `*.log`, and all-caps flag-file names. Nothing in the root is ever deleted.
   - `Plugins/` subfolders are mirrored, stale files included, because they hold no runtime state and discovery loads every DLL there.
   - A plugin's files are its publish output minus the host output and its direct dependencies' outputs, compared by relative path and content hash. Same path with a different hash is version skew and fails or warns.
   - Everything is always deployed; never a single plugin after a Core change.

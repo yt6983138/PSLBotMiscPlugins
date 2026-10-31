@@ -1,0 +1,54 @@
+{
+	"_comment": "EXAMPLE ONLY. Copy to deploy.config.json (gitignored) and fill in. Project paths are relative to the repo root. Plugin name = project file name without extension; DependsOn lists DIRECT dependencies by that name, or \"Host\". Derived from ProjectReferences. ShutdownUrls (optional) maps a target name to its full shutdown URL; the admin password is sent in cleartext over http, so only use http on the trusted intranet behind the nginx /admin/ gate (prefer https). Unsure whether PhigrosApi, PersonalWebsite and MinimalDependency are deployed as plugins; PhigrosLoginHost, SaveArchiveProgram and run helpers are left out.",
+	"Targets": {
+		"Production": "X:\\path\\to\\Production",
+		"Testing": "X:\\path\\to\\Testing"
+	},
+	"ShutdownUrls": {
+		"Production": "http://intranet-host.example/admin/api/shutdown",
+		"Testing": "http://intranet-host-testing.example/admin/api/shutdown"
+	},
+	"Host": "PSLDiscordBotBase/PSLDiscordBot.Framework/PSLDiscordBot.Framework.csproj",
+	"Plugins": [
+		{
+			"Project": "PSLDiscordBotBase/PSLDiscordBot.Core/PSLDiscordBot.Core.csproj",
+			"Folder": "Core",
+			"DependsOn": ["Host"]
+		},
+		{
+			"Project": "AdminHelper/AdminHelper.csproj",
+			"Folder": "AdminHelper",
+			"DependsOn": ["Host", "PSLDiscordBot.Core"]
+		},
+		{
+			"Project": "FunPlugin/FunPlugin.csproj",
+			"Folder": "FunPlugin",
+			"DependsOn": ["Host", "PSLDiscordBot.Core"]
+		},
+		{
+			"Project": "MigratorPlugin/MigratorPlugin.csproj",
+			"Folder": "MigratorPlugin",
+			"DependsOn": ["PSLDiscordBot.Core"]
+		},
+		{
+			"Project": "VerifierAndBanner/VerifierAndBanner.csproj",
+			"Folder": "VerifierAndBanner",
+			"DependsOn": ["Host"]
+		},
+		{
+			"Project": "MinimalDependency/MinimalDependency.csproj",
+			"Folder": "MinimalDependency",
+			"DependsOn": ["Host"]
+		},
+		{
+			"Project": "PhigrosApi/PhigrosApi.csproj",
+			"Folder": "PhigrosApi",
+			"DependsOn": ["PSLDiscordBot.Core"]
+		},
+		{
+			"Project": "PersonalWebsite/PersonalWebsite.csproj",
+			"Folder": "PersonalWebsite",
+			"DependsOn": ["Host"]
+		}
+	]
+}
