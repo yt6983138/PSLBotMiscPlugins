@@ -91,3 +91,7 @@ These are implementation choices, not permission to change the policies above.
 - **Compatibility:** preserve existing command callbacks and helper call sites, retain the current hook-exception policy, and leave blacklist code unchanged.
 
 The implemented API is documented in [ComponentRouting.md](../ComponentRouting.md). Deferred follow-up refactor topics are kept in gitignored `DocsForLLM/Notes/CommandDispatchRefactorPlan.md`; they are not additional accepted decisions.
+
+## Addendum (2026-10-31): superseded signature
+
+The fixed `HandleInteraction(SocketInteraction, object executer)` signature is superseded by [ADR 0013](0013-CommandCallbackAndPersistence.md), on that point only.

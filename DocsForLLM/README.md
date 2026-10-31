@@ -31,9 +31,13 @@ General guidance and ADRs must be self-contained: a fresh clone will not contain
 - [ADR 0006: `/settings` command](ADR/0006-SettingsCommand.md): cosmetic per-user preferences split from `/account`.
 - [ADR 0007: `/photo` command](ADR/0007-PhotoCommand.md): `/get-photo`, `/about-me`, `/song-scores` merged into `/photo best|profile|song`, with `generate_for` on all three.
 - [ADR 0008: Alias commands split by audience](ADR/0008-AliasCommandSplit.md): `/alias-global`, `/alias-server`, `/alias-server-admin` replace the five alias commands.
-- [ADR 0009: Subcommand and ephemeral handling](ADR/0009-SubcommandAndEphemeralHandling.md) (Proposed, placeholder): framework refactor for per-subcommand properties such as ephemerality.
+- [ADR 0009: Subcommand and ephemeral handling](ADR/0009-SubcommandAndEphemeralHandling.md) (Proposed): subcommand routing rework and per-subcommand properties such as ephemerality.
 - [ADR 0010: Text-report command family](ADR/0010-ScoresCommand.md) (Proposed, depends on 0009): grouping `/get-scores`, `/more-rks`, `/export-scores`, `/get-money`, `/get-time-index`.
 - [ADR 0011: Song lookup command family](ADR/0011-SongCommand.md) (Proposed, depends on 0009): grouping `/song-info` and `/download-asset`.
+- [ADR 0012: Plugin lifecycle and hosting](ADR/0012-PluginLifecycleAndHosting.md): `IPlugin<TSelf>` static async factory, lifetime service replacing `Program` dependencies, async events via a source generator, and removal of `IPlugin.Version` and `ICoFramework`.
+- [ADR 0013: Command callback parameters and requester persistence](ADR/0013-CommandCallbackAndPersistence.md): `executer` and `requester` removed from command callbacks, explicit saves, no-tracking `UserData`; supersedes ADR 0004's `HandleInteraction` signature.
+- [ADR 0014: Build and deploy pipeline](ADR/0014-BuildAndDeployPipeline.md): central package versions and shared build props, owner-run deploy script with per-plugin splitting, authenticated shutdown endpoint, and build-only CI.
+- [ADR 0015: Unify JSON on System.Text.Json](ADR/0015-SystemTextJsonUnification.md): migration away from Newtonsoft with persisted formats kept compatible and migrated last.
 
 Use a numbered filename (`0001-Topic.md`) and record status, source/date, context, decision, consequences, and open questions. Keep proposals distinct from accepted decisions and explicitly record when a later decision supersedes an earlier one. Acceptance of an ADR is not implementation or operational authorization.
 
