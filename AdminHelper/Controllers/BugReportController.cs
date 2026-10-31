@@ -11,19 +11,18 @@ using System.Text.Json;
 
 namespace AdminHelper.Controllers;
 
-public class BugReportController : Controller
+public class BugReportController : AdminControllerBase
 {
 	private static JsonSerializerOptions _jsonOptions = new(JsonSerializerDefaults.Web);
 
 	private readonly BugReportDatabaseService _databaseService;
 	private readonly IDiscordClientService _discordClientService;
-	private readonly AdminConfig _adminConfig;
 
 	public BugReportController(BugReportDatabaseService databaseService, IDiscordClientService discordClientService, IOptions<AdminConfig> adminConfig)
+		: base(adminConfig)
 	{
 		this._databaseService = databaseService;
 		this._discordClientService = discordClientService;
-		this._adminConfig = adminConfig.Value;
 	}
 
 	public override JsonResult Json(object? data)
@@ -36,17 +35,6 @@ public class BugReportController : Controller
 		string body = await reader.ReadToEndAsync();
 		return JsonSerializer.Deserialize<T>(body, _jsonOptions)
 			?? throw new InvalidOperationException("Failed to deserialize request body.");
-	}
-	private bool HasBadAuth([NotNullWhen(true)] out IActionResult? error)
-	{
-		if (!this.Request.Headers.TryGetValue("Authorization", out Microsoft.Extensions.Primitives.StringValues authHeader)
-			|| authHeader != this._adminConfig.MvcSuperSecretNumber.ToString())
-		{
-			error = this.Unauthorized("Invalid or missing authorization header.");
-			return true;
-		}
-		error = null;
-		return false;
 	}
 
 	[HttpGet("/admin/api/reports/reports")]

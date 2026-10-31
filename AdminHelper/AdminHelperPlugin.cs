@@ -40,6 +40,7 @@ public class AdminHelperPlugin : IPlugin
 			.AddSingleton<BlackListService>()
 			.AddSingleton<CommandStatisticsService>()
 			.AddSingleton<StatusService>()
+			.AddSingleton<ShutdownService>()
 			.AddSingleton<PhigrosDataUpdateService>()
 			// i know it should be scoped or transient but commands are singletons, so it will be singleton eventually
 			.AddSingleton<BugReportDatabaseService>()

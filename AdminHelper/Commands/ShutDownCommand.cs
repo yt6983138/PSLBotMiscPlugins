@@ -6,14 +6,12 @@ namespace AdminHelper.Commands;
 [AddToGlobal]
 public class ShutDownCommand : AdminCommandBase
 {
-	private readonly StatusService _statusService;
-	private readonly Program _program;
+	private readonly ShutdownService _shutdownService;
 
-	public ShutDownCommand(IServiceProvider provider, StatusService statusService, Program program)
+	public ShutDownCommand(IServiceProvider provider, ShutdownService shutdownService)
 		: base(provider)
 	{
-		this._statusService = statusService;
-		this._program = program;
+		this._shutdownService = shutdownService;
 	}
 
 	public override OneOf<string, LocalizedString> PSLName => "shutdown";
@@ -23,24 +21,19 @@ public class ShutDownCommand : AdminCommandBase
 
 	public override async Task Callback(SocketSlashCommand arg, UserData? data, DataBaseService.DbDataRequester requester, object executer)
 	{
-		this._statusService.CurrentStatus = Status.ShuttingDown;
-
-		RestInteractionMessage message =
-			await arg.ModifyOriginalResponseAsync(x => x.Content = $"Shut down initialized, {this._program.RunningTasks.Count - 1} tasks running...");
-		while (this._program.RunningTasks.Count > 1)
-		{
-			await Task.Delay(1000);
-			await message.ModifyAsync(msg => msg.Content = $"Shut down initialized, {this._program.RunningTasks.Count - 1} tasks running...");
-			if (this._statusService.CurrentStatus == Status.Normal)
+		RestInteractionMessage? message = null;
+		// this command itself is registered in RunningTasks by the dispatcher, hence 1
+		await this._shutdownService.RunAsync(
+			1,
+			async remaining =>
 			{
-				await message.ModifyAsync(msg => msg.Content = $"Operation canceled.");
-				return;
-			}
-		}
-		await message.ModifyAsync(msg => msg.Content = $"Shut down.");
-
-		// note: notifcation already done in the notification service, no need to do it here
-		this._program.CancellationTokenSource.Cancel();
+				string content = $"Shut down initialized, {remaining} tasks running...";
+				if (message is null)
+					message = await arg.ModifyOriginalResponseAsync(x => x.Content = content);
+				else
+					await message.ModifyAsync(msg => msg.Content = content);
+			},
+			async completed => await message!.ModifyAsync(msg => msg.Content = completed ? "Shut down." : "Operation canceled."));
 	}
 }
 
