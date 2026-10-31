@@ -29,19 +29,19 @@
 
 var superSecret = null;
 async function GetAll() {
-    return await ParseJson(await fetch("/api/reports/reports", { headers: { "Authorization": superSecret } }));
+    return await ParseJson(await fetch("/admin/api/reports/reports", { headers: { "Authorization": superSecret } }));
 }
 async function GetDetailed(id) {
-    return await ParseJson(await fetch(`/api/reports/detailed?id=${id}`, { headers: { "Authorization": superSecret } }));
+    return await ParseJson(await fetch(`/admin/api/reports/detailed?id=${id}`, { headers: { "Authorization": superSecret } }));
 }
 async function GetAttachement(hash) {
-    return await (await fetch(`/api/reports/attachment?hash=${hash}`, { headers: { "Authorization": superSecret } })).blob();
+    return await (await fetch(`/admin/api/reports/attachment?hash=${hash}`, { headers: { "Authorization": superSecret } })).blob();
 }
 async function UpdateStatus(id, status) { 
-    await fetch(`/api/reports/updateStatus?id=${id}&newStatus=${status}`, { method: "PATCH", headers: { "Authorization": superSecret } });
+    await fetch(`/admin/api/reports/updateStatus?id=${id}&newStatus=${status}`, { method: "PATCH", headers: { "Authorization": superSecret } });
 }
 async function Send(model) {
-    await fetch(`/api/reports/send`, { method: "POST", body: JSONStringify(model), headers: { "Authorization": superSecret } });
+    await fetch(`/admin/api/reports/send`, { method: "POST", body: JSONStringify(model), headers: { "Authorization": superSecret } });
 }
 
 function ConstructSendAttachment(filename, data) {

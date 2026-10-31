@@ -49,7 +49,7 @@ public class BugReportController : Controller
 		return false;
 	}
 
-	[HttpGet("/api/reports/reports")]
+	[HttpGet("/admin/api/reports/reports")]
 	public async Task<IActionResult> GetReports(int previewLength = 32)
 	{
 		if (this.HasBadAuth(out IActionResult? error)) return error;
@@ -68,7 +68,7 @@ public class BugReportController : Controller
 				Preview = x.Content.Substring(0, previewLength),
 			}).ToArrayAsync());
 	}
-	[HttpGet("/api/reports/detailed")]
+	[HttpGet("/admin/api/reports/detailed")]
 	public async Task<IActionResult> GetReportDetailed(int id)
 	{
 		if (this.HasBadAuth(out IActionResult? error)) return error;
@@ -97,7 +97,7 @@ public class BugReportController : Controller
 			RecipientName = message.RecipientId is null ? null : (await this._discordClientService.RestClient.GetUserAsync((ulong)message.RecipientId))?.GlobalName,
 		});
 	}
-	[HttpGet("/api/reports/attachment")]
+	[HttpGet("/admin/api/reports/attachment")]
 	public IActionResult GetAttachment(string hash)
 	{
 		if (this.HasBadAuth(out IActionResult? error)) return error;
@@ -111,7 +111,7 @@ public class BugReportController : Controller
 
 		return this.PhysicalFile(path, "application/octet-stream", enableRangeProcessing: true);
 	}
-	[HttpPost("/api/reports/send")]
+	[HttpPost("/admin/api/reports/send")]
 	public async Task<IActionResult> SendMessageAsync()
 	{
 		if (this.HasBadAuth(out IActionResult? error)) return error;
@@ -141,7 +141,7 @@ public class BugReportController : Controller
 
 		return this.Ok();
 	}
-	[HttpPatch("/api/reports/updateStatus")]
+	[HttpPatch("/admin/api/reports/updateStatus")]
 	public async Task<IActionResult> UpdateReportStatus(long id, int newStatus)
 	{
 		if (this.HasBadAuth(out IActionResult? error)) return error;
