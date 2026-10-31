@@ -6,6 +6,7 @@ on:
 
 permissions:
   contents: read
+  packages: read
 
 jobs:
   build:
@@ -31,5 +32,8 @@ jobs:
         run: npm ci
         working-directory: PhigrosApi.Client.Javascript
 
+      - name: Add private GitHub Packages feed
+        run: dotnet nuget add source https://nuget.pkg.github.com/yt6983138/index.json --name github --username yt6983138 --password ${{ secrets.GITHUB_TOKEN }} --store-password-in-clear-text
+
       - name: Build
-        run: dotnet build "PSLBotMiscPlugins.CI.slnf" --configuration Release --nologo --verbosity minimal
+        run: dotnet build "PSLBotMiscPlugins.sln" --configuration Release --nologo --verbosity minimal
