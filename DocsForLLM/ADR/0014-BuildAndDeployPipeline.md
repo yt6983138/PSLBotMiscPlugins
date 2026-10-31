@@ -24,11 +24,17 @@ Package versions and shared build properties are repeated inline in each `.cspro
 - **GitHub Actions is build-only**: check out with submodules and build. No deploy.
 - **Run helpers are kept for now** for local debugging.
 
+## Addendum (owner decisions, 2026-10-31)
+
+- **Pause mechanism:** a `DEPLOY_PAUSE` flag file in the bot root. The deploy script creates it before copying and deletes it afterwards. `start.sh` waits while it exists instead of restarting. Its all-caps name already puts it in the root blocklist.
+- **wwwroot placement:** every plugin's `wwwroot` is merged into one root `wwwroot/` on the server. That folder is copy-only and never deleted from, like other root files. A same-path, different-hash collision between plugins fails the deploy.
+- **Shutdown endpoint:** `POST /admin/api/shutdown` in AdminHelper. The `Authorization` header is compared against the admin panel password (`AdminConfig.MvcSuperSecretNumber`). A raw compare is acceptable because nginx gates `/admin/` to the intranet. The deploy script prompts for the password at run time and never stores it.
+- **CI:** `.github/workflows/build.yml` builds `PSLBotMiscPlugins.sln` in Release on `windows-latest`. The Framework `PreBuild` target uses cmd syntax, which is why it runs on Windows. Release is used because Debug currently has a PersonalWebsite/PhigrosApi swagger asset conflict. The private packages (`yt6983138.PhiInfo.*`, `PhigrosLibraryCSharp.Modification`) come from the owner's private GitHub Packages feed, read with `GITHUB_TOKEN` and `packages: read`. Pull requests from forks cannot restore them.
+- **Host publish:** framework-dependent `linux-x64`. Plugin-to-`Plugins/<subfolder>` mapping lives in an untracked local deploy config.
+
 ## Open questions
 
-- Pause mechanism for `start.sh`: a flag file written by the endpoint, or a distinct exit code.
-- Content placement for plugins with `wwwroot`, given that discovery scans only `Plugins/` and its immediate subfolders.
-- Whether the execute bit survives an overwrite of the host binary on the server.
+- Whether the execute bit survives an overwrite of the host binary on the server. The `start.sh` draft runs `chmod +x` before each start as a workaround.
 
 ## Consequences
 
