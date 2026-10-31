@@ -1,0 +1,35 @@
+name: build
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    # windows-latest: PSLDiscordBot.Framework's PreBuild target runs a cmd.exe Exec (if exist / move),
+    # which fails under /bin/sh on ubuntu-latest.
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: PhigrosApi.Client.Javascript/package-lock.json
+
+      - name: Install JavaScript client dependencies
+        run: npm ci
+        working-directory: PhigrosApi.Client.Javascript
+
+      - name: Build
+        run: dotnet build "PSLBotMiscPlugins.CI.slnf" --configuration Release --nologo --verbosity minimal
