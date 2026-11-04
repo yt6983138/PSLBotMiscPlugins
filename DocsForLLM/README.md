@@ -38,6 +38,8 @@ General guidance and ADRs must be self-contained: a fresh clone will not contain
 - [ADR 0013: Command callback parameters and requester persistence](ADR/0013-CommandCallbackAndPersistence.md): `executer` and `requester` removed from command callbacks, explicit saves, no-tracking `UserData`; supersedes ADR 0004's `HandleInteraction` signature.
 - [ADR 0014: Build and deploy pipeline](ADR/0014-BuildAndDeployPipeline.md): central package versions and shared build props, owner-run deploy script with per-plugin splitting, authenticated shutdown endpoint, and build-only CI.
 - [ADR 0015: Unify JSON on System.Text.Json](ADR/0015-SystemTextJsonUnification.md): migration away from Newtonsoft with persisted formats kept compatible and migrated last.
+- [ADR 0016: Localization fallback simplification](ADR/0016-LocalizationFallbackSimplification.md): one per-language fallback map on the manager, removal of per-string fallbacks and the apply flow, non-throwing missing keys, manager/string mutability and clone rules, and a new `Localization.json` format converted by the owner (overrides ADR 0015 compatibility for this file).
+- [ADR 0017: Translation platform and localization pipeline](ADR/0017-TranslationPlatform.md): hosted Weblate, a separate translations repository that owns all help files, CI export of English defaults, local validation, and deployment through `/csv-to-localization`.
 
 Use a numbered filename (`0001-Topic.md`) and record status, source/date, context, decision, consequences, and open questions. Keep proposals distinct from accepted decisions and explicitly record when a later decision supersedes an earlier one. Acceptance of an ADR is not implementation or operational authorization.
 
