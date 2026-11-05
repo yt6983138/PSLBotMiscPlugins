@@ -31,7 +31,7 @@ General guidance and ADRs must be self-contained: a fresh clone will not contain
 - [ADR 0006: `/settings` command](ADR/0006-SettingsCommand.md): cosmetic per-user preferences split from `/account`.
 - [ADR 0007: `/photo` command](ADR/0007-PhotoCommand.md): `/get-photo`, `/about-me`, `/song-scores` merged into `/photo best|profile|song`, with `generate_for` on all three.
 - [ADR 0008: Alias commands split by audience](ADR/0008-AliasCommandSplit.md): `/alias-global`, `/alias-server`, `/alias-server-admin` replace the five alias commands.
-- [ADR 0009: Subcommand and ephemeral handling](ADR/0009-SubcommandAndEphemeralHandling.md) (Proposed): subcommand routing rework and per-subcommand properties such as ephemerality.
+- [ADR 0009: Subcommand and ephemeral handling](ADR/0009-SubcommandAndEphemeralHandling.md): subcommand routing rework with node classes, per-subcommand properties such as ephemerality, and access checks as constraints.
 - [ADR 0010: Text-report command family](ADR/0010-ScoresCommand.md) (Proposed, depends on 0009): grouping `/get-scores`, `/more-rks`, `/export-scores`, `/get-money`, `/get-time-index`.
 - [ADR 0011: Song lookup command family](ADR/0011-SongCommand.md) (Proposed, depends on 0009): grouping `/song-info` and `/download-asset`.
 - [ADR 0012: Plugin lifecycle and hosting](ADR/0012-PluginLifecycleAndHosting.md): `IPlugin<TSelf>` static async factory, lifetime service replacing `Program` dependencies, async events via a source generator, and removal of `IPlugin.Version` and `ICoFramework`.

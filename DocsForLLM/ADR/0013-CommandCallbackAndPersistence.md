@@ -24,7 +24,7 @@ Command `Callback`/`Execute`/`HandleInteraction` overrides receive an `executer`
 
 ## Open questions
 
-- Shape of the named `UserData` update API.
+- Shape of the named `UserData` update API. Resolved: see the [`UserData` update addendum](#addendum-userdata-updates-owner-decision-2026-11-05).
 - Every override that mutates `data` must be checked so no write is lost: it saves explicitly, or the base keeps saving after `Callback`.
 - Docs to update: `ComponentRouting.md` and the signature references in the repository guides.
 
@@ -33,3 +33,16 @@ Command `Callback`/`Execute`/`HandleInteraction` overrides receive an `executer`
 - Commands that ignore the database no longer open one.
 - A forgotten `SaveChangesAsync` loses data silently, so review of each write path is required.
 - Component handlers lose the `executer` argument documented in [ComponentRouting.md](../ComponentRouting.md).
+
+## Addendum (owner decisions, 2026-11-05)
+
+These changes come from [ADR 0009](0009-SubcommandAndEphemeralHandling.md) and apply together with it. The rest of this record stands, including "No `CommandContext` record for now".
+
+- The `UserData` callback parameter becomes `UserData?` for all commands, rather than staying unchanged. Commands use `data!` where a registered constraint guarantees a value.
+- This record and ADR 0009 are implemented concurrently, rather than this record being done first, because both change the same callback overrides. This record is still done before ADRs 0005-0008 and 0010-0011 are implemented, where those are not already complete.
+
+## Addendum: `UserData` updates (owner decision, 2026-11-05)
+
+- The named `UserData` update API is the existing `AddOrReplaceUserDataAsync`, followed by an explicit `SaveChangesAsync`. No new API is added.
+- It writes the whole row through `Update`, so overlapping writes for one user are last-write-wins. This is accepted because a row belongs to one user and these writes are rare. `ExecuteUpdateAsync` is the targeted fix if that changes.
+- Correction to the Context section: `DbDataRequester` already uses `NoTracking` for the whole context, and write paths already call `AddOrReplaceUserDataAsync`. Changes to `data` are saved on dispose only after that call, so the risk after this record is a missing `SaveChangesAsync`.
