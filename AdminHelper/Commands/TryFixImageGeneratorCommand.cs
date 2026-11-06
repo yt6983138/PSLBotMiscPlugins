@@ -1,4 +1,4 @@
-﻿using PSLDiscordBot.Core.ImageGenerating;
+using PSLDiscordBot.Core.ImageGenerating;
 
 namespace AdminHelper.Commands;
 

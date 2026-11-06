@@ -35,8 +35,6 @@ public class LocalImportArchiveCommand : CommandBase
 	public override OneOf<string, LocalizedString> PSLName => "local-import-archive";
 	public override OneOf<string, LocalizedString> PSLDescription => "Imports your latest archived save into your local collection.";
 
-	public override bool RequireTOSAcceptance => true;
-
 	public override SlashCommandBuilder CompleteBuilder => this.BasicBuilder
 		.AddOption(
 			"mode",

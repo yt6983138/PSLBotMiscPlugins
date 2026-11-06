@@ -1,4 +1,4 @@
-﻿using Discord;
+using Discord;
 using Discord.WebSocket;
 using PSLDiscordBot.Core.Command.Global.Base;
 using PSLDiscordBot.Core.Models;

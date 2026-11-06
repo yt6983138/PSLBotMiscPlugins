@@ -1,4 +1,4 @@
-﻿using Newtonsoft.Json.Linq;
+using Newtonsoft.Json.Linq;
 using PSLDiscordBot.Core.ImageGenerating;
 using PuppeteerSharp;
 using System.Diagnostics;

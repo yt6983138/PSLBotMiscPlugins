@@ -7,9 +7,7 @@ This is the implemented API guide for the button/select infrastructure accepted 
 Discoverable slash commands are keyed singletons. A command that owns components overrides:
 
 ```csharp
-public override Task HandleInteraction(
-	SocketInteraction arg,
-	object executer)
+public override Task HandleInteraction(SocketInteraction arg)
 ```
 
 Create a button/select custom ID with the protected `BasicCommandBase.CreateComponentId(payload)` helper. It delegates to `ComponentRoutingUtility.CreateComponentId(commandType, payload)`, which takes the payload as raw bytes (`ReadOnlySpan<byte>`); there is no string/delimiter payload API. The complete ID, including the Framework envelope, must fit Discord's 100-character custom-ID limit; the utility validates this after encoding and throws instead of trimming. `component.GetComponentPayload()` returns the payload as a raw `byte[]`; commands own their payload format (current consumers use MemoryPack). A subcommand node creates IDs with its protected `CreateComponentId(payload)`, which binds to `Root.GetType()`, so the click reaches the root's `HandleInteraction`; nodes have no `HandleInteraction` of their own, and the root dispatches on its payload kind. Nothing defers component clicks automatically: `CommandResolveService` only calls `HandleInteraction`, so each handler defers for itself and picks its own visibility. Node `Constraints` do not apply to component clicks.

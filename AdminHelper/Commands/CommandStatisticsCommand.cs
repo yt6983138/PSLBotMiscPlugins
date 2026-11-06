@@ -3,7 +3,7 @@ using AdminHelper.Services;
 namespace AdminHelper.Commands;
 
 [AddToGlobal]
-public class CommandStatisticsCommand : GuestCommandBase
+public class CommandStatisticsCommand : CommandBase
 {
 	private readonly CommandStatisticsService _commandStatisticsService;
 
@@ -15,6 +15,8 @@ public class CommandStatisticsCommand : GuestCommandBase
 
 	public override OneOf<string, LocalizedString> PSLName => "command-statistics";
 	public override OneOf<string, LocalizedString> PSLDescription => "Show all command statistics, including all global/guild/user/message commands.";
+
+	public override IReadOnlyList<IConstraint> MasterConstraints => [];
 	public override bool IsEphemeral => false;
 
 	public override SlashCommandBuilder CompleteBuilder => this.BasicBuilder;
