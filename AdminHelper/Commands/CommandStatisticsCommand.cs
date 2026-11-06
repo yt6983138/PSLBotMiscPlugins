@@ -19,7 +19,7 @@ public class CommandStatisticsCommand : GuestCommandBase
 
 	public override SlashCommandBuilder CompleteBuilder => this.BasicBuilder;
 
-	public override async Task Callback(SocketSlashCommand arg, UserData? data, DataBaseService.DbDataRequester requester, object executer)
+	public override async Task RootCallback(SocketSlashCommand arg, UserData? data)
 	{
 		using CommandStatisticsService.Requester commandStatRequester = this._commandStatisticsService.NewRequester();
 

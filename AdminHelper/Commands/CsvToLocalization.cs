@@ -20,7 +20,7 @@ public class CsvToLocalization : AdminCommandBase
 			"File to parse",
 			isRequired: true);
 
-	public override async Task Callback(SocketSlashCommand arg, UserData? data, DataBaseService.DbDataRequester requester, object executer)
+	public override async Task RootCallback(SocketSlashCommand arg, UserData? data)
 	{
 		using HttpClient httpClient = new();
 		IAttachment attachment = arg.GetOption<IAttachment>("csv");

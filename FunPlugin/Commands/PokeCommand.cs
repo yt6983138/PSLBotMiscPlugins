@@ -30,7 +30,7 @@ public class PokeCommand : GuestCommandBase
 	public override SlashCommandBuilder CompleteBuilder
 		=> this.BasicBuilder;
 
-	public override async Task Callback(SocketSlashCommand arg, UserData? data, DataBaseService.DbDataRequester requester, object executer)
+	public override async Task RootCallback(SocketSlashCommand arg, UserData? data)
 	{
 		List<PokeRandomShowInfo> list = this._fpConfig.Value.PokeRandoms;
 		float allWeights = list.Sum(x => x.Weight);

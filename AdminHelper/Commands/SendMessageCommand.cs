@@ -34,7 +34,7 @@ public class SendMessageCommand : AvailableEveryWhereAdminCommand
 			"The attachment you wish to send",
 			isRequired: false);
 
-	public override async Task Callback(SocketSlashCommand arg, UserData? data, DataBaseService.DbDataRequester requester, object executer)
+	public override async Task RootCallback(SocketSlashCommand arg, UserData? data)
 	{
 		string content = arg.GetOption<string>("content");
 		string? reply = arg.GetOptionOrDefault<string>("reply");

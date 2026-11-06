@@ -16,7 +16,7 @@ public class LocalizationToCsv : AdminCommandBase
 
 	public override SlashCommandBuilder CompleteBuilder => this.BasicBuilder;
 
-	public override async Task Callback(SocketSlashCommand arg, UserData? data, DataBaseService.DbDataRequester requester, object executer)
+	public override async Task RootCallback(SocketSlashCommand arg, UserData? data)
 	{
 		List<string> headers = ["Key"];
 		headers.AddRange(Enum.GetValues<Language>().Select(x => x.GetCode()));

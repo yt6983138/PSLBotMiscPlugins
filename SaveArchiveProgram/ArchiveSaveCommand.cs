@@ -25,10 +25,10 @@ public class ArchiveSaveCommand : CommandBase
 
 	public override SlashCommandBuilder CompleteBuilder => this.BasicBuilder;
 
-	public override async Task Callback(SocketSlashCommand arg, UserData data, DataBaseService.DbDataRequester requester, object executer)
+	public override async Task RootCallback(SocketSlashCommand arg, UserData? data)
 	{
 		// a retained international binding is not enough while local mode is active; the editable local collection is never archived
-		if (data.IsLocal)
+		if (data!.IsLocal)
 		{
 			await arg.QuickReply("Sorry, this command is only available while your account uses cloud saves.");
 			return;

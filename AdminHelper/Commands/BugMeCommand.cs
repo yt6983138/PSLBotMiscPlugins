@@ -23,7 +23,7 @@ public class BugMeCommand : AdminCommandBase
 			"Test interaction",
 			isRequired: true);
 
-	public override async Task Callback(SocketSlashCommand arg, UserData? data, DataBaseService.DbDataRequester requester, object executer)
+	public override async Task RootCallback(SocketSlashCommand arg, UserData? data)
 	{
 		bool reply = arg.GetOption<bool>("reply");
 		bool interaction = arg.GetOption<bool>("interaction");
@@ -45,7 +45,7 @@ public class BugMeCommand : AdminCommandBase
 		throw new NotImplementedException("Testing");
 	}
 
-	public override async Task HandleInteraction(SocketInteraction arg, object executer)
+	public override async Task HandleInteraction(SocketInteraction arg)
 	{
 		if (arg is not SocketMessageComponent component) return;
 

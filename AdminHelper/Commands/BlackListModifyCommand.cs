@@ -37,7 +37,7 @@ public class BlackListModifyCommand : AdminCommandBase
 			isRequired: true,
 			choices: BuilderUtility.CreateChoicesFromEnum<Operation>());
 
-	public override async Task Callback(SocketSlashCommand arg, UserData? data, DataBaseService.DbDataRequester requester, object executer)
+	public override async Task RootCallback(SocketSlashCommand arg, UserData? data)
 	{
 		int id = arg.GetIntegerOptionAsInt32("id");
 		Operation operation = (Operation)arg.GetIntegerOptionAsInt32("operation");

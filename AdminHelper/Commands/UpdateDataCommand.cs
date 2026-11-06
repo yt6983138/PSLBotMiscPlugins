@@ -28,7 +28,7 @@ public class UpdateDataCommand : AdminCommandBase
 			"tpk file, omit to get one automatically",
 			isRequired: false);
 
-	public override async Task Callback(SocketSlashCommand arg, UserData? data, DataBaseService.DbDataRequester requester, object executer)
+	public override async Task RootCallback(SocketSlashCommand arg, UserData? data)
 	{
 		await arg.QuickReply("Updating...");
 		bool reuseExistingPackage = arg.GetOptionOrDefault<bool>("reuse-existing-package");
