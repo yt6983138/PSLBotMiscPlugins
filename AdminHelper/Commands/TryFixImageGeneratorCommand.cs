@@ -1,4 +1,4 @@
-﻿using PSLDiscordBot.Core.ImageGenerating;
+using PSLDiscordBot.Core.ImageGenerating;
 
 namespace AdminHelper.Commands;
 
@@ -23,7 +23,7 @@ public class TryFixImageGeneratorCommand : AdminCommandBase
 			isRequired: false,
 			minValue: 0);
 
-	public override async Task Callback(SocketSlashCommand arg, UserData? data, DataBaseService.DbDataRequester requester, object executer)
+	public override async Task RootCallback(SocketSlashCommand arg, UserData? data)
 	{
 		int seconds = arg.GetIntegerOptionAsInt32OrDefault("delay", 10);
 

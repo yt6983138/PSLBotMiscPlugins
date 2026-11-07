@@ -19,7 +19,7 @@ public class ShutDownCommand : AdminCommandBase
 
 	public override SlashCommandBuilder CompleteBuilder => this.BasicBuilder;
 
-	public override async Task Callback(SocketSlashCommand arg, UserData? data, DataBaseService.DbDataRequester requester, object executer)
+	public override async Task RootCallback(SocketSlashCommand arg, UserData? data)
 	{
 		RestInteractionMessage? message = null;
 		// this command itself is registered in RunningTasks by the dispatcher, hence 1

@@ -1,4 +1,4 @@
-﻿using Newtonsoft.Json.Linq;
+using Newtonsoft.Json.Linq;
 using PSLDiscordBot.Core.ImageGenerating;
 using PuppeteerSharp;
 using System.Diagnostics;
@@ -45,13 +45,14 @@ public class ImageGeneratorTestCommand : AdminCommandBase
 			"Extra arguments as json",
 			isRequired: false);
 
-	public override async Task Callback(SocketSlashCommand arg, UserData? data, DataBaseService.DbDataRequester requester, object executer)
+	public override async Task RootCallback(SocketSlashCommand arg, UserData? data)
 	{
 		string? htmlPath = arg.GetOptionOrDefault<string>("html_path");
 		string? extraArgs = arg.GetOptionOrDefault<string>("extra_args");
 		ulong userId = arg.GetOptionOrDefault<IUser>("user_id")?.Id ?? arg.User.Id;
 		bool trim = arg.GetOptionOrDefault<bool>("trim");
 
+		using DataBaseService.DbDataRequester requester = this._dataBaseService.NewRequester();
 		data = await requester.GetUserDataDirectlyAsync(userId);
 		if (data is null)
 		{

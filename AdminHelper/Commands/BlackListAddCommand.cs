@@ -46,7 +46,7 @@ public class BlackListAddCommand : AdminCommandBase
 			"reply to user with what, default: AdminConfig.BlackListedDefaultMessage",
 			isRequired: false);
 
-	public override async Task Callback(SocketSlashCommand arg, UserData? data, DataBaseService.DbDataRequester requester, object executer)
+	public override async Task RootCallback(SocketSlashCommand arg, UserData? data)
 	{
 		string expr = arg.GetOption<string>("expr");
 		string description = arg.GetOption<string>("description");

@@ -1,4 +1,4 @@
-﻿using Discord;
+using Discord;
 using Discord.WebSocket;
 using MemoryPack;
 using PhigrosLibraryCSharp.CloudSave;
@@ -69,12 +69,12 @@ public partial class TransferToChinaCommand : CommandBase
 		return context.NextOperation;
 	}
 
-	public override async Task Callback(SocketSlashCommand arg, UserData data, DataBaseService.DbDataRequester requester, object executer)
+	public override async Task RootCallback(SocketSlashCommand arg, UserData? data)
 	{
 		bool useArchive = arg.GetOption<bool>("use_archived_data");
 		string? optionalToken = arg.GetOptionOrDefault<string>("account_token");
 
-		bool userArchiveDirExists = Directory.Exists($"{SaveArchiveService.ArchiveProgramDir}/{data.UserId}");
+		bool userArchiveDirExists = Directory.Exists($"{SaveArchiveService.ArchiveProgramDir}/{data!.UserId}");
 
 		// we have added a check inside the archive command, so only international accounts will have archived data
 		if (!data.IsInternational && !userArchiveDirExists)
@@ -116,7 +116,7 @@ public partial class TransferToChinaCommand : CommandBase
 		await this.LoginDone(new(optionalToken, false), arg, context);
 	}
 
-	public override async Task HandleInteraction(SocketInteraction arg, object executer)
+	public override async Task HandleInteraction(SocketInteraction arg)
 	{
 		if (arg is not SocketMessageComponent component) return;
 		await arg.QuickReply("Please wait...", x => x.Components = null);

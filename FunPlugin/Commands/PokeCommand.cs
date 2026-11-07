@@ -1,7 +1,8 @@
-﻿using Discord;
+using Discord;
 using Discord.WebSocket;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using PSLDiscordBot.Core.Command.Constraints;
 using PSLDiscordBot.Core.Command.Global.Base;
 using PSLDiscordBot.Core.Models;
 using PSLDiscordBot.Core.Services;
@@ -13,7 +14,7 @@ using PSLDiscordBot.Framework.Utilities;
 namespace FunPlugin.Commands;
 
 [AddToGlobal]
-public class PokeCommand : GuestCommandBase
+public class PokeCommand : CommandBase
 {
 	private readonly IOptions<FPConfig> _fpConfig;
 
@@ -25,12 +26,14 @@ public class PokeCommand : GuestCommandBase
 
 	public override OneOf<string, LocalizedString> PSLName => "poke";
 	public override OneOf<string, LocalizedString> PSLDescription => "Poke me";
+
+	public override IReadOnlyList<IConstraint> MasterConstraints => [];
 	public override bool IsEphemeral => false;
 
 	public override SlashCommandBuilder CompleteBuilder
 		=> this.BasicBuilder;
 
-	public override async Task Callback(SocketSlashCommand arg, UserData? data, DataBaseService.DbDataRequester requester, object executer)
+	public override async Task RootCallback(SocketSlashCommand arg, UserData? data)
 	{
 		List<PokeRandomShowInfo> list = this._fpConfig.Value.PokeRandoms;
 		float allWeights = list.Sum(x => x.Weight);

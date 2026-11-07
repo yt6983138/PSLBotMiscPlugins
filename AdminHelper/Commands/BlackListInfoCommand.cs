@@ -25,7 +25,7 @@ public class BlackListInfoCommand : AdminCommandBase
 			"id of the condition",
 			isRequired: true);
 
-	public override async Task Callback(SocketSlashCommand arg, UserData? data, DataBaseService.DbDataRequester requester, object executer)
+	public override async Task RootCallback(SocketSlashCommand arg, UserData? data)
 	{
 		int id = arg.GetIntegerOptionAsInt32("id");
 

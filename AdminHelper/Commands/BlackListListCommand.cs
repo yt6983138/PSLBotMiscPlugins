@@ -19,7 +19,7 @@ public class BlackListListCommand : AdminCommandBase
 
 	public override SlashCommandBuilder CompleteBuilder => this.BasicBuilder;
 
-	public override async Task Callback(SocketSlashCommand arg, UserData? data, DataBaseService.DbDataRequester requester, object executer)
+	public override async Task RootCallback(SocketSlashCommand arg, UserData? data)
 	{
 		ColumnTextBuilder builder = new(
 			"Id",

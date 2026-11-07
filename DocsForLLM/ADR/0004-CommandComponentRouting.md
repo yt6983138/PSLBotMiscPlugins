@@ -95,3 +95,13 @@ The implemented API is documented in [ComponentRouting.md](../ComponentRouting.m
 ## Addendum (2026-10-31): superseded signature
 
 The fixed `HandleInteraction(SocketInteraction, object executer)` signature is superseded by [ADR 0013](0013-CommandCallbackAndPersistence.md), on that point only.
+
+## Addendum (2026-11-06): process ID removed from the envelope
+
+The owner removed the embedded process ID after the encrypted envelope made it redundant. This addendum records how the accepted process-isolation policy is now realized; that policy and the expiry decisions above are unchanged. It replaces the packed process-ID/type-key identity in the "Replaced envelope" and "Capacity" items of the 2026-10-24 addendum and in the implementation details above.
+
+- **Problem.** The process ID was carried over from the unencrypted version-1 envelope. Under the per-process random key, an ID from another process fails GCM authentication before the process check runs, so the check could never fail and `ExpiredProcess` was never returned.
+- **Envelope.** The wire format stays `{nonce:12}{tag:12}{GCM ciphertext}{0xFF}`. The ciphertext now covers a pointer-sized type-handle key followed by the caller payload, and the packed identifier struct is gone.
+- **Process isolation.** The per-process key is now the only mechanism that keeps old-process IDs from resolving. Type handles are process-local, so any future design that keeps the key across restarts would also need a stable type identity. Deriving or persisting the key remains rejected.
+- **Invalid reasons.** `ComponentInteractionInvalidReason.ExpiredProcess` is removed. A control from an earlier process yields `MalformedId`, as it already did in practice. Hooks and logs therefore cannot distinguish a stale control from a tampered one, which narrows the "old-process" part of the hook-inspection decision above. Hooks still receive these routes, routing still aborts, and the Core unavailable-control reply is unaffected. Such IDs still do not consume nonce slots.
+- **Capacity.** The payload limit on 64-bit is now 142 bytes: 175 encoded bytes minus 25 bytes of envelope overhead and the 8-byte type key. The 138-byte figure above assumed a 12-byte identifier, but the removed struct's padding made it 16 bytes, so the real limit before this change was 134 bytes.

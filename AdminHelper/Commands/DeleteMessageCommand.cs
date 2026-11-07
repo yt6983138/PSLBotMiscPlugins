@@ -22,7 +22,7 @@ public class DeleteMessageCommand : AvailableEveryWhereAdminCommand
 			"Message ID",
 			isRequired: true);
 
-	public override async Task Callback(SocketSlashCommand arg, UserData? data, DataBaseService.DbDataRequester requester, object executer)
+	public override async Task RootCallback(SocketSlashCommand arg, UserData? data)
 	{
 		IMessageChannel channel = arg.GetOption<IMessageChannel>("channel");
 

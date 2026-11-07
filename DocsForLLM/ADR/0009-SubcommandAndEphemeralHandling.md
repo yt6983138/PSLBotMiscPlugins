@@ -58,17 +58,17 @@ Leaf `IsEphemeral` defaults to `true`, like the framework default, and is overri
 - `IConstraint` has a `Check(SocketSlashCommand arg, UserData? data)` method. A failing constraint sends its own reply and returns `false`; further constraints are not evaluated.
 - Every command has `IReadOnlyList<IConstraint> MasterConstraints`, which applies to the command itself and all its subcommands. Nodes have `Constraints`, which apply only to that subcommand or group.
 - A node can only add constraints, so a root with mixed audiences keeps only the shared ones in `MasterConstraints`. For example, `/account` keeps TOS there, and nodes that need registration add it.
-- Common constraints (registered, TOS, admin) are exposed by a small DI service, such as `CommonConstraints`, so both command and node bases can use them. Custom constraints are created in a constructor or injected during plugin initialization.
+- Common constraints (registered, TOS, admin) are exposed by a small DI service, such as `CommonConstraints`, so both command and node bases can use them. Custom constraints are created in a constructor or injected during plugin initialization. See the [2026-11-06 addendum](#addendum-owner-decisions-2026-11-06): this service was removed.
 - The TOS constraint must accept null `UserData`, because `/account` requires TOS from unregistered users through the temporary agreement.
 - A check with alternatives, such as the alias admin role or Discord `Administrator` or bot admin, is one constraint that checks all of them.
-- The stricter `admin-role` check (Discord `Administrator` or bot admin) also moves into the alias admin constraint, as a stricter configuration applied to that leaf. No user's access changes.
+- The stricter `admin-role` check (Discord `Administrator` or bot admin) also moves into the alias admin constraint, as a stricter configuration applied to that leaf. No user's access changes. See the [2026-11-06 addendum](#addendum-owner-decisions-2026-11-06): the strict check became a subclass.
 - No user or message commands exist yet, so those families are out of scope. Components also stay out of scope: [ComponentRouting.md](../ComponentRouting.md) has no automatic account or TOS wrapper.
 
 ### Base classes
 
 - `CommandBase` stays as the middle layer and defaults `MasterConstraints` to registered and TOS, so a command that needs less must opt out explicitly.
 - `GuestCommandBase` is removed, along with `RequireTOSAcceptance`.
-- `AdminCommandBase` and `AliasServerAdminCommandBase` stay as thin presets without their own `Execute` or callback signature. They seal `MasterConstraints` so a derived command cannot drop the access check by accident.
+- `AdminCommandBase` and `AliasServerAdminCommandBase` stay as thin presets without their own `Execute` or callback signature. They seal `MasterConstraints` so a derived command cannot drop the access check by accident. See the [2026-11-06 addendum](#addendum-owner-decisions-2026-11-06): they also add a virtual `AdditionalConstraints`.
 - `AdminCommandBase` keeps its default contexts and integration types, which stay overridable because `AvailableEveryWhereAdminCommand` broadens them.
 - `AliasServerAdminCommandBase` uses the order alias admin, registered, TOS, which keeps today's rejection order.
 
@@ -122,3 +122,16 @@ These are notes only, not part of this decision.
 - ADR 0013 is not superseded. Its [2026-11-05 addendum](0013-CommandCallbackAndPersistence.md#addendum-owner-decisions-2026-11-05) records two changes: the `UserData` parameter becomes `UserData?`, and ADR 0013 is implemented concurrently with this ADR instead of before it.
 - Small commands such as `AliasTableInfoCommand` gain several small node classes. Simple code shared by sibling nodes stays a private root member or moves to a service or static helper. A shared opening that can stop early or owns disposable requesters, such as in `AliasAuditCommand`, goes in an abstract family node that seals `Callback` and calls an abstract handler.
 - Docs to update on implementation: `RepositoryGuide.md`, `CodingStandards.md`, `ExistingUtilities.md`, and the Core command templates.
+
+## Addendum (owner decisions, 2026-11-06)
+
+These changes follow the implementation of this record. The rest of this record stands, including the Custom constraints wording.
+
+- The common constraints service is removed because it was only a collection of constraints.
+- Constraint classes live in `Command/Constraints/` and are registered individually as DI singletons in `PSLPlugin.Load`.
+- Only Registered and Tos stay on the command and node bases, as fields. `CommandNode` copies them from its root.
+- Admin and alias constraints are resolved from `IServiceProvider` by the bases or commands that use them (`AdminCommandBase`, `AliasServerAdminCommandBase`, `AliasChangeAdminCommand`), or passed to a node as a constructor argument.
+- The strict alias admin check is `AliasAdminStrictConstraint`, a subclass of `AliasAdminConstraint`, instead of a flag passed to a public constructor.
+- When ADR 0008's `admin-role` leaf is merged, it takes the strict constraint as a constructor argument from its root.
+- `AdminCommandBase` and `AliasServerAdminCommandBase` keep `MasterConstraints` sealed and add a virtual `AdditionalConstraints`, appended after the base's constraints. Plugins can add custom constraints to flat commands, and the access check still cannot be dropped by accident.
+- Unsealing `MasterConstraints` with a note telling overriders to include the check was considered and rejected, because forgetting it fails open with no compile error. A command that needs a different order derives from `CommandBase` directly.

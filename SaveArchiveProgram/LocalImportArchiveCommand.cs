@@ -35,8 +35,6 @@ public class LocalImportArchiveCommand : CommandBase
 	public override OneOf<string, LocalizedString> PSLName => "local-import-archive";
 	public override OneOf<string, LocalizedString> PSLDescription => "Imports your latest archived save into your local collection.";
 
-	public override bool RequireTOSAcceptance => true;
-
 	public override SlashCommandBuilder CompleteBuilder => this.BasicBuilder
 		.AddOption(
 			"mode",
@@ -45,9 +43,9 @@ public class LocalImportArchiveCommand : CommandBase
 			isRequired: true,
 			choices: BuilderUtility.CreateChoicesFromEnum<LocalImportMode>());
 
-	public override async Task Callback(SocketSlashCommand arg, UserData data, DataBaseService.DbDataRequester requester, object executer)
+	public override async Task RootCallback(SocketSlashCommand arg, UserData? data)
 	{
-		if (!await LocalSaveArchiveProvider.HasArchiveAsync(data.UserId))
+		if (!await LocalSaveArchiveProvider.HasArchiveAsync(data!.UserId))
 		{
 			await arg.QuickReply("No archived save was found for your account.");
 			return;
@@ -67,7 +65,7 @@ public class LocalImportArchiveCommand : CommandBase
 				.Build());
 	}
 
-	public override async Task HandleInteraction(SocketInteraction arg, object executer)
+	public override async Task HandleInteraction(SocketInteraction arg)
 	{
 		if (arg is not SocketMessageComponent component) return;
 
