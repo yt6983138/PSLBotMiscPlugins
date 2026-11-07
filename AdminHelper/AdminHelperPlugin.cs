@@ -205,7 +205,7 @@ public class AdminHelperPlugin : IPlugin
 				{
 					string folder = Path.Combine(dest, fi.Directory!.Name);
 					Directory.CreateDirectory(folder);
-					fi.CopyTo(folder, true);
+					fi.CopyTo(Path.Combine(folder, fi.Name), true);
 				}
 				else
 				{
