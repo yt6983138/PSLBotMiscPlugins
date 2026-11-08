@@ -50,7 +50,7 @@ After comparing combined and sectioned SQLite payloads, the owner chose a single
 ### Shared library abstraction
 
 - Propose a public read/write method abstraction in PhigrosLibraryCSharp so cloud and local representations support the same model read/write route. Player metadata and timestamps also belong in this abstraction.
-- Exact signatures are proposed in the interface-design notes; the accepted behavior and persistence boundary are recorded here.
+- The accepted behavior and persistence boundary are recorded here; exact signatures live in code.
 - Cover all existing model sections, including GameKey and Summary. Read methods return independent models; callers must explicitly save edited models back to update native entries. Subsequent changes to the returned model require another save.
 - For local data, creation/modification timestamps describe the local collection: initial creation and last successful persisted content change. Imported source dates may remain in retained source metadata.
 - The initial three-loader proposal used `TryGetCloudSaveAsync`, `TryGetLocalSaveAsync`, and a generic `TryGetSaveAsync`. The subsequent refinement below supersedes the generic name and its failure behavior. Bot modifications use the explicit local path.
@@ -123,8 +123,7 @@ After comparing combined and sectioned SQLite payloads, the owner chose a single
 
 ## Open questions
 
-- Owner review of the shared-library contract, exact native model defaults/bounds, and the concrete C# signatures, table schema, binary layout, and operational defaults in the interface-design notes.
-- **Blocker:** Core references PhigrosLibraryCSharp 5.2.1 from a temporary offline NuGet source; other developers cannot restore it.
+- Owner review of the shared-library contract, exact native model defaults/bounds, and the table schema, binary layout, and operational defaults.
 - Leaderboard policy: current code excludes local and unbound users; owner confirmation after the poll is still required.
 - Owner-run migration of existing databases (see Consequences).
 - Lookup-based profile avatar/background input: autocomplete or alias-like search is future work.

@@ -6,7 +6,7 @@ This guide describes the current source implementation and reconciles the owner'
 
 - [`SaveArchiveProgram/TransferToChinaCommand.cs`](../SaveArchiveProgram/TransferToChinaCommand.cs) adds the global `/transfer-to-china` command to the existing `SaveArchiveProgram` plugin.
 - The project references the private `PhigrosLibraryCSharp.Modification` package at version `1.1.0`. The public command calls its upload API directly; the package source and upload mechanics remain outside this repository and must not be copied into public documentation.
-- That package's dependency metadata requires `PhigrosLibraryCSharp` `5.2.0` or later; Core's project still declares `5.1.0`. This is a dependency/deployment fact, not a claimed restore or build failure. No dependency resolution was executed during this review.
+- That package's dependency metadata requires `PhigrosLibraryCSharp` `5.2.0` or later; Core's central package management declares `5.2.1`. This is a dependency/deployment fact, not a claimed restore or build failure. No dependency resolution was executed during this review.
 - Core's `AccountCommand.ListenQrCodeChange` (moved from the removed `LoginCommand`, ADR 0005) returns the acquired token without changing the bot binding. The ordinary `/account register qrcode` callback still performs the binding update after polling.
 - Framework commands expose the protected `CreateComponentId(payload)` helper. The transfer command handles its own routed buttons through `HandleInteraction`.
 - `SaveArchiveProgramPlugin.Load` still registers only the existing `SaveArchiveService`. There is no transfer session/service registration.
