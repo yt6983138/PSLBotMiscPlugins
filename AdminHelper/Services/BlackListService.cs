@@ -49,7 +49,7 @@ public class BlackListService : FileManagementServiceBase<BlackListSaveData>, ID
 	private readonly IOptions<AdminConfig> _config;
 	private readonly ILogger<BlackListService> _logger;
 	private readonly IDiscordClientService _discordClientService;
-	private readonly PSLPlugin _pslPlugin;
+	private readonly AdminContactService _adminContact;
 	private readonly ScopedSemaphoreSlim _dataLock = new(1, 1);
 
 	public bool EventRegistered { get; private set; } = true;
@@ -61,14 +61,14 @@ public class BlackListService : FileManagementServiceBase<BlackListSaveData>, ID
 		IOptions<AdminConfig> config,
 		ILogger<BlackListService> logger,
 		IDiscordClientService discordClientService,
-		PSLPlugin pslPlugin) : base("./Administration/BlackList.json")
+		AdminContactService adminContact) : base("./Administration/BlackList.json")
 	{
 		this._commandResolveService = commandResolveService;
 		this._localization = localization;
 		this._config = config;
 		this._logger = logger;
 		this._discordClientService = discordClientService;
-		this._pslPlugin = pslPlugin;
+		this._adminContact = adminContact;
 
 		commandResolveService.BeforeSlashCommandExecutes += this.CommandResolveService_BeforeSlashCommandExecutes;
 
@@ -102,7 +102,7 @@ public class BlackListService : FileManagementServiceBase<BlackListSaveData>, ID
 		// return: should break
 		async Task<bool> EvaluateCore(KeyValuePair<int, BlackListCondition> item)
 		{
-			if (command.User.Id == this._pslPlugin.AdminUser?.Id)
+			if (command.User.Id == this._adminContact.AdminUser?.Id)
 				return true;
 
 			SocketGuild? guild = command.GuildId is null ? null : this._discordClientService.SocketClient.GetGuild(command.GuildId.Value);

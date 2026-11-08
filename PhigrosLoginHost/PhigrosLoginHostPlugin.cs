@@ -5,28 +5,29 @@ using System.Text.Json;
 
 namespace PhigrosLoginHost;
 
-public class PhigrosLoginHostPlugin : IPlugin
+public class PhigrosLoginHostPlugin : IPlugin<PhigrosLoginHostPlugin>
 {
-	public string Name => "Phigros Login Host";
-	public string Description => "Login host for people who cannot install TapTap China.";
-	public Version Version => new(1, 0, 0, 0);
-	public string Author => "yt6983138 aka static_void (yt6983138@gmail.com)";
-	public int Priority => 10000;
+	public static string Name => "Phigros Login Host";
+	public static string Description => "Login host for people who cannot install TapTap China.";
+	public static string Author => "yt6983138 aka static_void (yt6983138@gmail.com)";
+	public static int Priority => 10000;
 
-	public void Load(WebApplicationBuilder hostBuilder)
+	public static Task Load(WebApplicationBuilder hostBuilder)
 	{
 		hostBuilder.Services.AddSingleton<HttpClientService>();
 		hostBuilder.Services.Configure<LoginHostConfig>(
 			hostBuilder.Configuration.GetSection("LoginHostConfig"));
-		hostBuilder.Services.AddAssemblyToMvc(this);
+		hostBuilder.Services.AddAssemblyToMvc<PhigrosLoginHostPlugin>();
+		return Task.CompletedTask;
 	}
-	public void ConfigureDiscordClient(WebApplicationBuilder builder, DiscordClientServiceConfig config) { }
-	public void Setup(WebApplication host)
+	public static Task<PhigrosLoginHostPlugin> Setup(WebApplication host)
 	{
 		host.Services.GetRequiredService<IMvcConfigurationService>().StaticFileOptions.ServeUnknownFileTypes = true;
+		return Task.FromResult(new PhigrosLoginHostPlugin());
 	}
-	public void Unload(WebApplication host, bool isSafeUnload)
+	public Task Unload(WebApplication host, bool isSafeUnload)
 	{
+		return Task.CompletedTask;
 	}
 
 	// for debug only

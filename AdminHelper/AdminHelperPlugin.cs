@@ -1,43 +1,62 @@
 ﻿using AdminHelper.Services;
-using Discord.Rest;
 using PSLDiscordBot.Core;
 using PSLDiscordBot.Framework.BuiltInServices;
 
 namespace AdminHelper;
 
-public class AdminHelperPlugin : IPlugin
+public class AdminHelperPlugin : IPlugin<AdminHelperPlugin>
 {
 	private static readonly EventId EventId = new(114514_110, nameof(AdminHelperPlugin));
 
-	private CommandStatisticsService _commandStatisticsService = null!;
-	private ICommandResolveService _commandResolveService = null!;
-	private StatusService _statusService = null!;
-	private Program _program = null!;
-	private PSLPlugin _pslPlugin = null!;
-	private MaintenanceNotificationService _notificationService = null!;
+	private readonly CommandStatisticsService _commandStatisticsService;
+	private readonly ICommandResolveService _commandResolveService;
+	private readonly StatusService _statusService;
+	private readonly ILifetimeService _lifetimeService;
+	private readonly ShutdownService _shutdownService;
+	private readonly AdminContactService _adminContact;
+	private readonly MaintenanceNotificationService _notificationService;
 
-	string IPlugin.Name => "Admin helper";
-	string IPlugin.Description => "Help admins do shit";
-	Version IPlugin.Version => new(1, 1, 0, 0);
-	string IPlugin.Author => "yt6983138 aka static_void (yt6983138@gmail.com)";
-	int IPlugin.Priority => 114514_1;
+	public static string Name => "Admin helper";
+	public static string Description => "Help admins do shit";
+	public static string Author => "yt6983138 aka static_void (yt6983138@gmail.com)";
+	public static int Priority => 114514_1;
 
 	public string FormattedTimedDestination =>
 		string.Format(this.Config.Value.TimedBackupDestination, DateTime.Now.ToString("s")).Replace(':', '_');
 	public string FormattedStartupDestination =>
 		string.Format(this.Config.Value.StartupBackupDestination, DateTime.Now.ToString("s")).Replace(':', '_');
 
-	public ILogger<AdminHelperPlugin> Logger { get; private set; } = null!;
-	public IOptions<AdminConfig> Config { get; private set; } = null!;
+	public ILogger<AdminHelperPlugin> Logger { get; }
+	public IOptions<AdminConfig> Config { get; }
 	public Timer? BackupTimer { get; private set; }
-	public RestTextChannel? NotificationChannel { get; private set; } = null;
 
-	void IPlugin.Load(WebApplicationBuilder hostBuilder)
+	private AdminHelperPlugin(
+		CommandStatisticsService commandStatisticsService,
+		ICommandResolveService commandResolveService,
+		StatusService statusService,
+		ILifetimeService lifetimeService,
+		ShutdownService shutdownService,
+		AdminContactService adminContact,
+		MaintenanceNotificationService notificationService,
+		ILogger<AdminHelperPlugin> logger,
+		IOptions<AdminConfig> config)
+	{
+		this._commandStatisticsService = commandStatisticsService;
+		this._commandResolveService = commandResolveService;
+		this._statusService = statusService;
+		this._lifetimeService = lifetimeService;
+		this._shutdownService = shutdownService;
+		this._adminContact = adminContact;
+		this._notificationService = notificationService;
+		this.Logger = logger;
+		this.Config = config;
+	}
+
+	public static Task Load(WebApplicationBuilder hostBuilder)
 	{
 		hostBuilder.Services.Configure<AdminConfig>(
 			hostBuilder.Configuration.GetSection("AdminConfig"));
-		hostBuilder.Services.AddSingleton(this)
-			.AddSingleton<BlackListService>()
+		hostBuilder.Services.AddSingleton<BlackListService>()
 			.AddSingleton<CommandStatisticsService>()
 			.AddSingleton<StatusService>()
 			.AddSingleton<ShutdownService>()
@@ -46,32 +65,34 @@ public class AdminHelperPlugin : IPlugin
 			.AddSingleton<BugReportDatabaseService>()
 			.AddSingleton<MaintenanceNotificationService>();
 
-		hostBuilder.Services.AddAssemblyToMvc(this);
-
-		Console.CancelKeyPress += this.Console_CancelKeyPress;
+		hostBuilder.Services.AddAssemblyToMvc<AdminHelperPlugin>();
+		return Task.CompletedTask;
 	}
-	void IPlugin.ConfigureDiscordClient(WebApplicationBuilder builder, DiscordClientServiceConfig config) { }
-	void IPlugin.Setup(WebApplication host)
+	public static Task<AdminHelperPlugin> Setup(WebApplication host)
 	{
 		// kinda feeling this is becoming a spaghetti, probably need to refactor this later
 
-		this._commandStatisticsService = host.Services.GetRequiredService<CommandStatisticsService>();
-		this._commandResolveService = host.Services.GetRequiredService<ICommandResolveService>();
-		this._statusService = host.Services.GetRequiredService<StatusService>();
-		this._program = host.Services.GetRequiredService<Program>();
-		this._pslPlugin = host.Services.GetRequiredService<PSLPlugin>();
-		this._notificationService = host.Services.GetRequiredService<MaintenanceNotificationService>();
-
-		this.Logger = host.Services.GetRequiredService<ILogger<AdminHelperPlugin>>();
-		this.Config = host.Services.GetRequiredService<IOptions<AdminConfig>>();
-
-		this._program.AfterMainInitialize += async (s, e) =>
+		AdminHelperPlugin plugin = new(
+			host.Services.GetRequiredService<CommandStatisticsService>(),
+			host.Services.GetRequiredService<ICommandResolveService>(),
+			host.Services.GetRequiredService<StatusService>(),
+			host.Services.GetRequiredService<ILifetimeService>(),
+			host.Services.GetRequiredService<ShutdownService>(),
+			host.Services.GetRequiredService<AdminContactService>(),
+			host.Services.GetRequiredService<MaintenanceNotificationService>(),
+			host.Services.GetRequiredService<ILogger<AdminHelperPlugin>>(),
+			host.Services.GetRequiredService<IOptions<AdminConfig>>());
+		plugin.Hook(host);
+		return Task.FromResult(plugin);
+	}
+	private void Hook(WebApplication host)
+	{
+		this._lifetimeService.ShutdownRequested += this.LifetimeService_ShutdownRequested;
+		this._lifetimeService.AfterMainInitialize += async (s, e) =>
 		{
 			try
 			{
-				IDiscordClientService discordService = host.Services.GetRequiredService<IDiscordClientService>();
-				RestGuild guild = await discordService.RestClient.GetGuildAsync(this.Config.Value.NotificationGuildId);
-				this.NotificationChannel = await guild.GetTextChannelAsync(this.Config.Value.NotificationChannelId);
+				await this._notificationService.ResolveChannelAsync();
 				await this._notificationService.SendMessage(this.Config.Value.BotRestartedNotification, new(Status.Normal, Status.Normal, DateTimeOffset.UtcNow));
 			}
 			catch (Exception ex)
@@ -109,13 +130,14 @@ public class AdminHelperPlugin : IPlugin
 	private Task AdminHelperPlugin_OnReportReceived(Discord.WebSocket.SocketUser user, string reportContent, Discord.IAttachment[] attachments)
 	{
 		// assume the admin has already known that they did or did not setup admin user properly
-		return this._pslPlugin.AdminDM?.SendMessageAsync($"You have a new bug report. Preview: {reportContent[..Math.Min(reportContent.Length, 32)]}...")
+		return this._adminContact.AdminDM?.SendMessageAsync($"You have a new bug report. Preview: {reportContent[..Math.Min(reportContent.Length, 32)]}...")
 			?? Task.CompletedTask;
 	}
 
-	void IPlugin.Unload(WebApplication host, bool isSafeUnload)
+	public Task Unload(WebApplication host, bool isSafeUnload)
 	{
-		this._statusService?.ForceDetach();
+		this._statusService.ForceDetach();
+		return Task.CompletedTask;
 	}
 
 	// placeholder for the compiler to not complain about no Main method, this is not used
@@ -137,34 +159,15 @@ public class AdminHelperPlugin : IPlugin
 			this.Logger.LogError(EventId, ex, "Failed to update command statistics for command '{commandName}'.", e.SocketSlashCommand.CommandName);
 		}
 	}
-	private void Console_CancelKeyPress(object? sender, ConsoleCancelEventArgs e)
+	private async Task LifetimeService_ShutdownRequested(object? sender, EventArgs e)
 	{
-		bool @break = e.SpecialKey == ConsoleSpecialKey.ControlBreak;
-		if (@break)
+		// a drain started by /shutdown or the HTTP endpoint also counts, a canceled one (status Normal) does not
+		if (this._shutdownService.IsShuttingDown)
 		{
-			this.Logger.LogCritical(EventId, "Hard terminating application. (Ctrl-C to soft terminate)");
-			Environment.FailFast("Ctrl-break triggered, hard terminating.");
+			this.Logger.LogInformation(EventId, "Shutdown already in progress, ignoring the signal.");
 			return;
 		}
-
-		e.Cancel = true;
-		this._statusService.CurrentStatus = Status.ShuttingDown;
-		this.Logger.LogInformation(EventId, "Soft terminate initialized. (Ctrl-break to hard terminate)");
-		while (this._program.RunningTasks.Count > 0)
-		{
-			Thread.Sleep(500);
-			this.Logger.LogInformation(EventId, "{count} tasks running...", this._program.RunningTasks.Count);
-
-			if (this._statusService.CurrentStatus == Status.Normal)
-			{
-				this.Logger.LogInformation(EventId, "Operation canceled.");
-				return;
-			}
-		}
-
-		// uogh async in sync
-		this._notificationService.NotifyShutdown().GetAwaiter().GetResult();
-		this._program.CancellationTokenSource.Cancel();
+		await this._shutdownService.RunAsync(0);
 	}
 
 	#region Backup related

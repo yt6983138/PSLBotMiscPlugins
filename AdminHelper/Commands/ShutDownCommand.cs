@@ -22,7 +22,7 @@ public class ShutDownCommand : AdminCommandBase
 	public override async Task RootCallback(SocketSlashCommand arg, UserData? data)
 	{
 		RestInteractionMessage? message = null;
-		// this command itself is registered in RunningTasks by the dispatcher, hence 1
+		// this command itself is counted in the running-task count by the dispatcher, hence 1
 		await this._shutdownService.RunAsync(
 			1,
 			async remaining =>

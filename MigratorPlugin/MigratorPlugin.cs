@@ -12,28 +12,28 @@ using System.Text.Json;
 
 namespace MigratorPlugin;
 
-public class MigratorPlugin : IPlugin
+public class MigratorPlugin : IPlugin<MigratorPlugin>
 {
-	string IPlugin.Name => "Fun commands";
-	string IPlugin.Description => "Fun commands like /poke";
-	Version IPlugin.Version => new(1, 0, 0, 0);
-	string IPlugin.Author => "yt6983138 aka static_void (yt6983138@gmail.com)";
-	int IPlugin.Priority => 114514_0000;
+	public static string Name => "Fun commands";
+	public static string Description => "Fun commands like /poke";
+	public static string Author => "yt6983138 aka static_void (yt6983138@gmail.com)";
+	public static int Priority => 114514_0000;
 
-	public void Load(WebApplicationBuilder hostBuilder)
+	public static Task Load(WebApplicationBuilder hostBuilder)
 	{
+		return Task.CompletedTask;
 	}
-	public void ConfigureDiscordClient(WebApplicationBuilder builder, DiscordClientServiceConfig config) { }
-	public void Setup(WebApplication host)
+	public static Task<MigratorPlugin> Setup(WebApplication host)
 	{
+		MigratorPlugin plugin = new();
 		ILogger<MigratorPlugin> logger = host.Services.GetRequiredService<ILogger<MigratorPlugin>>();
-		Program program = host.Services.GetRequiredService<Program>();
-		program.AfterMainInitialize += async (_, _2) =>
+		ILifetimeService lifetimeService = host.Services.GetRequiredService<ILifetimeService>();
+		lifetimeService.AfterMainInitialize += async (_, _2) =>
 		{
 			logger.LogInformation("Starting migration...");
 			try
 			{
-				await this.MigrateAlias(host, logger);
+				await plugin.MigrateAlias(host, logger);
 			}
 			catch (Exception ex)
 			{
@@ -41,8 +41,9 @@ public class MigratorPlugin : IPlugin
 			}
 			logger.LogInformation("Migration completed.");
 		};
+		return Task.FromResult(plugin);
 	}
-	public void Unload(WebApplication host, bool isSafeUnload) { }
+	public Task Unload(WebApplication host, bool isSafeUnload) => Task.CompletedTask;
 
 	public async Task MigrateAlias(WebApplication host, ILogger<MigratorPlugin> logger)
 	{

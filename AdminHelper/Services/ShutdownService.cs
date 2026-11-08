@@ -1,15 +1,17 @@
+using PSLDiscordBot.Framework.BuiltInServices;
+
 namespace AdminHelper.Services;
 
 public class ShutdownService
 {
 	private readonly StatusService _statusService;
-	private readonly Program _program;
+	private readonly ILifetimeService _lifetimeService;
 	private readonly ILogger<ShutdownService> _logger;
 
-	public ShutdownService(StatusService statusService, Program program, ILogger<ShutdownService> logger)
+	public ShutdownService(StatusService statusService, ILifetimeService lifetimeService, ILogger<ShutdownService> logger)
 	{
 		this._statusService = statusService;
-		this._program = program;
+		this._lifetimeService = lifetimeService;
 		this._logger = logger;
 	}
 
@@ -19,7 +21,7 @@ public class ShutdownService
 	/// Soft shutdown: wait for running tasks to finish, then stop the host.
 	/// </summary>
 	/// <param name="ownTaskCount">
-	/// Number of entries in <see cref="Program.RunningTasks"/> belonging to the caller itself
+	/// Number of entries in <see cref="ILifetimeService.RunningTaskCount"/> belonging to the caller itself
 	/// (1 for a slash command, since the dispatcher registers it; 0 for callers outside command dispatch).
 	/// </param>
 	/// <param name="progress">Called with the remaining task count on start and every second. Not called after completion.</param>
@@ -30,12 +32,12 @@ public class ShutdownService
 		this._statusService.CurrentStatus = Status.ShuttingDown;
 
 		if (progress is not null)
-			await progress(this._program.RunningTasks.Count - ownTaskCount);
-		while (this._program.RunningTasks.Count > ownTaskCount)
+			await progress(this._lifetimeService.RunningTaskCount - ownTaskCount);
+		while (this._lifetimeService.RunningTaskCount > ownTaskCount)
 		{
 			await Task.Delay(1000);
 			if (progress is not null)
-				await progress(this._program.RunningTasks.Count - ownTaskCount);
+				await progress(this._lifetimeService.RunningTaskCount - ownTaskCount);
 			if (this._statusService.CurrentStatus == Status.Normal)
 			{
 				this._logger.LogInformation("Shutdown canceled.");
@@ -49,7 +51,7 @@ public class ShutdownService
 
 		// note: notifcation already done in the notification service, no need to do it here
 		this._logger.LogInformation("Shutting down.");
-		this._program.CancellationTokenSource.Cancel();
+		await this._lifetimeService.StopAsync();
 		return true;
 	}
 }

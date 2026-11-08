@@ -6,33 +6,36 @@ using PSLDiscordBot.Framework;
 using PSLDiscordBot.Framework.BuiltInServices;
 
 namespace MinimalDependency;
-public class MinimalPlugin : IPlugin
+public class MinimalPlugin : IPlugin<MinimalPlugin>
 {
 	public bool Initialized { get; private set; }
 
-	string IPlugin.Name => "PSLDiscordBot Minimal";
-	string IPlugin.Description => "Minimal implementation for PSLDiscord bot";
-	Version IPlugin.Version => new(1, 0, 0, 0);
-	string IPlugin.Author => "yt6983138 aka static_void (yt6983138@gmail.com)";
-	int IPlugin.Priority => -1;
+	public static string Name => "PSLDiscordBot Minimal";
+	public static string Description => "Minimal implementation for PSLDiscord bot";
+	public static string Author => "yt6983138 aka static_void (yt6983138@gmail.com)";
+	public static int Priority => -1;
 
-	public void Load(WebApplicationBuilder hostBuilder)
+	public static Task Load(WebApplicationBuilder hostBuilder)
 	{
 		hostBuilder.Services.Configure<Config>(
 			hostBuilder.Configuration.GetSection("MinimalPlugin"));
+		hostBuilder.Services.Configure<DiscordClientServiceConfig>(config =>
+		{
+			config.Token = hostBuilder.Configuration.GetRequiredSection("MinimalPlugin")[nameof(Config.Token)] ?? "";
+		});
+		return Task.CompletedTask;
 	}
-	public void ConfigureDiscordClient(WebApplicationBuilder builder, DiscordClientServiceConfig config)
+	public static Task<MinimalPlugin> Setup(WebApplication host)
 	{
-		config.Token = builder.Configuration.GetRequiredSection("MinimalPlugin")[nameof(Config.Token)] ?? "";
-	}
-	public void Setup(WebApplication host)
-	{
+		MinimalPlugin plugin = new();
 		IDiscordClientService discordClientService = host.Services.GetRequiredService<IDiscordClientService>();
-		discordClientService.SocketClient.Log += this.Log;
-		discordClientService.SocketClient.Ready += this.Client_Ready;
+		discordClientService.SocketClient.Log += plugin.Log;
+		discordClientService.SocketClient.Ready += plugin.Client_Ready;
+		return Task.FromResult(plugin);
 	}
-	public void Unload(WebApplication host, bool isSafeUnload)
+	public Task Unload(WebApplication host, bool isSafeUnload)
 	{
+		return Task.CompletedTask;
 	}
 
 	private Task Client_Ready()

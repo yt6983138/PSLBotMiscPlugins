@@ -25,7 +25,7 @@ public class ShutdownController : AdminControllerBase
 			return this.Conflict("Shutdown is already in progress.");
 
 		this._logger.LogInformation("Soft shutdown requested over HTTP.");
-		// not awaited on purpose: it can take long; nothing from dispatch is registered in RunningTasks for us, hence 0
+		// not awaited on purpose: it can take long; nothing from dispatch is counted in the running-task count for us, hence 0
 		_ = Task.Run(async () =>
 		{
 			try

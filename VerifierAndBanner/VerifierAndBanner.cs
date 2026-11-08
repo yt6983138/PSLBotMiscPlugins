@@ -8,10 +8,10 @@ using PSLDiscordBot.Framework.BuiltInServices;
 using VerifierAndBanner.Config;
 
 namespace VerifierAndBanner;
-public class VerifierAndBanner : IPlugin
+public class VerifierAndBanner : IPlugin<VerifierAndBanner>
 {
-	private IDiscordClientService _discordClientService = null!;
-	private IOptions<VABConfig> _config = null!;
+	private readonly IDiscordClientService _discordClientService;
+	private readonly IOptions<VABConfig> _config;
 
 	public SocketGuild Guild { get; set; } = null!;
 
@@ -19,31 +19,40 @@ public class VerifierAndBanner : IPlugin
 	public SocketTextChannel AntiRaidChannel { get; set; } = null!;
 	public SocketTextChannel VerifyChannel { get; set; } = null!;
 
-	string IPlugin.Name => "Verifer And Banner";
-	string IPlugin.Description => "Verify new members for my server; Also banning raiders";
-	Version IPlugin.Version => new(1, 0, 0, 0);
-	string IPlugin.Author => "yt6983138 aka static_void (yt6983138@gmail.com)";
-	int IPlugin.Priority => -20;
+	public static string Name => "Verifer And Banner";
+	public static string Description => "Verify new members for my server; Also banning raiders";
+	public static string Author => "yt6983138 aka static_void (yt6983138@gmail.com)";
+	public static int Priority => -20;
 
-	public void Load(WebApplicationBuilder hostBuilder)
+	private VerifierAndBanner(IDiscordClientService discordClientService, IOptions<VABConfig> config)
+	{
+		this._discordClientService = discordClientService;
+		this._config = config;
+	}
+
+	public static Task Load(WebApplicationBuilder hostBuilder)
 	{
 		hostBuilder.Services.Configure<VABConfig>(
 			hostBuilder.Configuration.GetSection("VABConfig"));
+		hostBuilder.Services.Configure<DiscordClientServiceConfig>(config =>
+		{
+			config.SocketConfig.GatewayIntents |= GatewayIntents.AllUnprivileged | GatewayIntents.MessageContent;
+		});
+		return Task.CompletedTask;
 	}
-	public void ConfigureDiscordClient(WebApplicationBuilder builder, DiscordClientServiceConfig config)
+	public static Task<VerifierAndBanner> Setup(WebApplication host)
 	{
-		config.SocketConfig.GatewayIntents |= GatewayIntents.AllUnprivileged | GatewayIntents.MessageContent;
-	}
-	public void Setup(WebApplication host)
-	{
-		this._discordClientService = host.Services.GetRequiredService<IDiscordClientService>();
-		this._config = host.Services.GetRequiredService<IOptions<VABConfig>>();
+		VerifierAndBanner plugin = new(
+			host.Services.GetRequiredService<IDiscordClientService>(),
+			host.Services.GetRequiredService<IOptions<VABConfig>>());
 
-		this._discordClientService.SocketClient.MessageReceived += this.SocketClient_MessageReceived;
-		this._discordClientService.SocketClient.Ready += this.SocketClient_Ready;
+		plugin._discordClientService.SocketClient.MessageReceived += plugin.SocketClient_MessageReceived;
+		plugin._discordClientService.SocketClient.Ready += plugin.SocketClient_Ready;
+		return Task.FromResult(plugin);
 	}
-	public void Unload(WebApplication host, bool isSafeUnload)
+	public Task Unload(WebApplication host, bool isSafeUnload)
 	{
+		return Task.CompletedTask;
 	}
 
 	private Task SocketClient_Ready()

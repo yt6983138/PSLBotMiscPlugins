@@ -1,29 +1,27 @@
 ﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using PSLDiscordBot.Framework;
-using PSLDiscordBot.Framework.BuiltInServices;
 
 namespace SaveArchiveProgram;
 
-public class SaveArchiveProgramPlugin : IPlugin
+public class SaveArchiveProgramPlugin : IPlugin<SaveArchiveProgramPlugin>
 {
-	string IPlugin.Name => "Save Archive Program Plugin";
-	string IPlugin.Description => "Save archive program for 2026/10/31 global save discontinuation";
-	Version IPlugin.Version => new(1, 0, 0, 0);
-	string IPlugin.Author => "yt6983138 aka static_void (yt6983138@gmail.com)";
-	int IPlugin.Priority => 1000000;
+	public static string Name => "Save Archive Program Plugin";
+	public static string Description => "Save archive program for 2026/10/31 global save discontinuation";
+	public static string Author => "yt6983138 aka static_void (yt6983138@gmail.com)";
+	public static int Priority => 1000000;
 
-	public void Load(WebApplicationBuilder hostBuilder)
+	public static Task Load(WebApplicationBuilder hostBuilder)
 	{
 		hostBuilder.Services.AddSingleton<SaveArchiveService>();
+		return Task.CompletedTask;
 	}
-	public void ConfigureDiscordClient(WebApplicationBuilder builder, DiscordClientServiceConfig config)
+	public static Task<SaveArchiveProgramPlugin> Setup(WebApplication host)
 	{
+		return Task.FromResult(new SaveArchiveProgramPlugin());
 	}
-	public void Setup(WebApplication host)
+	public Task Unload(WebApplication host, bool isSafeUnload)
 	{
-	}
-	public void Unload(WebApplication host, bool isSafeUnload)
-	{
+		return Task.CompletedTask;
 	}
 }
