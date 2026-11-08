@@ -6,17 +6,16 @@ using PSLDiscordBot.Framework.Utilities;
 
 namespace PhigrosApi;
 
-public class PhigrosApiPlugin : IPlugin
+public class PhigrosApiPlugin : IPlugin<PhigrosApiPlugin>
 {
 	public const string GroupName = "PhigrosApi";
 
-	public string Name => "Phigros Api Host";
-	public string Description => "A plugin wrapper for the wrapper of PhigrosLibraryCSharp";
-	public Version Version => new(1, 0, 0, 0);
-	public string Author => "yt6983138 aka static_void (yt6983138@gmail.com)";
-	public int Priority => 10086;
+	public static string Name => "Phigros Api Host";
+	public static string Description => "A plugin wrapper for the wrapper of PhigrosLibraryCSharp";
+	public static string Author => "yt6983138 aka static_void (yt6983138@gmail.com)";
+	public static int Priority => 10086;
 
-	public void Load(WebApplicationBuilder hostBuilder)
+	public static Task Load(WebApplicationBuilder hostBuilder)
 	{
 		hostBuilder.Services.AddExceptionHandler<ExceptionHandler>();
 		hostBuilder.Services.AddProblemDetails();
@@ -42,11 +41,10 @@ public class PhigrosApiPlugin : IPlugin
 			options.ShouldInclude = WebUtility.OpenAPIRequireInTypeAssembly<PhigrosApiPlugin>;
 			options.AddSchemaTransformer<NoReadSchemaTransformer>();
 		});
+		return Task.CompletedTask;
 	}
 
-	public void ConfigureDiscordClient(WebApplicationBuilder builder, DiscordClientServiceConfig config) { }
-
-	public void Setup(WebApplication host)
+	public static Task<PhigrosApiPlugin> Setup(WebApplication host)
 	{
 		IMvcConfigurationService configurator = host.Services.GetRequiredService<IMvcConfigurationService>();
 
@@ -57,9 +55,11 @@ public class PhigrosApiPlugin : IPlugin
 		{
 			app.MapOpenApi();
 		});
+		return Task.FromResult(new PhigrosApiPlugin());
 	}
 
-	public void Unload(WebApplication host, bool isSafeUnload)
+	public Task Unload(WebApplication host, bool isSafeUnload)
 	{
+		return Task.CompletedTask;
 	}
 }

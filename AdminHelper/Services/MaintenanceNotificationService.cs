@@ -1,4 +1,6 @@
-﻿using SmartFormat;
+﻿using Discord.Rest;
+using PSLDiscordBot.Framework.BuiltInServices;
+using SmartFormat;
 
 namespace AdminHelper.Services;
 
@@ -7,31 +9,42 @@ public sealed class MaintenanceNotificationService : IDisposable
 	private readonly StatusService _statusService;
 	private readonly IOptions<AdminConfig> _config;
 	private readonly ILogger<MaintenanceNotificationService> _logger;
-	private readonly AdminHelperPlugin _plugin;
+	private readonly IDiscordClientService _discordClientService;
+
+	private RestTextChannel? _notificationChannel;
 
 	public MaintenanceNotificationService(
 		StatusService statusService,
 		IOptions<AdminConfig> config,
 		ILogger<MaintenanceNotificationService> logger,
-		AdminHelperPlugin plugin)
+		IDiscordClientService discordClientService)
 	{
 		this._statusService = statusService;
 		this._config = config;
 		this._logger = logger;
-		this._plugin = plugin;
+		this._discordClientService = discordClientService;
 		this._statusService.StatusChanged += this.StatusService_StatusChanged;
+	}
+
+	/// <summary>
+	/// Resolves the notification channel from the configured guild and channel ids, call it after the bot initializes.
+	/// </summary>
+	public async Task ResolveChannelAsync()
+	{
+		RestGuild guild = await this._discordClientService.RestClient.GetGuildAsync(this._config.Value.NotificationGuildId);
+		this._notificationChannel = await guild.GetTextChannelAsync(this._config.Value.NotificationChannelId);
 	}
 
 	internal async Task SendMessage(string? message, StatusChangeEventArgs e, object? args = null)
 	{
-		if (this._plugin.NotificationChannel is null || message is null) return;
+		if (this._notificationChannel is null || message is null) return;
 		if (File.Exists("./SUPPRESS_NOTIFICATIONS"))
 		{
 			this._logger.LogInformation("Notification suppressed due to SUPPRESS_NOTIFICATIONS file");
 			return;
 		}
 
-		await this._plugin.NotificationChannel.SendMessageAsync(Smart.Format(message, new
+		await this._notificationChannel.SendMessageAsync(Smart.Format(message, new
 		{
 			ExtraArgs = args,
 			e.OldStatus,
