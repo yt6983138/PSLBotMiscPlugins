@@ -103,9 +103,9 @@ The command-local design is substantially simpler than the historical session/se
 - **Resource selection:** lines 167 and 193–217 select the destination/source at action time. The payload does not pin those objects, so a newer archive or changed first save/binding can change the data used between prompts. This is current behavior, not an approved session/snapshot framework proposal.
 - **Archive usability:** lines 196–210 assume a manifest, SaveInfo result, GameFile, and corresponding ZIP. Missing entries/files raise exceptions through the accepted generic handler. The archiver can retain a manifest after a failed ZIP download (`SaveArchiveService.cs` lines 131–165); the reader does not verify filename hashes.
 
-## Deferred refactor item
+## Refactor items
 
-The owner directed the reused QR localization/model naming mismatch to a **future refactor plan**, not a current fix. Transfer line 118 supplies `QRCodeDataModel`, which exposes `Url`/`EncodedUrl` in Core `AccountCommand.cs` (nested class, moved from `LoginCommand`); the checked-in `AccountRegisterQrCodeBegin` default (formerly `LoginBegin`) uses `BeginUrl`/`EncodedBeginUrl` in `LocalizationService.cs`. Existing deployed localization may differ. The durable deferral is in ADR 0003; detailed local planning is in gitignored `Notes/CommandDispatchRefactorPlan.md`. No template, model, key, or live localization change is authorized by recording this item.
+The reused QR localization/model naming mismatch (`QRCodeDataModel` exposes `Url`/`EncodedUrl`, while the `AccountRegisterQrCodeBegin` default used `BeginUrl`/`EncodedBeginUrl`) is **fixed** by `yt6983138/PSLDiscordBot#63`: the default template now uses `{Url}`/`{EncodedUrl}` in `LocalizationService.cs`. The earlier deferral is recorded in ADR 0003.
 
 **Separately deferred:** Core's existing before-command/error reporting includes raw slash-option values, including `account_token`. The owner explicitly deferred global token logging redaction. Do not treat this documentation review as permission to change it, and do not add new token/save logging.
 

@@ -88,7 +88,7 @@ The old commands are **removed outright**, with no aliases: `/login`, `/link-tok
 - New key class `PSLAccountCommandKey` (namespace `PSLDiscordBot.Core.Command.Global.Account.`). Key names start with `Account` because localization defaults are imported into one scope and names must be unique across key classes.
 - Moved keys are **re-keyed**, not aliased; keys of removed commands are deleted. The owner accepted the re-translation cost for all languages. The owner deploys the new key set; agents do not edit live localization data.
 - The `is_international` option keys (`PSLGuestCommandKey.LoginOptionIsInternationalName/Description`, used by `OptionUtils`) are **not moved**. They are removed with the international-save discontinuation work after this refactor.
-- The QR login message template is carried over unchanged, including the known `{BeginUrl}` versus `QRCodeDataModel.Url` mismatch (an owner-deferred item, not part of this decision).
+- The QR login message template is carried over unchanged, including the known `{BeginUrl}` versus `QRCodeDataModel.Url` mismatch (since fixed by `yt6983138/PSLDiscordBot#63`; an owner-deferred item, not part of this decision).
 
 Required key list:
 
@@ -144,7 +144,7 @@ Existing default texts that name old commands are reworded to the new names: `Co
 - `/settings` and the commands that move there (ADR 0006).
 - Moving import orchestration out of `LocalCommand` into a service, which would remove the keyed-singleton cast in `/local-import-archive` (owner: later; may involve the database or save service).
 - Removing `is_international` and the international paths after the 2026-10-31 discontinuation.
-- Fixing the QR message `{BeginUrl}` mismatch.
+- Fixing the QR message `{BeginUrl}` mismatch (later fixed by `yt6983138/PSLDiscordBot#63`).
 - Translating non-English help documents.
 - Any deployment, localization-data update, or Discord smoke test (owner-run).
 
