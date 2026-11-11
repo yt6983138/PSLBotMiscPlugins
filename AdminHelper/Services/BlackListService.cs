@@ -40,7 +40,8 @@ public class BlackListService : FileManagementServiceBase<BlackListSaveData>, ID
 		ISocketMessageChannel? Channel,
 		SocketGuild? Guild,
 		SocketSlashCommand Command,
-		BlackListCondition? Condition);
+		BlackListCondition? Condition,
+		UserData? UserData);
 
 	private static readonly EventId EventId = new(114514191, nameof(BlackListService));
 
@@ -50,6 +51,7 @@ public class BlackListService : FileManagementServiceBase<BlackListSaveData>, ID
 	private readonly ILogger<BlackListService> _logger;
 	private readonly IDiscordClientService _discordClientService;
 	private readonly AdminContactService _adminContact;
+	private readonly DataBaseService _dataBaseService;
 	private readonly ScopedSemaphoreSlim _dataLock = new(1, 1);
 
 	public bool EventRegistered { get; private set; } = true;
@@ -61,7 +63,8 @@ public class BlackListService : FileManagementServiceBase<BlackListSaveData>, ID
 		IOptions<AdminConfig> config,
 		ILogger<BlackListService> logger,
 		IDiscordClientService discordClientService,
-		AdminContactService adminContact) : base("./Administration/BlackList.json")
+		AdminContactService adminContact,
+		DataBaseService dataBaseService) : base("./Administration/BlackList.json")
 	{
 		this._commandResolveService = commandResolveService;
 		this._localization = localization;
@@ -69,6 +72,7 @@ public class BlackListService : FileManagementServiceBase<BlackListSaveData>, ID
 		this._logger = logger;
 		this._discordClientService = discordClientService;
 		this._adminContact = adminContact;
+		this._dataBaseService = dataBaseService;
 
 		commandResolveService.BeforeSlashCommandExecutes += this.CommandResolveService_BeforeSlashCommandExecutes;
 
@@ -78,6 +82,7 @@ public class BlackListService : FileManagementServiceBase<BlackListSaveData>, ID
 
 		this.Evaluator.Types.Add(typeof(SocketUser));
 		this.Evaluator.Types.Add(typeof(IChannel));
+		this.Evaluator.Types.Add(typeof(UserData));
 
 		this.Evaluator.StaticTypesForExtensionsMethods.Add(typeof(EvaluatorExtensions));
 	}
@@ -86,6 +91,20 @@ public class BlackListService : FileManagementServiceBase<BlackListSaveData>, ID
 	{
 		using ScopedSemaphoreSlim.Scope _ = await this._dataLock.EnterScopeAsync();
 		SocketSlashCommand command = e.SocketSlashCommand;
+		if (command.User.Id == this._adminContact.AdminUser?.Id || !this.Data.Data.Values.Any(c => !c.Disabled && DateTime.Now <= c.ExpireDate))
+			return;
+
+		UserData? userData = null;
+		try
+		{
+			using DataBaseService.DbDataRequester requester = this._dataBaseService.NewRequester();
+			userData = await requester.GetUserDataDirectlyAsync(command.User.Id);
+		}
+		catch (Exception ex)
+		{
+			this._logger.LogError(EventId, ex, "Failed to fetch user data of {user} for black list evaluation", command.User.Id);
+		}
+
 		foreach (KeyValuePair<int, BlackListCondition> item in this.Data.Data)
 		{
 			try
@@ -112,6 +131,7 @@ public class BlackListService : FileManagementServiceBase<BlackListSaveData>, ID
 				command.User,
 				command.Channel,
 				guild,
+				userData,
 				out OneOf<LocalizedString, string>? message))
 			{
 				e.Canceled = true;
@@ -177,6 +197,7 @@ public class BlackListService : FileManagementServiceBase<BlackListSaveData>, ID
 		SocketUser? user,
 		ISocketMessageChannel? channel,
 		SocketGuild? guild,
+		UserData? userData,
 		[NotNullWhen(true)] out OneOf<LocalizedString, string>? message)
 	{
 		message = null;
@@ -184,7 +205,7 @@ public class BlackListService : FileManagementServiceBase<BlackListSaveData>, ID
 		if (DateTime.Now > condition.ExpireDate || condition.Disabled)
 			return false;
 
-		BlackListEvaluatorContext context = new(user, channel, guild, command, condition);
+		BlackListEvaluatorContext context = new(user, channel, guild, command, condition, userData);
 		this.Evaluator.Context = context;
 
 		bool expressionResult = this.Evaluator.Evaluate<bool>(condition.BlockExpression);

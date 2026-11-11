@@ -21,7 +21,7 @@ public class BlackListAddCommand : AdminCommandBase
 		.AddOption(
 			"expr",
 			ApplicationCommandOptionType.String,
-			"Expression to block, available vars: User, Channel, Guild, Command, Condition",
+			"Expression to block, available vars: User, Channel, Guild, Command, Condition, UserData",
 			isRequired: true)
 		.AddOption(
 			"description",
@@ -63,7 +63,7 @@ public class BlackListAddCommand : AdminCommandBase
 		OneOf<LocalizedString, string>? message;
 		try
 		{
-			test = this._blackListService.ShouldBlackList(condition, arg, arg.User, arg.Channel, (arg.Channel as SocketGuildChannel)?.Guild, out message);
+			test = this._blackListService.ShouldBlackList(condition, arg, arg.User, arg.Channel, (arg.Channel as SocketGuildChannel)?.Guild, data, out message);
 		}
 		catch (Exception ex)
 		{
