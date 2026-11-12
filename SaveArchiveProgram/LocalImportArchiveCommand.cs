@@ -1,6 +1,7 @@
 using Discord;
 using Discord.WebSocket;
 using Microsoft.Extensions.DependencyInjection;
+using PSLDiscordBot.Core.Command.Constraints;
 using PSLDiscordBot.Core.Command.Global;
 using PSLDiscordBot.Core.Command.Global.Base;
 using PSLDiscordBot.Core.Models;
@@ -34,6 +35,8 @@ public class LocalImportArchiveCommand : CommandBase
 
 	public override OneOf<string, LocalizedString> PSLName => "local-import-archive";
 	public override OneOf<string, LocalizedString> PSLDescription => "Imports your latest archived save into your local collection.";
+
+	public override IReadOnlyList<IConstraint> MasterConstraints => [this._registeredConstraint, this._tosConstraint];
 
 	public override SlashCommandBuilder CompleteBuilder => this.BasicBuilder
 		.AddOption(

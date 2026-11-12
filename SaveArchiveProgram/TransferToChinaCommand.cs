@@ -5,6 +5,7 @@ using PhigrosLibraryCSharp.CloudSave;
 using PhigrosLibraryCSharp.CloudSave.HttpModels;
 using PhigrosLibraryCSharp.CloudSave.Login;
 using PhigrosLibraryCSharp.Modification;
+using PSLDiscordBot.Core.Command.Constraints;
 using PSLDiscordBot.Core.Command.Global;
 using PSLDiscordBot.Core.Command.Global.Base;
 using PSLDiscordBot.Core.Localization;
@@ -34,7 +35,6 @@ public partial class TransferToChinaCommand : CommandBase
 		/// should only be set by create component id
 		/// </summary>
 		public ButtonOperation NextOperation { get; set; }
-		public bool UseArchivedData { get; set; }
 		public string? AccountToken { get; set; }
 		public bool ConfirmedOverride { get; set; }
 	}
@@ -46,12 +46,9 @@ public partial class TransferToChinaCommand : CommandBase
 	public override OneOf<string, LocalizedString> PSLName => "transfer-to-china";
 	public override OneOf<string, LocalizedString> PSLDescription => "Transfer your international save to China account.";
 
+	public override IReadOnlyList<IConstraint> MasterConstraints => [this._registeredConstraint, this._tosConstraint];
+
 	public override SlashCommandBuilder CompleteBuilder => this.BasicBuilder
-		.AddOption(
-			"use_archived_data",
-			ApplicationCommandOptionType.Boolean,
-			"If true, the command will use the archived data instead of the live current save data.",
-			isRequired: true)
 		.AddOption(
 			"account_token",
 			ApplicationCommandOptionType.String,
@@ -71,33 +68,17 @@ public partial class TransferToChinaCommand : CommandBase
 
 	public override async Task RootCallback(SocketSlashCommand arg, UserData? data)
 	{
-		bool useArchive = arg.GetOption<bool>("use_archived_data");
 		string? optionalToken = arg.GetOptionOrDefault<string>("account_token");
 
-		bool userArchiveDirExists = Directory.Exists($"{SaveArchiveService.ArchiveProgramDir}/{data!.UserId}");
-
-		// we have added a check inside the archive command, so only international accounts will have archived data
-		if (!data.IsInternational && !userArchiveDirExists)
-		{
-			await arg.QuickReply("Sorry, non-international accounts cannot use this command. This is for 2026/10/31 international save discontinuation.");
-			return;
-		}
-		if (!data.HasCloudBinding && !useArchive)
-		{
-			await arg.QuickReply("Sorry, this command is only available while your account has cloud save binding. If you have archived before, please specify the `use_archived_data` option.");
-			return;
-		}
-
 		// quick defense to not waste the user's time
-		if (useArchive && !userArchiveDirExists)
+		if (!Directory.Exists($"{SaveArchiveService.ArchiveProgramDir}/{data!.UserId}"))
 		{
-			await arg.QuickReply("Sorry, you specified to use archived data, but no archived data found for you. Please ensure you have ever ran `/archive-save` or use live save data.");
+			await arg.QuickReply("Sorry, there is no archived save to transfer for you.");
 			return;
 		}
 
 		Context context = new()
 		{
-			UseArchivedData = useArchive,
 			AccountToken = optionalToken
 		};
 
@@ -205,34 +186,22 @@ public partial class TransferToChinaCommand : CommandBase
 			userData = await db.GetUserDataDirectlyAsync(arg.User.Id).EnsureNotNull();
 		}
 
-		byte[] saveData;
-		string summary;
-		if (context.UseArchivedData)
-		{
-			DirectoryInfo archivedDir = new($"{SaveArchiveService.ArchiveProgramDir}/{userData.UserId}");
-			FileInfo latestArchiveInfo = archivedDir.GetFiles("ArchivedInfo_*.json")
-				.Select(x => (x, long.Parse(x.Name[13..^5])))
-				.MaxBy(x => x.Item2).x;
+		DirectoryInfo archivedDir = new($"{SaveArchiveService.ArchiveProgramDir}/{userData.UserId}");
+		FileInfo latestArchiveInfo = archivedDir.GetFiles("ArchivedInfo_*.json")
+			.Select(x => (x, long.Parse(x.Name[13..^5])))
+			.MaxBy(x => x.Item2).x;
 
-			ArchivedInfo archiveInfo = JsonSerializer.Deserialize<ArchivedInfo>(await File.ReadAllTextAsync(latestArchiveInfo.FullName))
-				.EnsureNotNull();
+		ArchivedInfo archiveInfo = JsonSerializer.Deserialize<ArchivedInfo>(await File.ReadAllTextAsync(latestArchiveInfo.FullName))
+			.EnsureNotNull();
 
-			string saveInfoFile = archiveInfo.ArchivedFiles.First(x => x.StartsWith("SaveInfo"));
-			SaveInfoContainer originSaveInfo = JsonSerializer.Deserialize<SaveInfoContainer>(await File.ReadAllTextAsync(Path.Combine(archivedDir.FullName, saveInfoFile)));
-			SaveInfo first = originSaveInfo.Results.First();
-			summary = first.Summary;
-			string saveFileObjectId = first.GameFile.EnsureNotNull().ObjectId;
+		string saveInfoFile = archiveInfo.ArchivedFiles.First(x => x.StartsWith("SaveInfo"));
+		SaveInfoContainer originSaveInfo = JsonSerializer.Deserialize<SaveInfoContainer>(await File.ReadAllTextAsync(Path.Combine(archivedDir.FullName, saveInfoFile)));
+		SaveInfo first = originSaveInfo.Results.First();
+		string summary = first.Summary;
+		string saveFileObjectId = first.GameFile.EnsureNotNull().ObjectId;
 
-			string saveFile = archiveInfo.ArchivedFiles.First(x => x.StartsWith($"Save_{saveFileObjectId}"));
-			saveData = await File.ReadAllBytesAsync(Path.Combine(archivedDir.FullName, saveFile));
-		}
-		else
-		{
-			SaveInfoContainer originSaveInfo = await userData.SaveCache.GetSaveInfoFromCloudAsync();
-			SaveInfo first = originSaveInfo.Results.First();
-			summary = first.Summary;
-			saveData = await userData.SaveCache.GetSaveZipAsync(first.Simplify());
-		}
+		string saveFile = archiveInfo.ArchivedFiles.First(x => x.StartsWith($"Save_{saveFileObjectId}"));
+		byte[] saveData = await File.ReadAllBytesAsync(Path.Combine(archivedDir.FullName, saveFile));
 
 		string userId = await destination.GetUserObjectId();
 		byte[] summaryBase64 = Convert.FromBase64String(summary);
