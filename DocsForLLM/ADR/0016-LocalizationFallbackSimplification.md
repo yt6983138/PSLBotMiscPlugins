@@ -1,7 +1,7 @@
 # ADR 0016: Localization fallback simplification
 
 - **Status:** Accepted
-- **Tracking:** none
+- **Tracking:** https://github.com/users/yt6983138/projects/2/views/2?pane=issue&itemId=302589136&issue=yt6983138%7CPSLDiscordBot%7C74
 - **Recorded:** 2026-11-04.
 - **Source:** Owner decisions in a localization discussion on 2026-11-02 to 2026-11-04.
 

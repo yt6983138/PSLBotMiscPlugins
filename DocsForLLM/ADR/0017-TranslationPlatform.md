@@ -1,7 +1,7 @@
 # ADR 0017: Translation platform and localization pipeline
 
 - **Status:** Accepted
-- **Tracking:** none
+- **Tracking:** https://github.com/users/yt6983138/projects/2/views/2?pane=issue&itemId=302589171&issue=yt6983138%7CPSLBotMiscPlugins%7C20
 - **Recorded:** 2026-11-04.
 - **Source:** Owner decisions in a localization discussion on 2026-11-02 to 2026-11-04.
 
