@@ -70,4 +70,6 @@ The owner's default priority order is:
 - [ADR 0005](ADR/0005-AccountCommand.md): `/account` command (register, switch, delete, status), removal of the old login/logout/token/mode commands, and `LocalCommand` restructure.
 - [ADR 0006](ADR/0006-SettingsCommand.md): `/settings` command for cosmetic per-user preferences.
 
+- [ADR 0017](ADR/0017-TranslationPlatform.md): translation platform. **Planning rule:** English text lives in the translations repository, and the CI export only adds new keys. A plan that changes the text, placeholders, or meaning of an existing localization key, or changes help content, must list each affected key/document as an owner task to edit manually.
+
 Ask about unresolved details only when the next decision depends on them. Record new answers as attributed facts or explicit decisions, not inferred commitments.
