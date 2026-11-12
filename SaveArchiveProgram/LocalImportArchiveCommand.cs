@@ -48,7 +48,7 @@ public class LocalImportArchiveCommand : CommandBase
 
 	public override async Task RootCallback(SocketSlashCommand arg, UserData? data)
 	{
-		if (!await LocalSaveArchiveProvider.HasArchiveAsync(data!.UserId))
+		if (!await LocalSaveArchiveProvider.HasArchiveAsync(data!.UserId, this._logger))
 		{
 			await arg.QuickReply("No archived save was found for your account.");
 			return;
@@ -86,7 +86,7 @@ public class LocalImportArchiveCommand : CommandBase
 		userData = await this._localCommand.GetRegisteredUserOrReplyAsync(component, userData);
 		if (userData is null) return;
 
-		ParsedLocalImport? parsed = await LocalSaveArchiveProvider.ReadLatestAsync(userData.UserId);
+		ParsedLocalImport? parsed = await LocalSaveArchiveProvider.ReadLatestAsync(userData.UserId, this._logger);
 		if (parsed is null)
 		{
 			await component.QuickReply("Your archived save could not be read. Nothing was imported.");

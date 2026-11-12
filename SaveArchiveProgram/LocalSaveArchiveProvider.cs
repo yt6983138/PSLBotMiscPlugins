@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Logging;
 using PhigrosLibraryCSharp.CloudSave;
 using PhigrosLibraryCSharp.CloudSave.HttpModels;
 using PSLDiscordBot.Core.Models.LocalImport;
@@ -30,17 +31,17 @@ public static class LocalSaveArchiveProvider
 	/// <summary>
 	/// True when the user has at least one readable archived save. Does not decrypt anything.
 	/// </summary>
-	public static async Task<bool> HasArchiveAsync(ulong userId)
+	public static async Task<bool> HasArchiveAsync(ulong userId, ILogger logger)
 	{
-		return await FindLatestAsync(userId) is not null;
+		return await FindLatestAsync(userId, logger) is not null;
 	}
 
 	/// <summary>
 	/// Decrypts the newest archived save into an import. Returns null when there is none or it cannot be read.
 	/// </summary>
-	public static async Task<ParsedLocalImport?> ReadLatestAsync(ulong userId, CancellationToken cancellationToken = default)
+	public static async Task<ParsedLocalImport?> ReadLatestAsync(ulong userId, ILogger logger, CancellationToken cancellationToken = default)
 	{
-		LatestArchive? latest = await FindLatestAsync(userId);
+		LatestArchive? latest = await FindLatestAsync(userId, logger);
 		if (latest is null) return null;
 
 		try
@@ -61,18 +62,18 @@ public static class LocalSaveArchiveProvider
 			return new(
 				[],
 				context.ReadGameRecord(),
-				await TryReadPlayerInfoAsync(latest.UserDir, latest.Manifest),
+				await TryReadPlayerInfoAsync(latest.UserDir, latest.Manifest, logger),
 				context.ReadGameUserInfo(),
 				context.ReadGameProgress());
 		}
 		catch (Exception ex) when (ex is IOException or InvalidDataException or ArgumentException or FormatException or CryptographicException or JsonException)
 		{
-			// TODO: add log here
+			logger.LogWarning(ex, "Failed to read latest archived save for {user}", userId);
 			return null;
 		}
 	}
 
-	private static async Task<LatestArchive?> FindLatestAsync(ulong userId)
+	private static async Task<LatestArchive?> FindLatestAsync(ulong userId, ILogger logger)
 	{
 		string userDir = Path.GetFullPath($"{SaveArchiveService.ArchiveProgramDir}/{userId}");
 		if (!Directory.Exists(userDir)) return null;
@@ -92,24 +93,25 @@ public static class LocalSaveArchiveProvider
 		}
 		catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
 		{
+			logger.LogWarning(ex, "Failed to find latest archived save for {user}", userId);
 			return null;
 		}
 
 		// newest first; an unreadable or ambiguous archive is skipped in favor of the next newest
 		foreach (long archivedMs in archivedTimes.OrderByDescending(x => x))
 		{
-			ArchivedInfo? manifest = await TryReadManifestAsync(userDir, archivedMs);
+			ArchivedInfo? manifest = await TryReadManifestAsync(userDir, archivedMs, logger);
 			if (manifest?.ArchivedFiles is null || manifest.ArchivedFiles.Any(x => x is null)) continue;
 
 			// several player-info candidates are ambiguous, so the whole archive is unreadable
 			if (manifest.ArchivedFiles.Count(x => x.StartsWith("PlayerInfo_", StringComparison.Ordinal)) > 1) continue;
 
-			SaveInfoContainer? container = await TryReadSaveInfoAsync(userDir, manifest);
+			SaveInfoContainer? container = await TryReadSaveInfoAsync(userDir, manifest, logger);
 			// same as the transfer command: the first save listed is the latest
 			SaveInfo? first = container?.Results?.FirstOrDefault();
 			if (first?.GameFile is null || string.IsNullOrEmpty(first.GameFile.ObjectId)) continue;
 
-			string? zipPath = TryGetSaveZipPath(userDir, manifest, first);
+			string? zipPath = TryGetSaveZipPath(userDir, manifest, first, logger);
 			if (zipPath is null) continue;
 
 			return new(userDir, manifest, first, zipPath);
@@ -125,7 +127,7 @@ public static class LocalSaveArchiveProvider
 	/// <summary>
 	/// Resolves a plain file name inside the user's archive directory. Returns null for any path segment, invalid name, or missing file.
 	/// </summary>
-	private static string? TryGetUserFile(string userDir, string fileName)
+	private static string? TryGetUserFile(string userDir, string fileName, ILogger logger)
 	{
 		if (string.IsNullOrEmpty(fileName) || fileName.IndexOfAny(Path.GetInvalidFileNameChars()) >= 0) return null;
 		if (Path.GetFileName(fileName) != fileName) return null;
@@ -139,13 +141,14 @@ public static class LocalSaveArchiveProvider
 		}
 		catch (Exception ex) when (ex is ArgumentException or NotSupportedException or PathTooLongException)
 		{
+			logger.LogWarning(ex, "Failed to resolve archive save path in {user}, {file}", userDir, fileName);
 			return null;
 		}
 	}
 
-	private static async Task<ArchivedInfo?> TryReadManifestAsync(string userDir, long archivedMs)
+	private static async Task<ArchivedInfo?> TryReadManifestAsync(string userDir, long archivedMs, ILogger logger)
 	{
-		string? path = TryGetUserFile(userDir, ArchivedInfoFileName(archivedMs));
+		string? path = TryGetUserFile(userDir, ArchivedInfoFileName(archivedMs), logger);
 		if (path is null) return null;
 
 		try
@@ -154,16 +157,17 @@ public static class LocalSaveArchiveProvider
 		}
 		catch (Exception ex) when (ex is IOException or JsonException or UnauthorizedAccessException)
 		{
+			logger.LogWarning(ex, "Failed to read archive manifest {file}", path);
 			return null;
 		}
 	}
 
-	private static async Task<SaveInfoContainer?> TryReadSaveInfoAsync(string userDir, ArchivedInfo manifest)
+	private static async Task<SaveInfoContainer?> TryReadSaveInfoAsync(string userDir, ArchivedInfo manifest, ILogger logger)
 	{
 		string[] saveInfoNames = manifest.ArchivedFiles.Where(x => x.StartsWith("SaveInfo_", StringComparison.Ordinal)).ToArray();
 		if (saveInfoNames.Length != 1) return null;
 
-		string? path = TryGetUserFile(userDir, saveInfoNames[0]);
+		string? path = TryGetUserFile(userDir, saveInfoNames[0], logger);
 		if (path is null) return null;
 
 		try
@@ -172,6 +176,7 @@ public static class LocalSaveArchiveProvider
 		}
 		catch (Exception ex) when (ex is IOException or JsonException or UnauthorizedAccessException)
 		{
+			logger.LogWarning(ex, "Failed to read archived save info {file}", path);
 			return null;
 		}
 	}
@@ -180,12 +185,12 @@ public static class LocalSaveArchiveProvider
 	/// Parses the archived raw users/me response the same way the library does (JsonNode over the response text).
 	/// Missing or corrupt player metadata yields null and never fails the archive read.
 	/// </summary>
-	private static async Task<PlayerInfo?> TryReadPlayerInfoAsync(string userDir, ArchivedInfo manifest)
+	private static async Task<PlayerInfo?> TryReadPlayerInfoAsync(string userDir, ArchivedInfo manifest, ILogger logger)
 	{
 		string[] playerInfoNames = manifest.ArchivedFiles.Where(x => x.StartsWith("PlayerInfo_", StringComparison.Ordinal)).ToArray();
 		if (playerInfoNames.Length != 1) return null;
 
-		string? path = TryGetUserFile(userDir, playerInfoNames[0]);
+		string? path = TryGetUserFile(userDir, playerInfoNames[0], logger);
 		if (path is null) return null;
 
 		try
@@ -206,14 +211,15 @@ public static class LocalSaveArchiveProvider
 				ObjectId = objectId,
 			};
 		}
-		catch (Exception)
+		catch (Exception ex)
 		{
 			// Player metadata is optional: any read, parse, duplicate-key, or lazy-access failure leaves Player null.
+			logger.LogWarning(ex, "Failed to read archived player info {file}", path);
 			return null;
 		}
 	}
 
-	private static string? TryGetSaveZipPath(string userDir, ArchivedInfo manifest, SaveInfo item)
+	private static string? TryGetSaveZipPath(string userDir, ArchivedInfo manifest, SaveInfo item, ILogger logger)
 	{
 		if (item.GameFile is null) return null;
 
@@ -221,6 +227,6 @@ public static class LocalSaveArchiveProvider
 		string[] zipNames = manifest.ArchivedFiles.Where(x => x.StartsWith(prefix, StringComparison.Ordinal) && x.EndsWith(".zip", StringComparison.Ordinal)).ToArray();
 		if (zipNames.Length != 1) return null;
 
-		return TryGetUserFile(userDir, zipNames[0]);
+		return TryGetUserFile(userDir, zipNames[0], logger);
 	}
 }
