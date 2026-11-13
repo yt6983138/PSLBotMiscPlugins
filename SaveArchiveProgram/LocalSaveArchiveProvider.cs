@@ -24,7 +24,7 @@ public static class LocalSaveArchiveProvider
 	private const bool ArchivedSavesAreInternational = true;
 
 	// The archived ZIP is decrypted without a live session; Save.Decrypt ignores the token (owner-confirmed).
-	private const string PlaceholderSessionToken = "archive-offline";
+	private const string PlaceholderSessionToken = "1234512345123451234512345";
 
 	private sealed record class LatestArchive(string UserDir, ArchivedInfo Manifest, SaveInfo Save, string ZipPath);
 
