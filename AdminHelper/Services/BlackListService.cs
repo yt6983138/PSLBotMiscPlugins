@@ -227,7 +227,7 @@ public class BlackListService : FileManagementServiceBase<BlackListSaveData>, ID
 		}
 
 		string key = condition.BlockedResponse[LocalizationPrefix.Length..];
-		if (!this._localization.Data.LocalizedStrings.TryGetValue(key, out LocalizedString? localized))
+		if (!this._localization.Data.TryGet(key, out LocalizedString? localized))
 		{
 			this._logger.LogWarning(EventId, "Failed to find localization for black list key {key}", key);
 			return true;

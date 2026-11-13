@@ -31,7 +31,7 @@ public class LocalizationToCsv : AdminCommandBase
 		}
 		await csvBuilder.NextRecordAsync();
 
-		foreach (KeyValuePair<string, LocalizedString> strings in this._localization.Data.LocalizedStrings)
+		foreach (KeyValuePair<string, LocalizedString> strings in this._localization.Data.Strings)
 		{
 			csvBuilder.WriteField(strings.Key);
 			foreach (string? lang in headers.Skip(1))

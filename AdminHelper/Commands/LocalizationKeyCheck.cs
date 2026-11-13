@@ -59,7 +59,7 @@ public class LocalizationKeyCheckCommand : AdminCommandBase
 		}
 
 		Dictionary<string, string> generatedValues = [];
-		foreach (KeyValuePair<string, LocalizedString> pair in this._localization.Generate().LocalizedStrings)
+		foreach (KeyValuePair<string, LocalizedString> pair in this._localization.Generate().Strings)
 		{
 			generatedValues[pair.Key] = pair.Value.TryGetValue(english, out string? value) ? value ?? "" : "";
 		}

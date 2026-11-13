@@ -43,11 +43,13 @@ public class CsvToLocalization : AdminCommandBase
 
 		while (csvReader.Read())
 		{
-			string key = csvReader.GetField(0).EnsureNotNull();
+			string? key = csvReader.GetField(0);
 
-			LocalizedString localizedString = localizationManager.LocalizedStrings.TryGetValue(key, out LocalizedString? localizedStringValue)
-				? localizedStringValue
-				: localizationManager.CreateString();
+			if (string.IsNullOrWhiteSpace(key))
+				continue;
+
+			if (!localizationManager.TryGet(key, out LocalizedString? localizedString))
+				localizedString = localizationManager.CreateAndAdd(key, []);
 
 			for (int i = 1; i < headers.Count; i++)
 			{
