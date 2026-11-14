@@ -51,7 +51,7 @@ jobs:
 
       - name: Build LocalizationTool
         shell: bash
-        run: dotnet build LocalizationTool/LocalizationTool.csproj -c Release --nologo --verbosity minimal
+        run: dotnet build LocalizationTool/LocalizationTool.csproj -c Standalone --nologo --verbosity minimal
 
       - name: Export English source and push
         shell: bash
@@ -68,7 +68,7 @@ jobs:
             echo "Export attempt $attempt of $max_attempts"
             attempt_summary="$RUNNER_TEMP/export-summary-$attempt.md"
             rm -f "$attempt_summary"
-            dotnet LocalizationTool/bin/Release/net10.0/LocalizationTool.dll export --out localizations/UX --summary "$attempt_summary"
+            dotnet LocalizationTool/bin/Standalone/net10.0/LocalizationTool.dll export --out localizations/UX --summary "$attempt_summary"
 
             if [ -z "$(git -C localizations status --porcelain -- UX/en-US.json)" ]; then
               echo "No new English keys; nothing to commit."
