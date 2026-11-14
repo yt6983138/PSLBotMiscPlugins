@@ -1,0 +1,102 @@
+name: export-localization
+
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - PSLDiscordBotBase
+      - 'LocalizationTool/**'
+      - .github/workflows/export-localization.yml
+  workflow_dispatch:
+
+# Exports run strictly in order; a running export is never cancelled.
+concurrency:
+  group: export-localization
+  cancel-in-progress: false
+
+# Only the parent repository token; the translations repository is pushed with the deploy key.
+# packages: read is required by the private GitHub Packages feed (same as build.yml).
+permissions:
+  contents: read
+  packages: read
+
+jobs:
+  export:
+    # windows-latest: PSLDiscordBot.Framework's PreBuild target runs a cmd.exe Exec,
+    # which fails under /bin/sh on ubuntu-latest.
+    runs-on: windows-latest
+    steps:
+      - name: Disable autocrlf
+        shell: bash
+        run: git config --global core.autocrlf false
+
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - uses: actions/checkout@v4
+        with:
+          repository: yt6983138/PSLDiscordBot.Localizations
+          path: localizations
+          ssh-key: ${{ secrets.TRANSLATIONS_DEPLOY_KEY }}
+          persist-credentials: true
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: global.json
+
+      - name: Add private GitHub Packages feed
+        run: dotnet nuget add source https://nuget.pkg.github.com/yt6983138/index.json --name github --username yt6983138 --password ${{ secrets.GITHUB_TOKEN }} --store-password-in-clear-text
+
+      - name: Build LocalizationTool
+        shell: bash
+        run: dotnet build LocalizationTool/LocalizationTool.csproj -c Release --nologo --verbosity minimal
+
+      - name: Export English source and push
+        shell: bash
+        env:
+          PARENT_SHA: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+
+          branch="$(git -C localizations rev-parse --abbrev-ref HEAD)"
+          submodule_sha="$(git -C PSLDiscordBotBase rev-parse HEAD)"
+          max_attempts=3
+
+          for attempt in $(seq 1 "$max_attempts"); do
+            echo "Export attempt $attempt of $max_attempts"
+            attempt_summary="$RUNNER_TEMP/export-summary-$attempt.md"
+            rm -f "$attempt_summary"
+            dotnet LocalizationTool/bin/Release/net10.0/LocalizationTool.dll export --out localizations/UX --summary "$attempt_summary"
+
+            if [ -z "$(git -C localizations status --porcelain -- UX/en-US.json)" ]; then
+              echo "No new English keys; nothing to commit."
+              cat "$attempt_summary" >> "$GITHUB_STEP_SUMMARY"
+              echo "No new English keys; nothing to commit." >> "$GITHUB_STEP_SUMMARY"
+              exit 0
+            fi
+
+            # p.s. 41898282 is github action bot
+            git -C localizations add -- UX/en-US.json
+            git -C localizations \
+              -c user.name="github-actions[bot]" \
+              -c user.email="41898282+github-actions[bot]@users.noreply.github.com" \
+              commit \
+              -m "[Bot] Update English source" \
+              -m "PSLBotMiscPlugins@${PARENT_SHA}
+          PSLDiscordBot@${submodule_sha}"
+
+            if git -C localizations push origin "HEAD:${branch}"; then
+              cat "$attempt_summary" >> "$GITHUB_STEP_SUMMARY"
+              echo "Pushed English source update." >> "$GITHUB_STEP_SUMMARY"
+              exit 0
+            fi
+
+            echo "Push rejected; resetting to origin/${branch} and re-exporting."
+            git -C localizations fetch origin "$branch"
+            git -C localizations reset --hard "origin/${branch}"
+          done
+
+          echo "Push failed after ${max_attempts} attempts." >&2
+          exit 1
