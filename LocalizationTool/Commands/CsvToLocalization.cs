@@ -1,8 +1,4 @@
-using CsvHelper;
-using CsvHelper.Configuration;
-using System.Globalization;
-
-namespace AdminHelper.Commands;
+namespace LocalizationTool.Commands;
 
 [AddToGlobal]
 public class CsvToLocalization : AdminCommandBase
@@ -27,36 +23,21 @@ public class CsvToLocalization : AdminCommandBase
 		HttpResponseMessage response = await httpClient.GetAsync(attachment.Url);
 		string csv = await response.Content.ReadAsStringAsync();
 
-		CsvReader csvReader = new(new StringReader(csv), new CsvConfiguration(CultureInfo.InvariantCulture)
-		{
-			MissingFieldFound = null
-		});
-		csvReader.Read();
-		csvReader.ReadHeader();
-
-		List<string> headers = [];
-		string? current;
-		for (int i = 0; (current = csvReader.GetField(i)) is not null && !current.StartsWith("__"); i++)
-			headers.Add(current);
+		LocalizationCsv parsed = LocalizationCsv.Parse(csv);
 
 		LocalizationManager localizationManager = this._localization.Data.DeepClone();
 
-		while (csvReader.Read())
+		foreach (LocalizationCsv.Row row in parsed.Rows)
 		{
-			string? key = csvReader.GetField(0);
+			if (!localizationManager.TryGet(row.Key, out LocalizedString? localizedString))
+				localizedString = localizationManager.CreateAndAdd(row.Key, []);
 
-			if (string.IsNullOrWhiteSpace(key))
-				continue;
-
-			if (!localizationManager.TryGet(key, out LocalizedString? localizedString))
-				localizedString = localizationManager.CreateAndAdd(key, []);
-
-			for (int i = 1; i < headers.Count; i++)
+			for (int i = 0; i < parsed.LanguageCodes.Count; i++)
 			{
-				string language = headers[i];
-				string value = csvReader.GetField(i) ?? "";
+				string language = parsed.LanguageCodes[i];
+				string value = row.Texts[i];
 
-				if (string.IsNullOrWhiteSpace(value))
+				if (LocalizationCsv.IsBlank(value))
 					continue;
 
 				if (localizedString.ContainsKey(language))

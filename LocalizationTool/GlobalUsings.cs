@@ -1,0 +1,12 @@
+global using Discord;
+global using Discord.WebSocket;
+global using PSLDiscordBot.Core.Command.Global.Base;
+global using PSLDiscordBot.Core.Models;
+global using PSLDiscordBot.Core.Services;
+global using PSLDiscordBot.Core.Utility;
+global using PSLDiscordBot.Framework;
+global using PSLDiscordBot.Framework.CommandBase;
+global using PSLDiscordBot.Framework.Localization;
+global using PSLDiscordBot.Framework.Utilities;
+global using LocalizationTool.Formats;
+global using LocalizationTool.Validation;

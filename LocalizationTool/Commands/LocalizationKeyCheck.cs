@@ -1,9 +1,6 @@
-using CsvHelper;
-using CsvHelper.Configuration;
-using System.Globalization;
 using System.Text;
 
-namespace AdminHelper.Commands;
+namespace LocalizationTool.Commands;
 
 [AddToGlobal]
 public class LocalizationKeyCheckCommand : AdminCommandBase
@@ -28,20 +25,18 @@ public class LocalizationKeyCheckCommand : AdminCommandBase
 		HttpResponseMessage response = await httpClient.GetAsync(attachment.Url);
 		string csv = await response.Content.ReadAsStringAsync();
 
-		CsvReader csvReader = new(new StringReader(csv), new CsvConfiguration(CultureInfo.InvariantCulture)
-		{
-			MissingFieldFound = null
-		});
-		csvReader.Read();
-		csvReader.ReadHeader();
-
-		List<string> headers = [];
-		string? current;
-		for (int i = 0; (current = csvReader.GetField(i)) is not null && !current.StartsWith("__"); i++)
-			headers.Add(current);
+		LocalizationCsv parsed = LocalizationCsv.Parse(csv);
 
 		string english = Language.EnglishUS.GetCode();
-		int englishIndex = headers.IndexOf(english);
+		int englishIndex = -1;
+		for (int i = 0; i < parsed.LanguageCodes.Count; i++)
+		{
+			if (parsed.LanguageCodes[i] == english)
+			{
+				englishIndex = i;
+				break;
+			}
+		}
 		if (englishIndex < 0)
 		{
 			await arg.QuickReply($"Column '{english}' not found in csv.");
@@ -49,13 +44,9 @@ public class LocalizationKeyCheckCommand : AdminCommandBase
 		}
 
 		Dictionary<string, string> csvValues = [];
-		while (csvReader.Read())
+		foreach (LocalizationCsv.Row row in parsed.Rows)
 		{
-			string key = csvReader.GetField(0) ?? "";
-			if (string.IsNullOrWhiteSpace(key))
-				continue;
-
-			csvValues[key] = csvReader.GetField(englishIndex) ?? "";
+			csvValues[row.Key] = row.Texts[englishIndex];
 		}
 
 		Dictionary<string, string> generatedValues = [];

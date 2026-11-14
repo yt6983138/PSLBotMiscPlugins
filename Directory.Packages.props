@@ -5,6 +5,7 @@
 	<ItemGroup>
 		<PackageVersion Include="CodingSeb.ExpressionEvaluator" Version="1.4.41" />
 		<PackageVersion Include="PhigrosLibraryCSharp.Modification" Version="1.1.0" />
+		<PackageVersion Include="System.CommandLine" Version="3.0.0" />
 	</ItemGroup>
 
 </Project>
