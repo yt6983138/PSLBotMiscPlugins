@@ -29,6 +29,10 @@ Three Core commands render score images from the user's save: `/get-photo` (best
   - `song` only: the `Query.txt` attachment built with `GetScoresCommand.ScoresFormatter`.
 - Hard cut: `/get-photo`, `/about-me`, and `/song-scores` are removed in the same release that adds `/photo`, with an owner announcement. This release is the same one as the alias split ([ADR 0008](0008-AliasCommandSplit.md)).
 
+## Addendum (owner decisions, 2026-11-14)
+
+- Help files (`help.md`, `help_*.md`) moved out of `PSLDiscordBotBase/Documentation/` to the translations repository by [ADR 0017](0017-TranslationPlatform.md); help updates are owner tasks there.
+
 ## Open questions (resolve when planning the refactor)
 
 - Localization key class/namespace and re-keying of the existing `GetPhoto*`, `AboutMe*`, `SongScores*` keys in `PSLNormalCommandKey`.

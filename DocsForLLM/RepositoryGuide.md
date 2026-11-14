@@ -25,7 +25,7 @@ Read the relevant source alongside:
 
 - `PSLDiscordBotBase/README.md`: bot overview and documentation links.
 - `PSLDiscordBotBase/Documentation/Developing.md`: build/runtime prerequisites, architecture, plugin lifecycle, and command development. Its project/build paths are relative to the submodule root.
-- `PSLDiscordBotBase/Documentation/help.md`: user-facing behavior.
+- `PSLDiscordBotBase/Documentation/usage.md`: user-facing behavior. Help text (`help.md`, `help_*.md`) is not in this repository; see [Localization pipeline](#localization-pipeline).
 - `PhigrosApi/doc/`: handwritten API documentation.
 
 Prefer the checked-out source and project files over outdated documentation or external summaries.
@@ -44,6 +44,7 @@ For coding tasks, also read:
 | `PSLDiscordBotBase/PSLDiscordBot.Analyzer/` | Roslyn analyzer and localization-key source generator. Other interface generation uses Antelcat.AutoGen. |
 | `PSLDiscordBotBase/CoreRunHelper/` | Debug launcher that prepares assets/data and plugin files before calling the framework. Reference only; never run it. |
 | `AdminHelper/` | Admin commands, blacklist rules, command statistics, maintenance/shutdown notifications, backups, and bug-report storage/web UI. Depends on Core. |
+| `LocalizationTool/` | Console tool (`export`, `import-csv`, `build-csv`; System.CommandLine) and bot plugin hosting `/csv-to-localization`, `/localization-to-csv`, `/localization-key-check` (moved from AdminHelper). Layout: `Formats/` (flat language file, CSV), `Validation/` (key roles, placeholder signatures, validator), `Commands/`, and `key-roles.json` (role overrides) at the project root. Depends on Core. Never run it. |
 | `FunPlugin/` | `/poke` and `/bonk`, with weighted configurable messages and attachments. Depends on Core. |
 | `PhigrosApi/` | HTTP wrapper around PhigrosLibraryCSharp for cloud/local saves and QR-code login; OpenAPI and custom request/response formatters. Depends on Core and the client build. |
 | `PhigrosApi.Client.Javascript/` | Checked-in OpenAPI-generated TypeScript fetch client, documentation, and browser bundle/declaration build. |
@@ -106,6 +107,15 @@ References: `PSLDiscordBotBase/PSLDiscordBot.Framework/CommandBase/`, `PSLDiscor
 - Routed component callbacks receive the raw interaction without automatic deferral, account/TOS checks, or workflow authorization. The command must acknowledge and authorize each action; component pipelines use the same `ILifetimeService.Track` task tracking and shutdown conventions as other commands rather than a separate resolver lifecycle service.
 - Admin commands default to BotDm context, but derived commands can broaden it. Preserve both runtime admin checks and the intended command context/integration settings.
 - Preserve existing localization helpers, `OneOf<string, LocalizedString>`, and Discord name/description constraints. For localized Core additions, update key declarations and `LocalizationService.Generate()` defaults, not emitted generated keys or local runtime JSON.
+
+## Localization pipeline
+
+Decision record: [ADR 0017](ADR/0017-TranslationPlatform.md). In brief: code defaults (`LocalizationService.Generate()`) supply the initial text of new keys; CI (`.github/workflows/export-localization.yml`) runs `LocalizationTool export`, which adds missing keys to `UX/en-US.json` in `yt6983138/PSLDiscordBot.Localizations` (never changes or deletes existing keys); translators work in Weblate on that repository; before deploy the owner runs `build-csv` (validated upload CSV) and uploads it with `/csv-to-localization`. Build it with `dotnet build "LocalizationTool/LocalizationTool.csproj" --configuration Debug --nologo --verbosity minimal`; never run it.
+
+- **English is owned by `UX/en-US.json`, not by code.** Agents cannot edit English wording or help text. A plan that changes the text, placeholders, or meaning of an existing key must list the manual `UX/en-US.json` edit as an owner task (prefer a new key when placeholders change). Help updates (`help.md`, `help_*.md`) are always owner tasks.
+- **Help files are not in the submodule.** They live in the translations repository under `Documentations/Help/`, are edited via Weblate, and are copied to `./PSL/` (`help.md`, `help_{Discord locale}.md`) on deploy.
+- **"Orphaned" export keys are not necessarily unused** (keys in `UX/en-US.json` but not in code defaults; see the [ADR 0017](ADR/0017-TranslationPlatform.md) addendum). Plugins may read keys at runtime (e.g. the blacklist service), so check before deleting one; deleting it also drops its translations in Weblate.
+- The checkout `../PSLDiscordBot.Localizations` is outside this repository; read it only when a task says so and never commit to it.
 
 ## Web/client and persistence conventions
 
