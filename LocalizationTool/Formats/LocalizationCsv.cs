@@ -97,7 +97,7 @@ public sealed class LocalizationCsv
 	/// </summary>
 	public static LocalizationCsv FromLocalizedStrings(IReadOnlyDictionary<string, LocalizedString> strings)
 	{
-		List<string> languageCodes = [.. Enum.GetValues<Language>().Select(x => x.GetCode())];
+		List<string> languageCodes = [.. Enum.GetValues<Language>().Select(x => x.Code)];
 
 		return new(
 			languageCodes,

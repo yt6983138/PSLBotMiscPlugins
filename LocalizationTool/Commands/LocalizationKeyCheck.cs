@@ -27,7 +27,7 @@ public class LocalizationKeyCheckCommand : AdminCommandBase
 
 		LocalizationCsv parsed = LocalizationCsv.Parse(csv);
 
-		string english = Language.EnglishUS.GetCode();
+		string english = Language.EnglishUS.Code;
 		int englishIndex = -1;
 		for (int i = 0; i < parsed.LanguageCodes.Count; i++)
 		{

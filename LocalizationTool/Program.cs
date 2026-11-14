@@ -84,14 +84,14 @@ public static class Program
 
 	private static async Task<int> BuildCsvAsync(DirectoryInfo inDir, FileInfo outFile)
 	{
-		string englishCode = Language.EnglishUS.GetCode();
+		string englishCode = Language.EnglishUS.Code;
 		Dictionary<string, FlatLanguageFile> files = [with(StringComparer.Ordinal)];
 		List<Problem> problems = [];
 		foreach (string path in Directory.GetFiles(inDir.FullName, "*.json").Order(StringComparer.Ordinal))
 		{
 			string name = Path.GetFileNameWithoutExtension(path);
 			// Same policy as import-csv: unknown language codes are skipped and reported, not fatal.
-			if (!LocalizationHelper.TryFromCode(name, out _))
+			if (!Language.TryFromCode(name, out _))
 			{
 				problems.Add(new(Severity.Warning, name, "(file)", "unknown language code; file skipped"));
 				continue;
@@ -134,7 +134,7 @@ public static class Program
 
 		// Keys: everything in en-US.json (orphaned keys not in code included, they are harmless); translation keys
 		// without English text were already excluded and reported. Columns: all Language values, like /localization-to-csv.
-		List<string> codes = Enum.GetValues<Language>().Select(x => x.GetCode()).ToList();
+		List<string> codes = Enum.GetValues<Language>().Select(x => x.Code).ToList();
 		LocalizationCsv table = new(
 			codes,
 			files[englishCode].Keys.Select(key => new LocalizationCsv.Row(key,
@@ -163,9 +163,9 @@ public static class Program
 		Dictionary<int, FlatLanguageFile> columns = [];
 		for (int i = 0; i < parsed.LanguageCodes.Count; i++)
 		{
-			// /csv-to-localization resolves the header via LocalizationHelper.FromCode, which throws on unknown codes;
+			// /csv-to-localization resolves the header via Language.FromCode, which throws on unknown codes;
 			// here such columns are skipped and reported instead.
-			if (!LocalizationHelper.TryFromCode(parsed.LanguageCodes[i], out _))
+			if (!Language.TryFromCode(parsed.LanguageCodes[i], out _))
 			{
 				invalidHeaders.Add(parsed.LanguageCodes[i]);
 				continue;
@@ -221,7 +221,7 @@ public static class Program
 
 	private static int Export(DirectoryInfo outDir, FileInfo? summary)
 	{
-		string path = Path.Combine(outDir.FullName, $"{Language.EnglishUS.GetCode()}.json");
+		string path = Path.Combine(outDir.FullName, $"{Language.EnglishUS.Code}.json");
 		FlatLanguageFile existing = FlatLanguageFile.ReadFrom(path);
 
 		LocalizationManager defaults = LocalizationService.CreateDefaults();
