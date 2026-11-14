@@ -33,6 +33,11 @@ Translations are maintained in a Google Spreadsheet (one column per language) an
 - Exporting defaults needs a side-effect-free way to obtain `Generate()` output, because the `LocalizationService` constructor loads or creates the localization file.
 - The tool builds on the ADR 0016 localization API; implement it after ADR 0016.
 
+## Addendum (owner decisions, 2026-11-14)
+
+- **The migration import keeps keys that are not in the code defaults.** Every non-blank cell in the spreadsheet CSV is imported, including keys that `Generate()` does not define, and those keys are listed as a warning. Plugins can read localization keys at runtime that are not known at compile time (for example the blacklist service), so "not in the code defaults" does not mean "unused". `/csv-to-localization` also keeps such keys.
+- **Orphaned keys are not necessarily unused.** The export's list of orphaned keys (in `UX/en-US.json` but not in the code defaults) can include keys that plugins read at runtime. Check whether a plugin reads a key before deleting it from `UX/en-US.json`; deleting it also drops its translations in Weblate.
+
 ## Open questions
 
 None.

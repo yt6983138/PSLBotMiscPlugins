@@ -4,6 +4,7 @@
 - **Tracking:** https://github.com/users/yt6983138/projects/2/views/2?pane=issue&itemId=302589136&issue=yt6983138%7CPSLDiscordBot%7C74
 - **Recorded:** 2026-11-04.
 - **Source:** Owner decisions in a localization discussion on 2026-11-02 to 2026-11-04.
+- **Amendments:** 2026-11-13, owner decision during code review: `LocalizedString.Default` checks en-US first (see Consequences).
 
 This record does not authorize implementation, deployment, or live data changes. Apply [RepositoryGuide.md](../RepositoryGuide.md) and [PlanningGuidelines.md](../PlanningGuidelines.md).
 
@@ -51,7 +52,7 @@ This record does not authorize implementation, deployment, or live data changes.
 ## Consequences
 
 - Deploying this change requires converting the deployed `Localization.json` first; the old format no longer loads.
-- `LocalizedString.Default` keeps returning the base text (first language of the default chain that has text, then the key name). Option lookup and command names depend on it.
+- `LocalizedString.Default` keeps returning the base text: en-US if present, then the first language of the default chain that has text, then the key name (a string with no key name and no en-US text throws `KeyNotFoundException`). It is the base command/option/choice name and the option-lookup identifier, so it must stay stable regardless of operator-configured chains. Walking only the default chain was correct by coincidence, because no chain put another language before en-US.
 - zh-CN users see the base (English) command and option names wherever zh-CN names are missing, even with a `zh-CN → zh-TW` chain.
 - Plugins that build or edit localization (AdminHelper `CsvToLocalization`, `LocalizationKeyCheck`) must build against the new API.
 

@@ -34,6 +34,10 @@ The `/settings` work is deferred so that too much is not stacked before the 2026
 - `/tos` is not moved: it must run before registration and before TOS acceptance.
 - Admin commands (`/get-token-for`, etc.) are not moved.
 
+## Addendum (owner decisions, 2026-11-14)
+
+- Help files (`help.md`, `help_*.md`) moved out of `PSLDiscordBotBase/Documentation/` to the translations repository by [ADR 0017](0017-TranslationPlatform.md); help updates are owner tasks there.
+
 ## Open questions (resolve when planning the refactor)
 
 - Subcommand names (e.g. `visibility`, `precision`, `show-count`) and how memorable-score set and clear fit "one subcommand per setting" (separate subcommands, a subcommand group, or an optional clear flag).

@@ -148,6 +148,10 @@ Existing default texts that name old commands are reworded to the new names: `Co
 - Translating non-English help documents.
 - Any deployment, localization-data update, or Discord smoke test (owner-run).
 
+## Addendum (owner decisions, 2026-11-14)
+
+- Help files (`help.md`, `help_*.md`) moved out of `PSLDiscordBotBase/Documentation/` to the translations repository by [ADR 0017](0017-TranslationPlatform.md); help updates are owner tasks there.
+
 ## Open questions
 
 - None.
