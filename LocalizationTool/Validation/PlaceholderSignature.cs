@@ -39,23 +39,25 @@ public sealed partial class PlaceholderSignature
 	/// Parses with SmartFormat 3.6.1's parser. <c>list</c> compares only its item template; separators are free.
 	/// </summary>
 	/// <param name="error">The parser's error message when the template does not parse.</param>
+	/// <remarks>Only <c>ParseFormat</c> is guarded, and only for <see cref="ParsingErrors"/> and <see cref="ArgumentException"/> (a template ending in a lone backslash); both come from translator content. Exceptions from walking the parsed format are tool bugs and propagate.</remarks>
 	public static bool TryParse(string template, [NotNullWhen(true)] out PlaceholderSignature? signature, [NotNullWhen(false)] out string? error)
 	{
-		List<string> placeholders = [];
+		Format format;
 		try
 		{
 			// default settings, like Smart.Format's default formatter; Smart.Default only adds formatters, and the parser
 			// does not know formatter names, so user/calc parse like built-ins
 			Parser parser = new();
-			Format format = parser.ParseFormat(template);
-			Walk(format, placeholders);
+			format = parser.ParseFormat(template);
 		}
-		catch (Exception ex)
+		catch (Exception ex) when (ex is ParsingErrors or ArgumentException)
 		{
 			signature = null;
 			error = ex.Message;
 			return false;
 		}
+		List<string> placeholders = [];
+		Walk(format, placeholders);
 		placeholders.Sort(StringComparer.Ordinal);
 		signature = new(placeholders);
 		error = null;
@@ -123,7 +125,13 @@ public sealed partial class PlaceholderSignature
 			return;
 		}
 
-		IList<Format> branches = inner.Split('|');
+		// SplitList only supports Count and the indexer (its enumerator throws NotSupportedException), so copy by index
+		IList<Format> split = inner.Split('|'); // the concrete SplitList type is internal
+		List<Format> branches = new(split.Count);
+		for (int i = 0; i < split.Count; i++)
+		{
+			branches.Add(split[i]);
+		}
 		switch (name.ToLowerInvariant())
 		{
 			case "cond":
