@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Logging;
 using System.CommandLine;
 using System.Text;
 using System.Text.Json;
@@ -8,6 +9,12 @@ public static class Program
 {
 	public static async Task<int> Main(string[] args)
 	{
+		Option<bool> verboseOption = new("--verbose")
+		{
+			Description = "Log at Debug level instead of Information (logs go to stderr).",
+			Recursive = true
+		};
+
 		#region Export
 		// add missing default keys to en-US.json
 		Option<DirectoryInfo> exportOutOption = new("--out")
@@ -24,9 +31,10 @@ public static class Program
 			exportOutOption,
 			exportSummaryOption
 		};
-		exportCommand.SetAction(parseResult => Export(
+		exportCommand.SetAction(parseResult => Run("export", parseResult.GetValue(verboseOption), logger => Export(
 			parseResult.GetRequiredValue(exportOutOption),
-			parseResult.GetValue(exportSummaryOption)));
+			parseResult.GetValue(exportSummaryOption),
+			logger)));
 		#endregion
 
 		#region Import CSV
@@ -47,9 +55,10 @@ public static class Program
 			importCsvOption,
 			importOutOption
 		};
-		importCommand.SetAction(parseResult => ImportCsv(
+		importCommand.SetAction(parseResult => Run("import-csv", parseResult.GetValue(verboseOption), logger => ImportCsv(
 			parseResult.GetRequiredValue(importCsvOption),
-			parseResult.GetRequiredValue(importOutOption)));
+			parseResult.GetRequiredValue(importOutOption),
+			logger)));
 		#endregion
 
 		#region Build CSV
@@ -69,9 +78,10 @@ public static class Program
 			buildInOption,
 			buildOutOption
 		};
-		buildCommand.SetAction((parseResult, _) => BuildCsvAsync(
+		buildCommand.SetAction((parseResult, _) => RunAsync("build-csv", parseResult.GetValue(verboseOption), logger => BuildCsvAsync(
 			parseResult.GetRequiredValue(buildInOption),
-			parseResult.GetRequiredValue(buildOutOption)));
+			parseResult.GetRequiredValue(buildOutOption),
+			logger)));
 		#endregion
 
 		RootCommand root = new("Weblate localization tooling")
@@ -79,10 +89,38 @@ public static class Program
 			Subcommands = { exportCommand, importCommand, buildCommand }
 		};
 
+		root.Options.Add(verboseOption);
+
 		return await root.Parse(args).InvokeAsync();
 	}
 
-	private static async Task<int> BuildCsvAsync(DirectoryInfo inDir, FileInfo outFile)
+	private static int Run(string commandName, bool verbose, Func<ILogger, int> action)
+	{
+		return RunAsync(commandName, verbose, logger => Task.FromResult(action(logger))).GetAwaiter().GetResult();
+	}
+
+	/// <summary>Creates the stderr logger (stdout is reserved for reports), logs the command and turns unexpected exceptions into exit code 1.</summary>
+	private static async Task<int> RunAsync(string commandName, bool verbose, Func<ILogger, Task<int>> action)
+	{
+		using ILoggerFactory factory = LoggerFactory.Create(builder => builder
+			.SetMinimumLevel(verbose ? LogLevel.Debug : LogLevel.Information)
+			.AddConsole(options => options.LogToStandardErrorThreshold = LogLevel.Trace));
+		ILogger logger = factory.CreateLogger("LocalizationTool");
+		logger.LogInformation("Command {Command} started", commandName);
+		try
+		{
+			int exitCode = await action(logger);
+			logger.LogInformation("Command {Command} finished with exit code {ExitCode}", commandName, exitCode);
+			return exitCode;
+		}
+		catch (Exception ex)
+		{
+			logger.LogError(ex, "Command {Command} failed with an unexpected error", commandName);
+			return 1;
+		}
+	}
+
+	private static async Task<int> BuildCsvAsync(DirectoryInfo inDir, FileInfo outFile, ILogger logger)
 	{
 		string englishCode = Language.EnglishUS.Code;
 		Dictionary<string, FlatLanguageFile> files = [with(StringComparer.Ordinal)];
@@ -90,6 +128,7 @@ public static class Program
 		foreach (string path in Directory.GetFiles(inDir.FullName, "*.json").Order(StringComparer.Ordinal))
 		{
 			string name = Path.GetFileNameWithoutExtension(path);
+			logger.LogDebug("Reading {Path}", path);
 			// Same policy as import-csv: unknown language codes are skipped and reported, not fatal.
 			if (!Language.TryFromCode(name, out _))
 			{
@@ -99,6 +138,7 @@ public static class Program
 			try
 			{
 				files[name] = FlatLanguageFile.ReadFrom(path);
+				logger.LogInformation("Loaded {Language}: {Count} keys", name, files[name].Count);
 			}
 			catch (Exception ex) when (ex is JsonException or InvalidDataException)
 			{
@@ -112,6 +152,7 @@ public static class Program
 			{
 				codeEnglish[item.Key] = item.Value.TryGetValue(Language.EnglishUS, out string? text) ? text : null;
 			}
+			logger.LogDebug("{Count} code default keys", codeEnglish.Count);
 			KeyRoles roles = KeyRoles.Load();
 			foreach (string key in roles.GetUnusedOverrides(codeEnglish.Keys.ToHashSet(StringComparer.Ordinal)))
 			{
@@ -125,6 +166,8 @@ public static class Program
 		}
 
 		int errors = problems.Count(x => x.Severity == Severity.Error);
+		logger.LogInformation("Validated {FileCount} language files: {Errors} error(s), {Warnings} warning(s)",
+			files.Count, errors, problems.Count(x => x.Severity == Severity.Warning));
 		Console.Write(TranslationValidator.FormatReport(problems));
 		if (errors > 0)
 		{
@@ -151,9 +194,10 @@ public static class Program
 		return 0;
 	}
 
-	private static int ImportCsv(FileInfo csv, DirectoryInfo outDir)
+	private static int ImportCsv(FileInfo csv, DirectoryInfo outDir, ILogger logger)
 	{
 		LocalizationCsv parsed = LocalizationCsv.ReadFrom(csv.FullName);
+		logger.LogInformation("Read {Path}: {Rows} rows, {Columns} language columns", csv.FullName, parsed.Rows.Count(), parsed.LanguageCodes.Count);
 		LocalizationManager defaults = LocalizationService.CreateDefaults();
 
 		List<string> unknownKeys = [];
@@ -197,6 +241,7 @@ public static class Program
 		{
 			string path = Path.Combine(outDir.FullName, $"{parsed.LanguageCodes[column.Key]}.json");
 			column.Value.WriteTo(path);
+			logger.LogInformation("Wrote {Path}: {Count} keys", path, column.Value.Count);
 			sb.Append($"{path}: {column.Value.Count} keys\n");
 		}
 		sb.Append($"Skipped columns, unknown language code ({invalidHeaders.Count}):\n");
@@ -219,10 +264,11 @@ public static class Program
 		return 0;
 	}
 
-	private static int Export(DirectoryInfo outDir, FileInfo? summary)
+	private static int Export(DirectoryInfo outDir, FileInfo? summary, ILogger logger)
 	{
 		string path = Path.Combine(outDir.FullName, $"{Language.EnglishUS.Code}.json");
 		FlatLanguageFile existing = FlatLanguageFile.ReadFrom(path);
+		logger.LogInformation("Loaded {Path}: {Count} keys", path, existing.Count);
 
 		LocalizationManager defaults = LocalizationService.CreateDefaults();
 		List<string> added = [];
@@ -251,6 +297,11 @@ public static class Program
 		if (added.Count > 0)
 		{
 			existing.WriteTo(path);
+			logger.LogInformation("Wrote {Path}: added {Count} keys", path, added.Count);
+		}
+		else
+		{
+			logger.LogDebug("No keys to add; {Path} left untouched", path);
 		}
 
 		string report = BuildReport(path, added, skipped, orphaned);
