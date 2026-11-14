@@ -115,7 +115,7 @@ public sealed class LocalizationCsv
 	/// </summary>
 	public async Task<string> SerializeAsCsvAsync()
 	{
-		CsvWriter csvBuilder = CsvWriter.NewEmpty();
+		using CsvWriter csvBuilder = CsvWriter.NewEmpty();
 
 		csvBuilder.WriteField("Key");
 		foreach (string code in this.LanguageCodes)
@@ -133,7 +133,6 @@ public sealed class LocalizationCsv
 			}
 			await csvBuilder.NextRecordAsync();
 		}
-		await csvBuilder.DisposeAsync();
 
 		return csvBuilder.GetUnderlyingStringBuilder().ToString();
 	}
