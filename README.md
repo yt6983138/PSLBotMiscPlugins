@@ -6,7 +6,7 @@ Miscellaneous plugins for PSLDiscordBot.
 
 Since 2026/10/23, this repo now accepts AI-assisted contributions. Before this date, all code and documentation was manually written by human contributors. 
 
-If you are contributing to this repo, please review the [AI-Assisted Contributions Policy](AI_POLICY.md) before contributing.
+If you are contributing to this repo, please review the [AI-Assisted Contributions Policy](PSLDiscordBotBase/AI_POLICY.md) before contributing.
 
 ## Translations
 
