@@ -22,6 +22,10 @@ The dispatcher also enforces single-use IDs. `CommandResolveService.EnsureNonceN
 
 Routing identifies a destination, not a user or resource. The encrypted envelope carries no user binding — no AAD ties it to a clicker — and this is an owner-accepted residual risk, not a recommendation to add it: the policy relies on commands replying ephemerally, or on public messages that are deliberately clickable by anyone. Commands must use the authenticated `interaction.User.Id` for identity and validate their own ownership/action/revision semantics, acknowledge or defer promptly, and keep mutable per-interaction state in locals or a command-owned service rather than on the singleton command. There is no automatic component account/TOS wrapper. Workflow-specific operations may still use their own timeout/cancellation sources; the dispatcher does not propagate a token itself, but the payload is opaque authenticated bytes, so commands that need one (such as `/transfer-to-china` carrying the China session token) transport it inside the encrypted payload.
 
+## Local-mode consumers
+
+`LocalCommand` routes its components on the first payload byte (score-select menu, import Proceed); the account delete-confirm button uses `DeleteConfirmComponentKind` in `AccountCommand`. See the payload constants in those commands. Click-time rechecks are owner-bound: `AccountCommand.HandleInteraction` (delete-confirm) re-reads the user record and TOS agreement before calling `DeleteAccountAsync`. `LocalCommand` Proceed takes its pending `StagedLocalImport` entry owner-bound and atomically, then commits the prepared snapshot; that recheck is registration only and does not re-verify local mode (see [ADR 0002](ADR/0002-LocalScoreSystem.md)). Score-select re-reads the local collection at selection time and resolves a pending `LocalWorkflowStore<LocalScoreDraft>` entry. Pending local entries expire after a fixed 15 minutes and are process-local.
+
 ## Hooks and lifecycle
 
 `ICommandResolveService` exposes:

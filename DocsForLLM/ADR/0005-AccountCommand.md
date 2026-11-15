@@ -2,11 +2,12 @@
 
 - **Status:** Accepted
 - **Tracking:** none
+- **Frozen:** 2026-11-15
 - **Recorded:** 2026-10-27.
 - **Source:** Owner decisions in the `/account` planning session on 2026-10-27.
 - **Related:** [ADR 0002](0002-LocalScoreSystem.md) (account modes, local collection), [ADR 0003](0003-ChinaSaveTransfer.md) (QR login reuse), [ADR 0006](0006-SettingsCommand.md) (the sibling `/settings` command).
 
-This record does not authorize deployment, live data changes, or running the bot. Apply [RepositoryGuide.md](../RepositoryGuide.md) and [PlanningGuidelines.md](../PlanningGuidelines.md): build only, never run any project.
+This record does not authorize deployment, live data changes, or running the bot. Apply [RepositoryGuide.md](../RepositoryGuide.md) and [PlanningGuidelines.md](../PlanningGuidelines.md). Validation follows the rules in [AGENTS.md](../../AGENTS.md) (Required policy).
 
 ## Context
 
@@ -31,7 +32,7 @@ The owner wanted clearer command names, one place for account lifecycle, and `Lo
 
 ### Command surface
 
-`AccountCommand` is a Core `[AddToGlobal]` command deriving from `GuestCommandBase`, with `RequireTOSAcceptance => true` for every subcommand (including `delete`) and `RunOnDifferentThread => true` for the whole command (QR polling takes minutes). Replies stay ephemeral. Default English names are exactly `account`, `register`, `qrcode`, `token`, `local`, `switch`, `cloud`, `delete`, `status`.
+`AccountCommand` is a Core `[AddToGlobal]` command deriving from `GuestCommandBase`, with `RequireTOSAcceptance => true` for every subcommand (including `delete`) and `RunOnDifferentThread => true` for the whole command (QR polling takes minutes). Replies stay ephemeral. Default English names are exactly `account`, `register`, `qrcode`, `token`, `local`, `switch`, `cloud`, `delete`, `status`. Superseded in part by [ADR 0009](0009-SubcommandAndEphemeralHandling.md) (base class and TOS flag; now constraints).
 
 | Slash path | Replaces | Who can run it |
 |---|---|---|
@@ -71,7 +72,7 @@ The old commands are **removed outright**, with no aliases: `/login`, `/link-tok
 
 ### `LocalCommand` after the change
 
-- Inherits `CommandBase`: registration and TOS are checked by the base; unregistered users receive the standard not-registered reply. Handlers receive a non-null `UserData`.
+- Inherits `CommandBase`: registration and TOS are checked by the base; unregistered users receive the standard not-registered reply. Handlers receive a non-null `UserData`. ADRs [0009](0009-SubcommandAndEphemeralHandling.md) and [0013](0013-CommandCallbackAndPersistence.md) changed this (constraints replace the base class; the callback takes `UserData?`).
 - Edit commands (`score set/remove`, `profile`, `challenge`, `currency`) keep requiring local mode (wrong-account-mode reply otherwise). Imports (`csv`, `android`, `cloud`) require only registration; cloud import additionally requires a cloud binding. This access split from ADR 0002 is unchanged.
 - `GetRegisteredUserOrReplyAsync(IDiscordInteraction, UserData?)` and `HandleLocalImportAsync(IDiscordInteraction, UserData?, ParsedLocalImport, LocalImportMode)` stay **public with unchanged signatures**. `/local-import-archive` in `SaveArchiveProgram` obtains the keyed `LocalCommand` singleton and calls them; a mismatch fails only at runtime, so they must not be renamed or removed in this work.
 - Components (score select `0x01`, import Proceed `0x02`) stay on `LocalCommand` because component routing is bound to the concrete command type (ADR 0004).
@@ -126,8 +127,12 @@ Existing default texts that name old commands are reworded to the new names: `Co
 
 ### Documentation scope
 
-- English `help.md` and `usage.md` in `PSLDiscordBotBase/Documentation/` are updated.
-- Non-English help files (`help_fr`, `help_vi`, `help_zh-CN`, `help_zh-TW`) are left to the localizers/owner.
+- English `usage.md` in `PSLDiscordBotBase/Documentation/` is updated.
+- Help files (`help.md` and the translated `help_*.md`) moved out of `PSLDiscordBotBase/Documentation/` to the translations repository by [ADR 0017](0017-TranslationPlatform.md) (owner decision, 2026-11-14); help updates, including non-English ones, are owner/localizer tasks there.
+
+## Rejected alternatives
+
+- Updating English `help.md` (and non-English help files) in `PSLDiscordBotBase/Documentation/` (replaced 2026-11-14): help moved to the translations repository (ADR 0017).
 
 ## Consequences
 
@@ -145,13 +150,13 @@ Existing default texts that name old commands are reworded to the new names: `Co
 - Moving import orchestration out of `LocalCommand` into a service, which would remove the keyed-singleton cast in `/local-import-archive` (owner: later; may involve the database or save service).
 - Removing `is_international` and the international paths after the 2026-10-31 discontinuation.
 - Fixing the QR message `{BeginUrl}` mismatch (later fixed by `yt6983138/PSLDiscordBot#63`).
-- Translating non-English help documents.
+- Translating non-English help documents (help files moved to the translations repository, ADR 0017).
 - Any deployment, localization-data update, or Discord smoke test (owner-run).
-
-## Addendum (owner decisions, 2026-11-14)
-
-- Help files (`help.md`, `help_*.md`) moved out of `PSLDiscordBotBase/Documentation/` to the translations repository by [ADR 0017](0017-TranslationPlatform.md); help updates are owner tasks there.
 
 ## Open questions
 
 - None.
+
+## Revisions
+
+- 2026-11-15: addendum of 2026-11-14 folded into the body; pre-fold text at `ab9d55e`; supersession pointers to ADRs 0009 and 0013 added. The validation line was reworded to defer to `AGENTS.md` because the old build-only wording predates the offline allowlist (owner decision).

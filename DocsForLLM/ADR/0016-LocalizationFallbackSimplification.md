@@ -1,7 +1,8 @@
 # ADR 0016: Localization fallback simplification
 
 - **Status:** Accepted
-- **Tracking:** https://github.com/users/yt6983138/projects/2/views/2?pane=issue&itemId=302589136&issue=yt6983138%7CPSLDiscordBot%7C74
+- **Tracking:** [Project #2 item](https://github.com/users/yt6983138/projects/2/views/2?pane=issue&itemId=302589136&issue=yt6983138%7CPSLDiscordBot%7C74)
+- **Frozen:** 2026-11-14
 - **Recorded:** 2026-11-04.
 - **Source:** Owner decisions in a localization discussion on 2026-11-02 to 2026-11-04.
 - **Amendments:** 2026-11-13, owner decision during code review: `LocalizedString.Default` checks en-US first (see Consequences).

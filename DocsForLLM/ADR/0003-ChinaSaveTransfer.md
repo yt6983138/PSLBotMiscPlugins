@@ -2,6 +2,7 @@
 
 - **Status:** Accepted
 - **Tracking:** none
+- **Frozen:** 2026-11-15
 - **Recorded:** 2026-10-23.
 - **Implementation reviewed:** 2026-10-23.
 - **Source:** Owner answers in the China-transfer planning discussion and subsequent implementation-review corrections on 2026-10-23.
@@ -42,7 +43,7 @@ Confirmed on 2026-10-23:
 - The owner confirms that QR login requires an existing initialized China account and cannot create one. The earlier review inference about creation from a library flag is withdrawn; no private authentication algorithms or live checks are required to restate this owner-confirmed policy.
 - Dismissing/ignoring an ephemeral prompt is the intended cancellation UX. This supersedes the earlier wording requiring an explicit cancellation action/button; it does not mean dismissing a message cancels an already-running callback.
 - Upload exceptions may use the existing generic Core handlers. A transfer-specific error/recovery architecture is not required. This acceptance is separate from what the source actually verifies and does not authorize additional verification, retry, session, or binding workflows.
-- **Update:** fixed by `yt6983138/PSLDiscordBot#63` (default template now uses `{Url}`/`{EncodedUrl}`). Original deferral: the QR localization/model naming mismatch belongs in a **future refactor plan**, not a current implementation fix. `QRCodeDataModel` supplies `Url`/`EncodedUrl`, while the checked-in `AccountRegisterQrCodeBegin` default (formerly `LoginBegin`) uses `BeginUrl`/`EncodedBeginUrl`. Record future discussion without selecting or implementing a replacement now.
+- The QR localization/model naming mismatch (`QRCodeDataModel` supplies `Url`/`EncodedUrl`, while the `AccountRegisterQrCodeBegin` default, formerly `LoginBegin`, used `BeginUrl`/`EncodedBeginUrl`) was first deferred to a future refactor plan rather than a current implementation fix. It has since been fixed by `yt6983138/PSLDiscordBot#63`: the default template now uses `{Url}`/`{EncodedUrl}`.
 
 ## Consequences
 
@@ -53,11 +54,9 @@ Confirmed on 2026-10-23:
 - Public flow implementation must respect the private upload-package boundary. This decision does not authorize copying or publishing that package's implementation.
 - This transfer scope is distinct from the editable local-score collection in [ADR 0002](0002-LocalScoreSystem.md). Current approved transfer sources are server archives and live international cloud saves.
 
-## Current implementation facts
+## Current implementation
 
-The current [`TransferToChinaCommand`](../../SaveArchiveProgram/TransferToChinaCommand.cs) uses required `use_archived_data` and optional `account_token` slash options, or a button-started China QR login. It uses the newest archive/first save or the current live first save, confirms the destination account, and adds a second warning when destination data exists. Its initial directory exception currently also admits live mode for a non-international binding when an archive directory exists. It calls the private package directly. Its four-field context (next `ButtonOperation`, source choice, `AccountToken`, overwrite confirmations Boolean) is carried as raw MemoryPack inside the encrypted component payload; it has no retained transfer session service or timer.
-
-`UserData` now separates `IsInternational` and `IsLocal` over an `AccountMode` flag; the `IsInternational` setter is `[Obsolete]`. `UserData.SaveCache` throws `InvalidOperationException` when `Token` is null (local-only account). `TransferToChinaCommand` has no guard for that case, a known gap. The command does not automatically switch the bot binding. After uploader calls return, it displays the destination token and suggests a separate manual `/account register token` action (formerly `/link-token`, see [ADR 0005](0005-AccountCommand.md)); a China binding requires that command's `is_international:false` option. It performs no destination read-back comparison. Source/target identity is not fixed by its generic overwrite Boolean. Cancellation by dismissing/ignoring the prompt and generic error routing are intentional owner-confirmed behavior, not missing features. See [ChinaSaveTransfer.md](../ChinaSaveTransfer.md) for the complete current flow, native button-removal/concurrency semantics, token encoding explanation, dependencies, and observable limits.
+The transfer does not automatically switch the bot binding. After the upload calls return it displays the destination token and suggests a separate manual `/account register token` action (formerly `/link-token`, see [ADR 0005](0005-AccountCommand.md)); a China binding requires that command's `is_international:false` option. It performs no destination read-back comparison. Cancellation by dismissing/ignoring the prompt and generic error routing are intentional owner-confirmed behavior, not missing features. The current flow, state handling, dependencies, known gaps and observable limits are described in [ChinaSaveTransfer.md](../ChinaSaveTransfer.md).
 
 ## Open questions and implementation gaps
 
@@ -68,3 +67,11 @@ The current [`TransferToChinaCommand`](../../SaveArchiveProgram/TransferToChinaC
 - User instructions for loading the transferred cloud save in a compatible China-side game build.
 
 The earlier proposed workflow and source findings were removed from the local notes after implementation; this ADR and [ChinaSaveTransfer.md](../ChinaSaveTransfer.md) are the durable record.
+
+## Revisions
+
+- 2026-11-15: inline update of 2026-10-23 (QR naming mismatch fixed by `#63`) folded into the body; the implementation-facts section was reduced to a pointer to the topic guide; pre-fold text at `a66bede`.
+
+## Addendum (owner decisions, 2026-11-15): archive-only transfer
+
+Owner decision: archive-only transfer is the stopgap realization after the international cloud save service was discontinued. Since `c8cb3c8`, `/transfer-to-china` reads only the user's newest local archive; live international cloud saves are no longer a transfer source, which narrows the Decision and Consequences statements above that approve them as a source. `/archive-save` was removed in the same commit; `/transfer-to-china` and `/local-import-archive` keep the registered-user and TOS constraints. See [ChinaSaveTransfer.md](../ChinaSaveTransfer.md) for current behavior.

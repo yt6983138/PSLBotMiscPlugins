@@ -10,7 +10,7 @@ The repository-root [AGENTS.md](../AGENTS.md) is the discovery entry point. Star
 | `DocsForLLM/ADR/` | Durable, owner-confirmed decisions and their context, consequences, and unresolved boundaries. | Tracked. |
 | `DocsForLLM/Notes/` | Working plans, proposals, interview detail, investigation findings, and communication drafts. | Gitignored; only `README.md` is tracked. |
 
-General guidance and ADRs must be self-contained: a fresh clone will not contain local notes. Promote confirmed decisions or standing instructions out of notes into the appropriate tracked document. Do not promote recommendations merely because they appear in a plan.
+General guidance and ADRs must be self-contained: a fresh clone will not contain local notes, so tracked documents never point to specific notes. The single exception is `Notes/README.md` naming the local notes index `README.gitignored.md`. Promote confirmed decisions or standing instructions out of notes into the appropriate tracked document. Do not promote recommendations merely because they appear in a plan.
 
 ## General guidance
 
@@ -19,6 +19,7 @@ General guidance and ADRs must be self-contained: a fresh clone will not contain
 - [ExistingUtilities.md](ExistingUtilities.md): reuse-first catalogue of existing utilities and patterns.
 - [ComponentRouting.md](ComponentRouting.md): implemented command-owned button/select routing APIs, acknowledgement behavior, lifecycle, and integration responsibilities.
 - [ChinaSaveTransfer.md](ChinaSaveTransfer.md): current `/transfer-to-china` flow, owner-confirmed archive/auth/cancellation/error boundaries, button-removal and payload semantics, dependencies, and observable limits.
+- [LocalScores.md](LocalScores.md): current local-score collection behaviour: storage, edit validation, import rules and limits, staged-import workflow state, archive import, and leaderboard exclusion.
 - [PlanningGuidelines.md](PlanningGuidelines.md): team constraints, decision authority, and supervised planning boundaries.
 
 ## Decision records
@@ -34,16 +35,14 @@ General guidance and ADRs must be self-contained: a fresh clone will not contain
 - [ADR 0009: Subcommand and ephemeral handling](ADR/0009-SubcommandAndEphemeralHandling.md): subcommand routing rework with node classes, per-subcommand properties such as ephemerality, and access checks as constraints.
 - [ADR 0010: Text-report command family](ADR/0010-ScoresCommand.md) (Proposed, depends on 0009): grouping `/get-scores`, `/more-rks`, `/export-scores`, `/get-money`, `/get-time-index`.
 - [ADR 0011: Song lookup command family](ADR/0011-SongCommand.md) (Proposed, depends on 0009): grouping `/song-info` and `/download-asset`.
-- [ADR 0012: Plugin lifecycle and hosting](ADR/0012-PluginLifecycleAndHosting.md): `IPlugin<TSelf>` with static `Load` (before build) and `Setup` (after build, creates the plugin; the original static factory was replaced, see the addendum), lifetime service replacing `Program` dependencies with shutdown policy kept in AdminHelper, custom `IHostLifetime`, async events via a source generator, and removal of `IPlugin.Version`, `ConfigureDiscordClient`, and `ICoFramework`.
+- [ADR 0012: Plugin lifecycle and hosting](ADR/0012-PluginLifecycleAndHosting.md): `IPlugin<TSelf>` with static `Load` (before build) and `Setup` (after build, creates the plugin; replaces the original static factory), lifetime service replacing `Program` dependencies with shutdown policy kept in AdminHelper, custom `IHostLifetime`, async events via a source generator, and removal of `IPlugin.Version`, `ConfigureDiscordClient`, and `ICoFramework`.
 - [ADR 0013: Command callback parameters and requester persistence](ADR/0013-CommandCallbackAndPersistence.md): `executer` and `requester` removed from command callbacks, explicit saves, no-tracking `UserData`; supersedes ADR 0004's `HandleInteraction` signature.
 - [ADR 0014: Build and deploy pipeline](ADR/0014-BuildAndDeployPipeline.md): central package versions and shared build props, owner-run deploy script with per-plugin splitting, authenticated shutdown endpoint, and build-only CI.
 - [ADR 0015: Unify JSON on System.Text.Json](ADR/0015-SystemTextJsonUnification.md): migration away from Newtonsoft with persisted formats kept compatible and migrated last.
 - [ADR 0016: Localization fallback simplification](ADR/0016-LocalizationFallbackSimplification.md): one per-language fallback map on the manager, removal of per-string fallbacks and the apply flow, non-throwing missing keys, manager/string mutability and clone rules, and a new `Localization.json` format converted by the owner (overrides ADR 0015 compatibility for this file).
 - [ADR 0017: Translation platform and localization pipeline](ADR/0017-TranslationPlatform.md): hosted Weblate, a separate translations repository that owns all help files, CI export of English defaults, local validation, and deployment through `/csv-to-localization`.
 
-Use a numbered filename (`0001-Topic.md`) and record status, source/date, context, decision, consequences, and open questions. Keep proposals distinct from accepted decisions and explicitly record when a later decision supersedes an earlier one. Acceptance of an ADR is not implementation or operational authorization.
-
-ADRs record decisions; the owner's GitHub project board ([Project #2](https://github.com/users/yt6983138/projects/2)) tracks work. Neither replaces the other. Allowed `Status:` values are `Proposed`, `Accepted`, `Superseded by ADR NNNN`, and `Rejected`. An accepted ADR's decision text is not rewritten; a change of mind gets a new superseding ADR. Addenda recording how an accepted decision was concretely realized (owner decisions) remain allowed. ADRs and the index do not record implementation progress (no "Implemented", "NOT TESTED", or "deferred until..." in `Status:` lines or the index); unresolved questions stay in each ADR's open-questions section. Each ADR has a `Tracking:` line directly under `Status:` linking to its board item (Project #2, not the bare issue URL), or `none`; usually one tracking issue per ADR, in the code-owning repository, even if the ADR spans several repositories. Implementation status, priority, and dates are owner-maintained on the board; agents do not read or write the board, and Notes plans may cite issue numbers but must not mirror board state.
+Rules for writing, changing, freezing, and tracking ADRs (status values, `Tracking:` and `Frozen:` lines, revisions, addenda, supersession, template) are in [ADR/README.md](ADR/README.md). The owner's GitHub project board ([Project #2](https://github.com/users/yt6983138/projects/2)) tracks work; agent access is described in [GitHub access](../AGENTS.md#github-access).
 
 ## Local notes
 

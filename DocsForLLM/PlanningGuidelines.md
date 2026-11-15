@@ -36,7 +36,7 @@ Read [RepositoryGuide.md](RepositoryGuide.md) for repository and validation rule
 - **Agents must never operate without the owner's supervision.** They are not autonomous operators, substitute support staff, or coverage for an unavailable owner.
 - **Do not respond to users or publish/send announcements on the owner's behalf.** Provide drafts to the owner. Approval of draft content is not permission to send it.
 - Actions outside requested coding and decision support require the owner first. Do not infer permission to deploy, administer services, change live data, or perform other operations from a planning conversation or coding request.
-- Planning discussion and decision records do not authorize implementation. Requested coding work remains subject to repository rules: **build only, never run projects**, and preserve unrelated work.
+- Planning discussion and decision records do not authorize implementation. Requested coding work remains subject to repository rules: **build only, apart from the offline allowlist in [AGENTS.md](../AGENTS.md) "Required policy"**, and preserve unrelated work.
 - Respect contributor autonomy, voluntary capacity, owner feasibility judgment, and the service's proportionate reliability posture.
 
 ## Support and work priorities
@@ -62,6 +62,16 @@ The owner's default priority order is:
 - No fixed spending budget is established. **Ask the owner before recommending anything paid**; do not assume funding for upgrades, servers, or hosted services.
 - Request utilization, free-space, load, and API-limit measurements only when materially relevant to a decision. Do not invent capacity estimates.
 - Feature-specific scope exclusions are not general reliability policy. The shutdown archive's server-failure exclusion and accepted risk are recorded in [ADR 0001](ADR/0001-InternationalCloudSaveResponse.md).
+
+## Plan lifecycle and documentation
+
+ADR lifecycle rules are in [ADR/README.md](ADR/README.md).
+
+- **One status place.** Chunk status lives only in its plan; the notes TODO list holds only items without a plan; the notes index gives a one-word state per note.
+- **Docs are part of every chunk.** A chunk is not done until the docs it affects are updated, including a search of `DocsForLLM/` and `PSLDiscordBotBase/Documentation/` for any removed symbol, option, or command.
+- **Close-out.** When a plan's tracking issue closes, archive the plan in the notes archive, move leftovers to the notes TODO list, and update the notes index. These are defined by the local notes index, reached through `Notes/README.md`.
+- **Tracked docs are durable.** Cite symbols, not line numbers. Do not record ephemeral facts such as "uncommitted" or "not pushed"; record commit hashes instead.
+- **Uncertainty.** Record anything unsettled in a plan as an open question, not as an assumption.
 
 ## Feature-specific decisions
 

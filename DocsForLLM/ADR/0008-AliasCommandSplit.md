@@ -37,17 +37,17 @@ All five commands use the default (ephemeral) visibility, so merging within each
 - The server-admin commands stay hard-coded English; localizing them is out of scope.
 - Hard cut: old commands are removed in the same release that adds the new ones, together with the `/photo` change ([ADR 0007](0007-PhotoCommand.md)) under one owner announcement.
 
-## Addendum (owner decisions, 2026-11-14)
-
-- Help files (`help.md`, `help_*.md`) moved out of `PSLDiscordBotBase/Documentation/` to the translations repository by [ADR 0017](0017-TranslationPlatform.md); help updates are owner tasks there.
-
 ## Open questions (resolve when planning the refactor)
 
 - Localization re-keying for the global/server member commands (`AliasModifyGlobal*`, `AliasModifyServer*` or equivalent keys).
-- Docs to update: `PSLDiscordBotBase/Documentation/usage.md` / `help.md` (English).
+- Docs to update: `PSLDiscordBotBase/Documentation/usage.md`. The help files (`help.md`, `help_*.md`) live in the translations repository ([ADR 0017](0017-TranslationPlatform.md), which moved them out of `PSLDiscordBotBase/Documentation/`). This ADR's earlier plan to update them there is superseded in part by ADR 0017; updating them is an owner task there.
 
 ## Consequences
 
 - Server administrators who customized Integrations permissions for the old commands must reconfigure them for the new names; the announcement should mention this.
 - `/command-statistics` rows start fresh under the new names.
 - Until this ADR is implemented, the existing alias commands stay as they are.
+
+## Revisions
+
+- 2026-11-15: addendum of 2026-11-14 folded into the body; pre-fold text at `ab9d55e`.

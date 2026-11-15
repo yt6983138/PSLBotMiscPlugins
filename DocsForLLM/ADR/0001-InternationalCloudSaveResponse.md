@@ -2,6 +2,7 @@
 
 - **Status:** Accepted
 - **Tracking:** none
+- **Frozen:** 2026-11-15
 - **Recorded:** 2026-10-23.
 - **Source:** Owner-supplied public announcement dated 2026-10-22 and subsequent owner clarifications. Announcement URL/channel and publication time were not supplied.
 

@@ -94,5 +94,6 @@ Source-review note (unchanged): [Core/PSLPlugin.cs](../PSLDiscordBotBase/PSLDisc
 - Changes match nearby style without unrelated formatting or renaming.
 - Existing utilities/services were checked; any new abstraction has a concrete unmet need and belongs at the narrowest useful layer.
 - Lifetimes, nullability, cancellation, disposal, access safeguards, localization keys, and public contracts were considered.
-- After **code** changes, build the affected project(s), or the full solution for cross-cutting changes, using [RepositoryGuide.md](RepositoryGuide.md). **Never run projects, tests, clients, migrations, browsers, or live checks.** Documentation-only changes do not require a build.
+- After **code** changes, build the affected project(s), or the full solution for cross-cutting changes, using [RepositoryGuide.md](RepositoryGuide.md). **Never run anything beyond the offline allowlist in [AGENTS.md](../AGENTS.md) "Required policy".** Documentation-only changes do not require a build.
+- Documentation affected by the change was updated, including the removed-symbol search and the durable-docs rules in [PlanningGuidelines.md](PlanningGuidelines.md#plan-lifecycle-and-documentation).
 - Inspect parent and submodule Git status separately; preserve unrelated work and report build results/warnings without claiming runtime validation.

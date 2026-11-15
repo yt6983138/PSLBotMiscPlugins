@@ -14,7 +14,7 @@ Account-related slash commands are being consolidated. [ADR 0005](0005-AccountCo
 - `/account`: account lifecycle (login/register, mode switching, deletion, status).
 - `/settings`: cosmetic per-user preferences.
 
-The `/settings` work is deferred so that too much is not stacked before the 2026-10-31 deadline.
+`/settings` was split off from the `/account` work so that the two commands could be scoped and planned separately.
 
 ## Decision
 
@@ -34,19 +34,19 @@ The `/settings` work is deferred so that too much is not stacked before the 2026
 - `/tos` is not moved: it must run before registration and before TOS acceptance.
 - Admin commands (`/get-token-for`, etc.) are not moved.
 
-## Addendum (owner decisions, 2026-11-14)
-
-- Help files (`help.md`, `help_*.md`) moved out of `PSLDiscordBotBase/Documentation/` to the translations repository by [ADR 0017](0017-TranslationPlatform.md); help updates are owner tasks there.
-
 ## Open questions (resolve when planning the refactor)
 
 - Subcommand names (e.g. `visibility`, `precision`, `show-count`) and how memorable-score set and clear fit "one subcommand per setting" (separate subcommands, a subcommand group, or an optional clear flag).
 - Base class (`CommandBase` is the expected fit: every subcommand needs a registered user) and the TOS requirement.
 - Localization key class/namespace and the re-keying of the existing `SetPublicVisibility*`, `SetPrecision*`, `SetShowCountDefault*`, `SetMemorableScore*`, `ClearMemorableScore*` keys in `PSLNormalCommandKey`.
 - What `/settings view` shows for unset values (defaults vs "not set").
-- Docs to update: `PSLDiscordBotBase/Documentation/usage.md` / `help.md` (English); non-English help is left to localizers, as with ADR 0005.
+- Docs to update: `PSLDiscordBotBase/Documentation/usage.md`. Help files (`help.md`, `help_*.md`) are no longer in `PSLDiscordBotBase/Documentation/`: [ADR 0017](0017-TranslationPlatform.md) moved them to the translations repository (this ADR's earlier plan to update them under `PSLDiscordBotBase/Documentation/` is superseded in part by ADR 0017), so English help updates are owner tasks there; non-English help is left to localizers, as with ADR 0005.
 
 ## Consequences
 
 - After both refactors, users manage accounts through `/account` and preferences through `/settings`. Removing the old commands requires localization re-keying and an owner announcement.
 - Until this ADR is implemented, the existing `/set-*` and `/clear-memorable-score` commands stay as they are.
+
+## Revisions
+
+- 2026-11-15: addendum of 2026-11-14 folded into the body; pre-fold text at `ab9d55e`. Owner decision: the schedule-based reason for deferring `/settings` was replaced by the lasting reason (split from `/account` for separate scoping).

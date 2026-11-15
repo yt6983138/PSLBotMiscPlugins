@@ -2,6 +2,7 @@
 
 - **Status:** Accepted
 - **Tracking:** [Project #2 item](https://github.com/users/yt6983138/projects/2?pane=issue&itemId=289103060)
+- **Frozen:** 2026-10-31
 - **Recorded:** 2026-10-31.
 - **Source:** Owner planning session and the owner's CI/CD idea on 2026-10-31.
 
@@ -20,17 +21,12 @@ Package versions and shared build properties are repeated inline in each `.cspro
   - `Plugins/` subfolders are mirrored, stale files included, because they hold no runtime state and discovery loads every DLL there.
   - A plugin's files are its publish output minus the host output and its direct dependencies' outputs, compared by relative path and content hash. Same path with a different hash is version skew and fails or warns.
   - Everything is always deployed; never a single plugin after a Core change.
-- **Stopping the bot.** An authenticated HTTP shutdown endpoint reusing the soft-shutdown flow. The owner sets up the reverse proxy and `start.sh`; agents may only draft them. `start.sh` must not restart the bot during a deploy.
-- **GitHub Actions is build-only**: check out with submodules and build. No deploy.
+  - Every plugin's `wwwroot` is merged into one root `wwwroot/` on the server. That folder is copy-only and never deleted from, like other root files. A same-path, different-hash collision between plugins fails the deploy.
+  - The host is published framework-dependent for `linux-x64`. The plugin-to-`Plugins/<subfolder>` mapping lives in an untracked local deploy config.
+- **Stopping the bot.** An authenticated HTTP shutdown endpoint reusing the soft-shutdown flow: `POST /admin/api/shutdown` in AdminHelper. The `Authorization` header is compared against the admin panel password. A raw compare is acceptable because nginx gates `/admin/` to the intranet. The deploy script prompts for the password at run time and never stores it. The owner sets up the reverse proxy and `start.sh`; agents may only draft them.
+- **Pause mechanism.** A `DEPLOY_PAUSE` flag file in the bot root. The deploy script creates it before copying and deletes it afterwards. `start.sh` waits while it exists instead of restarting, so it must not restart the bot during a deploy. Its all-caps name already puts it in the root blocklist.
+- **GitHub Actions is build-only**: check out with submodules and build the solution in Release on `windows-latest`. No deploy. Release is used because Debug currently has a PersonalWebsite/PhigrosApi swagger asset conflict. The private packages (`yt6983138.PhiInfo.*`, `PhigrosLibraryCSharp.Modification`) come from the owner's private GitHub Packages feed, so pull requests from forks cannot restore them.
 - **Run helpers are kept for now** for local debugging.
-
-## Addendum (owner decisions, 2026-10-31)
-
-- **Pause mechanism:** a `DEPLOY_PAUSE` flag file in the bot root. The deploy script creates it before copying and deletes it afterwards. `start.sh` waits while it exists instead of restarting. Its all-caps name already puts it in the root blocklist.
-- **wwwroot placement:** every plugin's `wwwroot` is merged into one root `wwwroot/` on the server. That folder is copy-only and never deleted from, like other root files. A same-path, different-hash collision between plugins fails the deploy.
-- **Shutdown endpoint:** `POST /admin/api/shutdown` in AdminHelper. The `Authorization` header is compared against the admin panel password (`AdminConfig.MvcSuperSecretNumber`). A raw compare is acceptable because nginx gates `/admin/` to the intranet. The deploy script prompts for the password at run time and never stores it.
-- **CI:** `.github/workflows/build.yml` builds `PSLBotMiscPlugins.sln` in Release on `windows-latest`. The Framework `PreBuild` target uses cmd syntax, which is why it runs on Windows. Release is used because Debug currently has a PersonalWebsite/PhigrosApi swagger asset conflict. The private packages (`yt6983138.PhiInfo.*`, `PhigrosLibraryCSharp.Modification`) come from the owner's private GitHub Packages feed, read with `GITHUB_TOKEN` and `packages: read`. Pull requests from forks cannot restore them.
-- **Host publish:** framework-dependent `linux-x64`. Plugin-to-`Plugins/<subfolder>` mapping lives in an untracked local deploy config.
 
 ## Open questions
 
@@ -41,3 +37,7 @@ Package versions and shared build properties are repeated inline in each `.cspro
 - Version skew becomes a build-time or deploy-time error instead of a runtime binding surprise.
 - Sibling plugins sharing a package not in Core each carry their own copy.
 - Server paths, hosts, and credentials stay out of tracked files.
+
+## Revisions
+
+- 2026-11-15: addendum of 2026-10-31 folded into the body; pre-fold text at `b4f1d62`.
