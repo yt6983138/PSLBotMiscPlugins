@@ -17,7 +17,7 @@ For team-level, operational, or product planning, also read [PlanningGuidelines.
 
 For the international cloud-save shutdown response, read [ADR 0001](ADR/0001-InternationalCloudSaveResponse.md) for confirmed scope and delivery priorities.
 
-For the user-submitted local-score feature, read [ADR 0002](ADR/0002-LocalScoreSystem.md) for owner-confirmed requirements and storage decisions. Unapproved implementation proposals and supporting interview detail may be available locally in `Notes/`; tracked guidance and ADRs do not require those files to be present.
+For the user-submitted local-score feature, read [ADR 0002](ADR/0002-LocalScoreSystem.md) for owner-confirmed requirements and storage decisions.
 
 This repository collects plugins for PSLDiscordBot, a Phigros Score Lookup Discord bot. The core bot is itself a plugin; the executable host lives in the framework. The root solution is `PSLBotMiscPlugins.sln`.
 

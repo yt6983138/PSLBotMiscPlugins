@@ -2,7 +2,7 @@
 
 These are standing rules and constraints confirmed by the owner in planning discussions. Keep facts, proposals, decisions, and unresolved questions distinct. An unanswered question is not permission to choose on the team's behalf.
 
-Read [RepositoryGuide.md](RepositoryGuide.md) for repository and validation rules. Detailed interview context may be available locally in `Notes/PlanningContext.md`; these guidelines do not depend on that file being present.
+Read [RepositoryGuide.md](RepositoryGuide.md) for repository and validation rules.
 
 ## Team responsibilities and capacity
 

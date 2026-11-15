@@ -56,5 +56,3 @@ This record does not authorize implementation, deployment, public communication,
 - Consent terms, retention, retrieval/deletion procedures, and responsibility for user requests.
 - Remaining feature priorities and post-shutdown service behavior.
 - Remaining transfer destination/integration requirements tracked in ADR 0003, and leaderboard policy.
-
-The original announcement, interview detail, and static archive-source findings are preserved locally in gitignored `DocsForLLM/Notes/InternationalCloudSaveResponse.md` and `DocsForLLM/Notes/PlanningContext.md` (repository-root paths). They are supporting notes, not additional approved requirements.
