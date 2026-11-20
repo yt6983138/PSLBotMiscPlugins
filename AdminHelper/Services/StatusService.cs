@@ -50,6 +50,7 @@ public class StatusService
 
 		this._commandResolveService.BeforeSlashCommandExecutes += this.BeforeSlashCommandExecutes;
 		this._commandResolveService.BeforeComponentInteractionExecutes += this.BeforeComponentInteractionExecutes;
+		this._commandResolveService.BeforeAutocompleteExecutes += this.BeforeAutocompleteExecutes;
 	}
 
 	public void ForceDetach()
@@ -58,6 +59,7 @@ public class StatusService
 			return;
 		this._commandResolveService.BeforeSlashCommandExecutes -= this.BeforeSlashCommandExecutes;
 		this._commandResolveService.BeforeComponentInteractionExecutes -= this.BeforeComponentInteractionExecutes;
+		this._commandResolveService.BeforeAutocompleteExecutes -= this.BeforeAutocompleteExecutes;
 		this._detached = true;
 	}
 
@@ -99,6 +101,17 @@ public class StatusService
 			}
 			return;
 		}
+	}
+
+	// an autocomplete interaction only accepts a suggestion list, so there is no message to send
+	private Task BeforeAutocompleteExecutes(object? sender, AutocompleteInteractionEventArgs e)
+	{
+		if (this.CurrentStatus != Status.Normal
+			&& e.Interaction.User.Id != this._config.Value.AdminUserId)
+		{
+			e.Canceled = true;
+		}
+		return Task.CompletedTask;
 	}
 
 	private async Task BeforeComponentInteractionExecutes(object? sender, ComponentInteractionEventArgs e)
