@@ -34,7 +34,7 @@ All five commands use the default (ephemeral) visibility, so merging within each
   | `/alias-server-admin info\|audit\|admin-role` | `alias-table-info`, `alias-audit`, `alias-change-admin` | guild-only; `admin-role` keeps its `operation` (add/remove) and `target` role options |
 
 - `/alias-server-admin` derives from `AliasServerAdminCommandBase` and keeps its pre-dispatch check. `admin-role` keeps its stricter in-callback check (Discord `Administrator` or bot admin), which is a subset of the base check, so no user's access changes. In-bot checks stay even though servers may also restrict commands through Discord.
-- The server-admin commands stay hard-coded English; localizing them is out of scope.
+- The server-admin commands stay hard-coded English; localizing them is out of scope. One exception, purely for convenience: audit modify reuses the localized alias-add rejection replies that the member alias commands share (`AliasModifyGlobalCommand.ReplyIfRejected`), instead of keeping an English copy. Whether those replies are localized doesn't matter much here, since server admins are assumed to read English. The rest of the server-admin commands stays English.
 - Hard cut: old commands are removed in the same release that adds the new ones, together with the `/photo` change ([ADR 0007](0007-PhotoCommand.md)) under one owner announcement.
 
 ## Open questions (resolve when planning the refactor)
@@ -51,3 +51,4 @@ All five commands use the default (ephemeral) visibility, so merging within each
 ## Revisions
 
 - 2026-11-15: addendum of 2026-11-14 folded into the body; pre-fold text at `ab9d55e`.
+- 2026-11-21: added an exception to the English-only server-admin rule. Audit modify reuses the shared localized rejection replies for alias adds, purely for convenience (owner, `PSLDiscordBot#73` code review).

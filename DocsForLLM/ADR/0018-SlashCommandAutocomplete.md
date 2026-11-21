@@ -100,3 +100,14 @@ No command had autocomplete. Free-text options that resolve against a known set 
 - Help text (`help.md`, `help_*.md` in the translations repository) does not yet mention autocomplete, avatar aliases or the background song-id input; this is an owner task ([ADR 0017](0017-TranslationPlatform.md)).
 - `SearchSong` sorts with unstable `List.Sort`, so strict-mode ties may not keep song order; changing it alters behaviour and is left to the owner with `PSLDiscordBot#73`.
 - `CollectionCommand.Read` keeps its own `MinimumSimilarity = 0.75` outside `CandidateSearch`; unifying it is not decided.
+
+## Addendum (owner decisions, 2026-11-21): strict search case, tie order and spec
+
+`PSLDiscordBot#73` is now addressed for the search core. The decision text above is not rewritten after freeze; where it conflicts with this addendum, this addendum applies. It covers search only.
+
+- **Case.** Strict search lowercases both the input and the candidate with `CandidateSearch.Normalize` (`ToLowerInvariant`). This fixes the case quirk in the previous `SearchSong`. Scores do not change: equal strings that differ only in case already scored 1 through the ratio.
+- **Tie order.** Equal-score ties are no longer left to the unstable `List.Sort`. The `AliasService.SearchSong` span overload sorts with `CandidateSearch.CompareStrict`, a total order: score descending; a key or name match before an alias match; for callers that pass several alias sources, an earlier source first; then the key in ordinal order. The bounded `CandidateSearch.Search` is unchanged and keeps candidate order on equal scores. This supersedes "A tie only changes the label, never ranking or inclusion" for strict command search, and the "Strict commands are unchanged ... out of scope" sentence for `PSLDiscordBot#73`.
+- **Spec reclassification.** Strict mode is no longer a parity spec that reproduces the previous `SearchSong` scoring exactly. It follows the same spec/detail split as partial mode.
+  - Spec, covered by tests: a case-insensitive exact match on a key, name or alias scores 1 and always passes; the threshold is the minimum score for inclusion; substrings and short fragments do not match; near misses (for example one edit away) still match; clearly different input does not match; the tie order above.
+  - Implementation detail, tunable and not pinned by tests: the half-length gate, the ratio formula, and scores other than 1.
+- **Open question closed.** "`SearchSong` sorts with unstable `List.Sort`" is resolved by the tie order above.

@@ -25,7 +25,7 @@ Keep general guidelines/instructions directly in `DocsForLLM/`, confirmed decisi
 ## Project quick reference
 
 - The root solution is `PSLBotMiscPlugins.sln`; root projects are plugins, API/web/client projects, and run helpers. The `PSLDiscordBotBase/` submodule contains the ASP.NET Core/Discord.NET host and plugin framework, Core commands/business/persistence, and the analyzer/generators.
-- Projects use .NET 10/preview C# on Windows. For targeted validation run `dotnet build "<project>.csproj" --configuration Debug --nologo --verbosity minimal`; use the solution command above for cross-cutting work. The only test project is `PSLDiscordBotBase/PSLDiscordBot.Core.Tests/` (MSTest, covers `CandidateSearch`); tests run only as the allowlist permits.
+- Projects use .NET 10/preview C# on Windows. For targeted validation run `dotnet build "<project>.csproj" --configuration Debug --nologo --verbosity minimal`; use the solution command above for cross-cutting work. The only test project is `PSLDiscordBotBase/PSLDiscordBot.Core.Tests/` (MSTest, covers `CandidateSearch` and `AliasConflictCheck`); tests run only as the allowlist permits.
 - Match nearby code: usually tabs, file-scoped namespaces, Allman braces, explicit local types, `_camelCase` fields, and `this.` qualification. Discord commands are keyed singletons, so keep interaction state local; register ASP.NET/plugin services in `Load`, add web assemblies through `AddAssemblyToMvc`, and configure resolved services/middleware in the established `Setup`/MVC pipeline.
 
 ## Workflow and context hygiene
