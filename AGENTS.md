@@ -15,7 +15,7 @@ Keep general guidelines/instructions directly in `DocsForLLM/`, confirmed decisi
 - **Build only, except the offline allowlist below. Never run any other project.** Do not start the bot, web hosts, run helpers, migrations, client applications, development servers, or live API/Discord checks. Do not invoke application entry points indirectly through scripts. Everything not on the allowlist stays forbidden.
 - **Offline allowlist (the only runs permitted):**
   - `LocalizationTool export`, `build-csv`, and `import-csv`, with output written to a temp directory and input read only from repository files (including the local translations repository checkout).
-  - `dotnet test`, once a test project exists.
+  - `dotnet test "PSLDiscordBotBase/PSLDiscordBot.Core.Tests/PSLDiscordBot.Core.Tests.csproj" --configuration Debug --nologo --verbosity minimal` (MSTest, VSTest runner; pure search-core tests, no database/network/configuration).
   - Never anything networked, and never anything that touches real configuration or secrets.
 - After code changes, build affected projects with `dotnet build`; use `dotnet build "PSLBotMiscPlugins.sln" --configuration Debug --nologo --verbosity minimal` for cross-cutting changes. Build tools may compile/bundle code but must not start applications. Report build success/failure without claiming runtime validation.
 - Task-related edits inside the `PSLDiscordBotBase/` Git submodule are allowed when needed. Inspect and report them separately. Do not change the parent submodule pointer or advance the submodule revision except as part of a commit the contributor approved.
@@ -25,7 +25,7 @@ Keep general guidelines/instructions directly in `DocsForLLM/`, confirmed decisi
 ## Project quick reference
 
 - The root solution is `PSLBotMiscPlugins.sln`; root projects are plugins, API/web/client projects, and run helpers. The `PSLDiscordBotBase/` submodule contains the ASP.NET Core/Discord.NET host and plugin framework, Core commands/business/persistence, and the analyzer/generators.
-- Projects use .NET 10/preview C# on Windows. For targeted validation run `dotnet build "<project>.csproj" --configuration Debug --nologo --verbosity minimal`; use the solution command above for cross-cutting work. No automated test project is present yet; tests run only as the allowlist permits.
+- Projects use .NET 10/preview C# on Windows. For targeted validation run `dotnet build "<project>.csproj" --configuration Debug --nologo --verbosity minimal`; use the solution command above for cross-cutting work. The only test project is `PSLDiscordBotBase/PSLDiscordBot.Core.Tests/` (MSTest, covers `CandidateSearch`); tests run only as the allowlist permits.
 - Match nearby code: usually tabs, file-scoped namespaces, Allman braces, explicit local types, `_camelCase` fields, and `this.` qualification. Discord commands are keyed singletons, so keep interaction state local; register ASP.NET/plugin services in `Load`, add web assemblies through `AddAssemblyToMvc`, and configure resolved services/middleware in the established `Setup`/MVC pipeline.
 
 ## Workflow and context hygiene
