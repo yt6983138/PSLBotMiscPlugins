@@ -123,6 +123,10 @@ After comparing combined and sectioned SQLite payloads, the owner chose a single
 
 Exact proposed symbols/defaults are not additional approved decisions; this ADR is self-contained for accepted behavior.
 
+## Addendum (owner decisions, 2026-11-20): avatar/background autocomplete
+
+Autocomplete and alias-like search for the profile avatar and background options are no longer future work: [ADR 0018](0018-SlashCommandAutocomplete.md) records them. The avatar option suggests avatar keys (with aliases from a hidden avatar alias table); submit still accepts only the raw key. The background option accepts an exact song name or a song id and still stores the song name. This narrows the "free text validated by lookup" statement in the Decision and answers the corresponding open question above (the original text is not rewritten after freeze).
+
 ## Revisions
 
 - 2026-11-15: `Updated:` header (2026-10-24) and inline updates folded into the body; pre-fold text at `3b72782`. Stale lines about `ArchiveSaveCommand` blocking local mode and the `TransferToChinaCommand` access rule were dropped (command removed / rule changed in `c8cb3c8`); implementation detail moved to [LocalScores.md](../LocalScores.md).

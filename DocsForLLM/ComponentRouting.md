@@ -1,6 +1,6 @@
 # Command-owned component routing
 
-This is the implemented API guide for the button/select infrastructure accepted in [ADR 0004](ADR/0004-CommandComponentRouting.md). Modals are not part of this implementation. [`SaveArchiveProgram/TransferToChinaCommand.cs`](../SaveArchiveProgram/TransferToChinaCommand.cs) is a current consumer; the compile-only generic example is [`PSLDiscordBot.Core/Command/Global/Template/ComponentCommand.cs`](../PSLDiscordBotBase/PSLDiscordBot.Core/Command/Global/Template/ComponentCommand.cs), which deliberately has no active `[AddToGlobal]` attribute.
+This is the implemented API guide for the button/select infrastructure accepted in [ADR 0004](ADR/0004-CommandComponentRouting.md). Modals are not part of this implementation. Autocomplete interactions use a parallel dispatch path, recorded in [ADR 0018](ADR/0018-SlashCommandAutocomplete.md). [`SaveArchiveProgram/TransferToChinaCommand.cs`](../SaveArchiveProgram/TransferToChinaCommand.cs) is a current consumer; the compile-only generic example is [`PSLDiscordBot.Core/Command/Global/Template/ComponentCommand.cs`](../PSLDiscordBotBase/PSLDiscordBot.Core/Command/Global/Template/ComponentCommand.cs), which deliberately has no active `[AddToGlobal]` attribute.
 
 ## Command and route API
 

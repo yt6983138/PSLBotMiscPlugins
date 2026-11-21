@@ -79,6 +79,7 @@ ADR lifecycle rules are in [ADR/README.md](ADR/README.md).
 - [ADR 0002](ADR/0002-LocalScoreSystem.md): local-score requirements and storage decisions; unapproved design recommendations are not policy.
 - [ADR 0005](ADR/0005-AccountCommand.md): `/account` command (register, switch, delete, status), removal of the old login/logout/token/mode commands, and `LocalCommand` restructure.
 - [ADR 0006](ADR/0006-SettingsCommand.md): `/settings` command for cosmetic per-user preferences.
+- [ADR 0018](ADR/0018-SlashCommandAutocomplete.md): slash-command autocomplete routing and search, avatar alias table and `alias-admin` command.
 
 - [ADR 0017](ADR/0017-TranslationPlatform.md): translation platform. **Planning rule:** English text lives in the translations repository, and the CI export only adds new keys. A plan that changes the text, placeholders, or meaning of an existing localization key, or changes help content, must list each affected key/document as an owner task to edit manually.
 
