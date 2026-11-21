@@ -73,7 +73,7 @@ public class MigratorPlugin : IPlugin<MigratorPlugin>
 			List<Guid> keys = [];
 			foreach (string item1 in item.Item2)
 			{
-				SongAliasMetadata metadata = new(Guid.NewGuid(), DateTime.Now)
+				SongAliasMetadata metadata = new(Guid.NewGuid(), item.Item1, DateTime.Now)
 				{
 					OperationType = OperationType.Modify,
 					OperationData = item1,
