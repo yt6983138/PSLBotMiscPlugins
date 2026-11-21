@@ -67,7 +67,7 @@ public class MigratorPlugin : IPlugin<MigratorPlugin>
 		}
 
 		using AliasService.StaticTableRequester staticRequester = aliasService.GetStaticTableRequester();
-		using AliasService.DynamicTableRequester dynamicRequester = aliasService.GetDynamicTableRequester(AliasTableIdType.Global, 0);
+		using AliasService.DynamicTableRequester dynamicRequester = aliasService.GetDynamicTableRequester(AliasTableId.Global);
 		foreach ((string, string[]) item in aliases)
 		{
 			List<Guid> keys = [];

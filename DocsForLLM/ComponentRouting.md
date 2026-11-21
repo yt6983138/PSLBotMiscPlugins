@@ -1,6 +1,6 @@
 # Command-owned component routing
 
-This is the implemented API guide for the button/select infrastructure accepted in [ADR 0004](ADR/0004-CommandComponentRouting.md). Modals are not part of this implementation. [`SaveArchiveProgram/TransferToChinaCommand.cs`](../SaveArchiveProgram/TransferToChinaCommand.cs) is a current consumer; the compile-only generic example is [`PSLDiscordBot.Core/Command/Global/Template/ComponentCommand.cs`](../PSLDiscordBotBase/PSLDiscordBot.Core/Command/Global/Template/ComponentCommand.cs), which deliberately has no active `[AddToGlobal]` attribute.
+This is the implemented API guide for the button/select infrastructure accepted in [ADR 0004](ADR/0004-CommandComponentRouting.md). Modals are not part of this implementation. Autocomplete interactions use a parallel dispatch path, recorded in [ADR 0018](ADR/0018-SlashCommandAutocomplete.md). [`SaveArchiveProgram/TransferToChinaCommand.cs`](../SaveArchiveProgram/TransferToChinaCommand.cs) is a current consumer; the compile-only generic example is [`PSLDiscordBot.Core/Command/Global/Template/ComponentCommand.cs`](../PSLDiscordBotBase/PSLDiscordBot.Core/Command/Global/Template/ComponentCommand.cs), which deliberately has no active `[AddToGlobal]` attribute.
 
 ## Command and route API
 
@@ -66,6 +66,6 @@ Explicit-locale overloads put `Language` before `LocalizedString` (and after the
 
 ## Core and AdminHelper integration
 
-Core responds ephemerally to invalid routes with `ComponentInteractionUnavailable`, and handles callback failures with `ComponentInteractionError` using an initial response or ephemeral follow-up as appropriate. It does not log route payloads. AdminHelper's shared status hook blocks all non-admin component interactions whenever status is not `Normal`, including maintenance, shutdown, and data updates; its slash and component subscriptions detach together. Component blacklist checks are intentionally not included.
+Core responds ephemerally to invalid routes with `ComponentInteractionUnavailable`, and handles callback failures with `ComponentInteractionError` using an initial response or ephemeral follow-up as appropriate. It does not log route payloads. AdminHelper's shared status hook blocks all non-admin component interactions whenever status is not `Normal`, including maintenance, shutdown, and data updates; the same status check also covers autocomplete through `BeforeAutocompleteExecutes` (it only cancels; nothing is sent and the interaction expires); its slash, component and autocomplete subscriptions detach together. Component blacklist checks are intentionally not included.
 
 Existing deployed localization data does not automatically merge generated defaults. The owner must add `ComponentInteractionUnavailable` and `ComponentInteractionError` through the normal localization deployment/update process. Core has safe English fallback text until those keys are present; do not reset or mutate live localization files merely to validate a build.
