@@ -1,7 +1,7 @@
 # ADR 0018: Slash-command autocomplete, search core and avatar aliases
 
 - **Status:** Accepted
-- **Tracking:** none
+- **Tracking:** [Project #2 item](https://github.com/users/yt6983138/projects/2?pane=issue&itemId=289102353)
 - **Recorded:** 2026-11-20
 - **Source:** Owner decisions and code review, 2026-11-15 to 2026-11-21.
 
