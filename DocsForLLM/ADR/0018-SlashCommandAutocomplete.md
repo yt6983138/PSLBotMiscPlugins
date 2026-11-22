@@ -111,3 +111,7 @@ No command had autocomplete. Free-text options that resolve against a known set 
   - Spec, covered by tests: a case-insensitive exact match on a key, name or alias scores 1 and always passes; the threshold is the minimum score for inclusion; substrings and short fragments do not match; near misses (for example one edit away) still match; clearly different input does not match; the tie order above.
   - Implementation detail, tunable and not pinned by tests: the half-length gate, the ratio formula, and scores other than 1.
 - **Open question closed.** "`SearchSong` sorts with unstable `List.Sort`" is resolved by the tie order above.
+
+## Addendum (clarification, 2026-11-22): command names
+
+Addendum (owner, 2026-11-22): the command-unification decisions renamed the commands this ADR names. The decision text above is not rewritten; read it with this mapping: `/alias-audit` is `/alias-server-admin audit`, `/alias-table-info` is `/alias-server-admin info`, and the alias-to-operate option is the `alias` option of the `/alias-global remove` and `/alias-server remove` subcommands (the `add` subcommands suggest no aliases, and there is no `operation` option any more). Behaviour is unchanged.

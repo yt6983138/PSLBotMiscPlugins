@@ -34,12 +34,13 @@ All five commands use the default (ephemeral) visibility, so merging within each
   | `/alias-server-admin info\|audit\|admin-role` | `alias-table-info`, `alias-audit`, `alias-change-admin` | guild-only; `admin-role` keeps its `operation` (add/remove) and `target` role options |
 
 - `/alias-server-admin` derives from `AliasServerAdminCommandBase` and keeps its pre-dispatch check. `admin-role` keeps its stricter in-callback check (Discord `Administrator` or bot admin), which is a subset of the base check, so no user's access changes. In-bot checks stay even though servers may also restrict commands through Discord.
-- The server-admin commands stay hard-coded English; localizing them is out of scope. One exception, purely for convenience: audit modify reuses the localized alias-add rejection replies that the member alias commands share (`AliasModifyGlobalCommand.ReplyIfRejected`), instead of keeping an English copy. Whether those replies are localized doesn't matter much here, since server admins are assumed to read English. The rest of the server-admin commands stays English.
+- The server-admin commands stay hard-coded English; localizing them is out of scope. One exception, purely for convenience: audit modify reuses the localized alias-add rejection replies that the member alias commands share (the shared rejection reply helper), instead of keeping an English copy. Whether those replies are localized doesn't matter much here, since server admins are assumed to read English. The rest of the server-admin commands stays English.
 - Hard cut: old commands are removed in the same release that adds the new ones, together with the `/photo` change ([ADR 0007](0007-PhotoCommand.md)) under one owner announcement.
+- `/alias-server-admin` shape (owner, 2026-11-22): the groups `info get|set` and `audit info|modify|remove`, plus a leaf `admin-role <target> <operation>`.
+- Localization (owner, 2026-11-22): the member commands' keys are re-keyed, messages included (for example the not-owner reply), into nested key classes for global and server; shared alias keys keep their names, and the `operation` option keys are deleted. The server-admin command stays hard-coded English and gets no keys.
 
 ## Open questions (resolve when planning the refactor)
 
-- Localization re-keying for the global/server member commands (`AliasModifyGlobal*`, `AliasModifyServer*` or equivalent keys).
 - Docs to update: `PSLDiscordBotBase/Documentation/usage.md`. The help files (`help.md`, `help_*.md`) live in the translations repository ([ADR 0017](0017-TranslationPlatform.md), which moved them out of `PSLDiscordBotBase/Documentation/`). This ADR's earlier plan to update them there is superseded in part by ADR 0017; updating them is an owner task there.
 
 ## Consequences
@@ -52,3 +53,4 @@ All five commands use the default (ephemeral) visibility, so merging within each
 
 - 2026-11-15: addendum of 2026-11-14 folded into the body; pre-fold text at `ab9d55e`.
 - 2026-11-21: added an exception to the English-only server-admin rule. Audit modify reuses the shared localized rejection replies for alias adds, purely for convenience (owner, `PSLDiscordBot#73` code review).
+- 2026-11-22: resolved open questions recorded in Decision (owner answers from the command-unification planning session). The shape and re-keying open questions were resolved by the owner and moved into the Decision. The shared alias helpers moved from `AliasModifyGlobalCommand` into a static helper, so the body's reference to `AliasModifyGlobalCommand.ReplyIfRejected` was generalized.
