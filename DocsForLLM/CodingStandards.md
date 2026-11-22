@@ -32,7 +32,7 @@ Application projects already use .NET 10 and often preview C#. Primary construct
 Useful style references:
 
 - [Framework/Utilities/ScopedSemaphoreSlim.cs](../PSLDiscordBotBase/PSLDiscordBot.Framework/Utilities/ScopedSemaphoreSlim.cs): fields, constructors, guards, and disposable scopes.
-- [Core/Command/Global/GetScoresCommand.cs](../PSLDiscordBotBase/PSLDiscordBot.Core/Command/Global/GetScoresCommand.cs): localized builders, explicit types, fluent formatting, and utility reuse.
+- [Core/Command/Global/RecordsCommand.List.cs](../PSLDiscordBotBase/PSLDiscordBot.Core/Command/Global/RecordsCommand.List.cs): localized builders, explicit types, fluent formatting, and utility reuse.
 - [FunPlugin/Commands/PokeCommand.cs](../FunPlugin/Commands/PokeCommand.cs): additional constructor injection in a sibling plugin command.
 - [PhigrosApi/Controllers/CustomControllerBase.cs](../PhigrosApi/Controllers/CustomControllerBase.cs): controller contracts, records, and structured logging.
 
