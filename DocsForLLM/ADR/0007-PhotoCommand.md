@@ -28,11 +28,11 @@ Three Core commands render score images from the user's save: `/get-photo` (best
   - `best` only: count, lower-bound, grades, difficulties, and CC filter options; the PNG threshold with the large-upload check; the large-image cooldown.
   - `song` only: the `Query.txt` attachment built with the existing score text formatter.
 - Hard cut: `/get-photo`, `/about-me`, and `/song-scores` are removed in the same release that adds `/photo`, with an owner announcement. This release is the same one as the alias split ([ADR 0008](0008-AliasCommandSplit.md)).
+- Code structure (owner, 2026-11-22): one root `/photo` with the three subcommands as nodes, and an abstract family node for the shared opening (resolve `index`/`generate_for`, the `PublicVisibility` gate). Fetch and redact stay helpers that each subcommand calls at the point its old command did, to keep the old order (for example cooldown before fetch); this deviates from folding them into the opening.
+- Localization (owner, 2026-11-22): every key owned by a single merged command is re-keyed, messages included, into a new key class for `/photo`; keys shared with other commands keep their names. Translations are carried over by the owner.
 
 ## Open questions (resolve when planning the refactor)
 
-- Localization key class/namespace and re-keying of the existing `GetPhoto*`, `AboutMe*`, `SongScores*` keys in `PSLNormalCommandKey`.
-- Code structure (single class with subcommand dispatch vs. shared helper used by per-subcommand handlers), following existing grouped commands such as `/account`.
 - Docs to update: `PSLDiscordBotBase/Documentation/usage.md`. Help files (`help.md`, `help_*.md`) live in the translations repository since [ADR 0017](0017-TranslationPlatform.md) (this ADR's earlier plan to update them under `PSLDiscordBotBase/Documentation/` is superseded in part by ADR 0017); English help updates are owner tasks there; non-English help is left to localizers, as with ADR 0005.
 
 ## Consequences
@@ -44,3 +44,4 @@ Three Core commands render score images from the user's save: `/get-photo` (best
 ## Revisions
 
 - 2026-11-15: addendum of 2026-11-14 folded into the body; pre-fold text at `ab9d55e`. Owner decision: helper names removed from Context and Decision as implementation detail.
+- 2026-11-22: resolved open questions recorded in Decision (owner answers from the command-unification planning session). The code-structure and re-keying open questions were resolved by the owner and moved into the Decision; fetch and redact being helpers instead of part of the family node is an owner-approved deviation.

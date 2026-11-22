@@ -389,3 +389,6 @@ Tools/Deploy/deploy.config.json
 # Local agent planning and investigation notes
 /DocsForLLM/Notes/*
 !/DocsForLLM/Notes/README.md
+
+# playwright
+/.playwright-mcp/**

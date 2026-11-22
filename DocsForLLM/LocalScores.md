@@ -42,4 +42,4 @@ Current behaviour of the local (user-submitted) score collection. Accepted decis
 ## Leaderboard
 
 - `LeaderboardService` omits users whose `AccountMode` has the Local bit and users without a token at each query and per-user lookup. Local activation and account deletion invalidate the stale entry through `SaveService.OnCloudRankingInvalidated`, handled by `LeaderboardService` under its lock after commit.
-- Cloud-only commands such as `/get-time-index` reply with the wrong-account-mode message in local mode.
+- Cloud-only commands such as `/cloud time-index` reply with the wrong-account-mode message in local mode.

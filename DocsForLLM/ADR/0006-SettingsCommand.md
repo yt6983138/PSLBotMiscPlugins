@@ -33,13 +33,14 @@ Account-related slash commands are being consolidated. [ADR 0005](0005-AccountCo
 - Add a **`/settings view`** subcommand that shows the current values of all settings. `/account status` (ADR 0005) does not show settings, including public visibility.
 - `/tos` is not moved: it must run before registration and before TOS acceptance.
 - Admin commands (`/get-token-for`, etc.) are not moved.
+- Subcommand names (owner, 2026-11-22): `visibility`, `precision`, `show-count`, `view`.
+- Memorable score (owner, 2026-11-22): a subcommand group, `/settings memorable-score set` and `/settings memorable-score clear`.
+- Base class (owner, 2026-11-22): `CommandBase` with its default constraints (registered, TOS); all subcommands ephemeral.
+- `/settings view` rendering (owner, 2026-11-22): unset values show the effective value marked as the default (for example `30 (default)`); an unset memorable score shows "not set". The show count and precision cannot be told apart from an explicit default value, so an explicitly stored default also shows `(default)`.
+- Localization (owner, 2026-11-22): every key owned by a single merged command is re-keyed, messages included, into a new key class for `/settings`; keys shared with other commands keep their names. Translations are carried over by the owner.
 
 ## Open questions (resolve when planning the refactor)
 
-- Subcommand names (e.g. `visibility`, `precision`, `show-count`) and how memorable-score set and clear fit "one subcommand per setting" (separate subcommands, a subcommand group, or an optional clear flag).
-- Base class (`CommandBase` is the expected fit: every subcommand needs a registered user) and the TOS requirement.
-- Localization key class/namespace and the re-keying of the existing `SetPublicVisibility*`, `SetPrecision*`, `SetShowCountDefault*`, `SetMemorableScore*`, `ClearMemorableScore*` keys in `PSLNormalCommandKey`.
-- What `/settings view` shows for unset values (defaults vs "not set").
 - Docs to update: `PSLDiscordBotBase/Documentation/usage.md`. Help files (`help.md`, `help_*.md`) are no longer in `PSLDiscordBotBase/Documentation/`: [ADR 0017](0017-TranslationPlatform.md) moved them to the translations repository (this ADR's earlier plan to update them under `PSLDiscordBotBase/Documentation/` is superseded in part by ADR 0017), so English help updates are owner tasks there; non-English help is left to localizers, as with ADR 0005.
 
 ## Consequences
@@ -50,3 +51,4 @@ Account-related slash commands are being consolidated. [ADR 0005](0005-AccountCo
 ## Revisions
 
 - 2026-11-15: addendum of 2026-11-14 folded into the body; pre-fold text at `ab9d55e`. Owner decision: the schedule-based reason for deferring `/settings` was replaced by the lasting reason (split from `/account` for separate scoping).
+- 2026-11-22: resolved open questions recorded in Decision (owner answers from the command-unification planning session). The open questions on names, memorable-score shape, base class, view rendering and key re-keying were resolved by the owner and moved into the Decision.
