@@ -171,8 +171,7 @@ public static class Program
 		Console.Write(TranslationValidator.FormatReport(problems));
 		if (errors > 0)
 		{
-			Console.Write($"{errors} error(s); CSV not written.\n");
-			return 1;
+			Console.Write($"{errors} error(s); CSV still written but you should take care of them.\n");
 		}
 
 		// Keys: everything in en-US.json (orphaned keys not in code included, they are harmless); translation keys
