@@ -1,1 +1,3 @@
-{}
+{
+  "PSLDiscordBot.Core.Command.Global.Alias.Shared.MessageEqualsSongIdOrName": "Message"
+}
