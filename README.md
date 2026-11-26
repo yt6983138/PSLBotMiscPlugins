@@ -2,6 +2,8 @@
 # PSLBotMiscPlugins
 Miscellaneous plugins for PSLDiscordBot.
 
+For building and hosting, see [Getting Started (For Developers)](PSLDiscordBotBase/Documentation/Developing.md).
+
 ## Contributing and AI-Usage Disclosure
 
 Since 2026/10/23, this repo now accepts AI-assisted contributions. Before this date, all code and documentation was manually written by human contributors. 
