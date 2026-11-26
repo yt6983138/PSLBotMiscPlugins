@@ -127,6 +127,10 @@ Exact proposed symbols/defaults are not additional approved decisions; this ADR 
 
 Autocomplete and alias-like search for the profile avatar and background options are no longer future work: [ADR 0018](0018-SlashCommandAutocomplete.md) records them. The avatar option suggests avatar keys (with aliases from a hidden avatar alias table); submit still accepts only the raw key. The background option accepts an exact song name or a song id and still stores the song name. This narrows the "free text validated by lookup" statement in the Decision and answers the corresponding open question above (the original text is not rewritten after freeze).
 
+## Addendum (owner decisions, 2026-11-25): open questions resolved
+
+The owner reviewed the shared-library contract, native model defaults/bounds, table schema, binary layout and operational defaults, and accepts them as they are implemented (first open question). The owner-run database migration is done (third), and the avatar/background lookup question was answered by the 2026-11-20 addendum (fourth). The leaderboard policy question is decided: the user poll has ended, and local users appear on the leaderboard with an indicator that marks them as local save users. This replaces the exclusion rule in Consequences ("users in local mode and users without a token are omitted") and the "Leaderboard participation remains undecided" line in Decision. The implementation is not done yet, and the code still follows the exclusion rule until it is. Details such as the indicator's wording, how local entries are refreshed, and what happens on mode switches are left to the implementation plan. The original text is not rewritten after freeze.
+
 ## Revisions
 
 - 2026-11-15: `Updated:` header (2026-10-24) and inline updates folded into the body; pre-fold text at `3b72782`. Stale lines about `ArchiveSaveCommand` blocking local mode and the `TransferToChinaCommand` access rule were dropped (command removed / rule changed in `c8cb3c8`); implementation detail moved to [LocalScores.md](../LocalScores.md).
