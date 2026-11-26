@@ -1,6 +1,6 @@
 # Local scores
 
-Current behaviour of the local (user-submitted) score collection. Accepted decisions are in [ADR 0002](ADR/0002-LocalScoreSystem.md); command structure is in [ADR 0005](ADR/0005-AccountCommand.md). Symbols below are in Core (`PSLDiscordBotBase/PSLDiscordBot.Core`) unless stated otherwise.
+Current behaviour of the local (user-submitted) score collection. Accepted decisions are in [ADR 0002](../ADR/0002-LocalScoreSystem.md); command structure is in [ADR 0005](../ADR/0005-AccountCommand.md). Symbols below are in Core (`PSLDiscordBotBase/PSLDiscordBot.Core`) unless stated otherwise.
 
 ## Storage and models
 
@@ -30,6 +30,7 @@ Current behaviour of the local (user-submitted) score collection. Accepted decis
 ## Staged imports and workflow state
 
 - `LocalWorkflowStore<TPayload>` is process-local, with a fixed `LifeTime` of 15 minutes. Staged imports (`StagedLocalImport`) and score-select drafts (`LocalScoreDraft`) use it.
+- `LocalCommand` routes its components on the first payload byte (score-select menu, import Proceed); the account delete-confirm button uses `DeleteConfirmComponentKind` in `AccountCommand`, whose `HandleInteraction` re-reads the user record and TOS agreement before calling `DeleteAccountAsync`. See the payload constants in those commands.
 - Proceed takes the entry atomically and owner-bound, rechecks only that the user record exists, and commits the staged snapshot without reloading or re-merging. Score-select re-reads the current collection at selection time, without a local-mode check.
 - An import applies directly only without conflict or rejection; any chart overlap, rejected/skipped input, removed chart, or changed non-score data prompts.
 - Score search: zero matches reply no-match; more than 25 ask for a narrower search; one applies directly; 2–25 open an owner-bound select menu.

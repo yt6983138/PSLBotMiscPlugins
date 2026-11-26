@@ -63,24 +63,18 @@ The owner's default priority order is:
 - Request utilization, free-space, load, and API-limit measurements only when materially relevant to a decision. Do not invent capacity estimates.
 - Feature-specific scope exclusions are not general reliability policy. The shutdown archive's server-failure exclusion and accepted risk are recorded in [ADR 0001](ADR/0001-InternationalCloudSaveResponse.md).
 
-## Plan lifecycle and documentation
+## Documentation and open questions
 
 ADR lifecycle rules are in [ADR/README.md](ADR/README.md).
 
-- **One status place.** Chunk status lives only in its plan; the notes TODO list holds only items without a plan; the notes index gives a one-word state per note.
-- **Docs are part of every chunk.** A chunk is not done until the docs it affects are updated, including a search of `DocsForLLM/` and `PSLDiscordBotBase/Documentation/` for any removed symbol, option, or command.
-- **Close-out.** When a plan's tracking issue closes, archive the plan in the notes archive, move leftovers to the notes TODO list, and update the notes index. These are defined by the local notes index, reached through `Notes/README.md`.
+- **Docs are part of every change.** A change is not done until the docs it affects are updated, including a search of `DocsForLLM/` and `PSLDiscordBotBase/Documentation/` for every symbol, option, or command the change removes, renames, or changes the behaviour of.
+- **Single source.** Each rule or fact has one canonical home, listed in the [canonical homes table](README.md#canonical-homes). Other docs link to it, with at most a one-line summary and never the details (lists, conditions, commands). When adding a rule, put it in its home and link to it from elsewhere. When you find a copy, replace it with a link in the same change, unless it is frozen ADR text; report that instead.
 - **Tracked docs are durable.** Cite symbols, not line numbers. Do not record ephemeral facts such as "uncommitted" or "not pushed"; record commit hashes instead.
-- **Uncertainty.** Record anything unsettled in a plan as an open question, not as an assumption.
+- **Uncertainty.** Record anything unsettled as an open question, not as an assumption.
+- **Open questions block execution.** Work that depends on an open question waits until the owner answers it or defers it with explicit consent. A deferred question stays in its open-questions list with an inline marker `Deferred (owner, YYYY-MM-DD): <reason>`. Only the owner defers; an agent never marks a deferral on its own, and an unanswered question is never treated as deferred.
 
 ## Feature-specific decisions
 
-- [ADR 0001](ADR/0001-InternationalCloudSaveResponse.md): international cloud-save shutdown response and archive/transfer priorities.
-- [ADR 0002](ADR/0002-LocalScoreSystem.md): local-score requirements and storage decisions; unapproved design recommendations are not policy.
-- [ADR 0005](ADR/0005-AccountCommand.md): `/account` command (register, switch, delete, status), removal of the old login/logout/token/mode commands, and `LocalCommand` restructure.
-- [ADR 0006](ADR/0006-SettingsCommand.md): `/settings` command for cosmetic per-user preferences.
-- [ADR 0018](ADR/0018-SlashCommandAutocomplete.md): slash-command autocomplete routing and search, avatar alias table and `alias-admin` command.
-
-- [ADR 0017](ADR/0017-TranslationPlatform.md): translation platform. **Planning rule:** English text lives in the translations repository, and the CI export only adds new keys. A plan that changes the text, placeholders, or meaning of an existing localization key, or changes help content, must list each affected key/document as an owner task to edit manually.
+Feature-specific decisions are the ADRs listed under "Decision records" in [README.md](README.md#decision-records). The localization planning rule (owner tasks for changed text and help content) is in [Localization.md](Topics/Localization.md#adding-or-changing-a-localized-core-string).
 
 Ask about unresolved details only when the next decision depends on them. Record new answers as attributed facts or explicit decisions, not inferred commitments.

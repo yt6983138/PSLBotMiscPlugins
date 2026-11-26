@@ -6,7 +6,7 @@
 - **Recorded:** 2026-10-23.
 - **Source:** Owner decisions in the local-score planning discussions on 2026-10-23 and 2026-10-24, including the C#/Discord interface design.
 
-This record does not authorize deployment or live data changes. Apply [RepositoryGuide.md](../RepositoryGuide.md) and [PlanningGuidelines.md](../PlanningGuidelines.md). Shutdown-response priorities remain as recorded in [ADR 0001](0001-InternationalCloudSaveResponse.md). Current behaviour and limits are in [LocalScores.md](../LocalScores.md).
+This record does not authorize deployment or live data changes. Apply [RepositoryGuide.md](../RepositoryGuide.md) and [PlanningGuidelines.md](../PlanningGuidelines.md). Shutdown-response priorities remain as recorded in [ADR 0001](0001-InternationalCloudSaveResponse.md). Current behaviour and limits are in [LocalScores.md](../Topics/LocalScores.md).
 
 ## Context
 
@@ -133,4 +133,4 @@ The owner reviewed the shared-library contract, native model defaults/bounds, ta
 
 ## Revisions
 
-- 2026-11-15: `Updated:` header (2026-10-24) and inline updates folded into the body; pre-fold text at `3b72782`. Stale lines about `ArchiveSaveCommand` blocking local mode and the `TransferToChinaCommand` access rule were dropped (command removed / rule changed in `c8cb3c8`); implementation detail moved to [LocalScores.md](../LocalScores.md).
+- 2026-11-15: `Updated:` header (2026-10-24) and inline updates folded into the body; pre-fold text at `3b72782`. Stale lines about `ArchiveSaveCommand` blocking local mode and the `TransferToChinaCommand` access rule were dropped (command removed / rule changed in `c8cb3c8`); implementation detail moved to [LocalScores.md](../Topics/LocalScores.md).

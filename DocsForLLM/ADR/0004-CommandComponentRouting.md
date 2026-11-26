@@ -6,7 +6,7 @@
 - **Recorded:** 2026-10-23.
 - **Source:** Owner's component-infrastructure planning request, answers, and implementation correction on 2026-10-23.
 
-Apply [RepositoryGuide.md](../RepositoryGuide.md) and [PlanningGuidelines.md](../PlanningGuidelines.md). This is a planning decision record, not authorization to implement, build, deploy, or perform live checks. The implemented API is documented in [ComponentRouting.md](../ComponentRouting.md).
+Apply [RepositoryGuide.md](../RepositoryGuide.md) and [PlanningGuidelines.md](../PlanningGuidelines.md). This is a planning decision record, not authorization to implement, build, deploy, or perform live checks. The implemented API is documented in [ComponentRouting.md](../Topics/ComponentRouting.md).
 
 ## Context
 

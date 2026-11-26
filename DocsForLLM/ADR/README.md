@@ -12,7 +12,7 @@ An ADR keeps:
 - consequences;
 - open questions.
 
-Implementation detail (line numbers, signatures, byte layouts, helper names) does not belong in an ADR. It goes to plans (disposable) or to topic guides in `DocsForLLM/` (current behaviour). Parts to be settled during implementation are listed as open questions when the ADR is accepted.
+Implementation detail (line numbers, signatures, byte layouts, helper names) does not belong in an ADR. It goes to plans (disposable) or to the [topic guides](../README.md#canonical-homes) (current behaviour). An ADR may be accepted with open questions. No work that implements it may proceed while it depends on an open question, unless the owner explicitly deferred it, as described in [PlanningGuidelines.md](../PlanningGuidelines.md#documentation-and-open-questions).
 
 Accepting an ADR is not implementation or operational authorization. ADRs and the index do not record implementation progress (no "Implemented", "NOT TESTED" or "deferred until..." in `Status:` lines or in the index); unresolved questions stay in the ADR's open-questions section.
 
@@ -31,6 +31,8 @@ Accepting an ADR is not implementation or operational authorization. ADRs and th
 ## Changing an ADR
 
 Only the owner approves ADR edits. If the code contradicts the ADR, the agent stops and asks; it never edits the ADR to match its own implementation without the owner's approval.
+
+**Link maintenance:** updating the path of a moved or renamed file in an ADR body is allowed, frozen or not, and does not change the record. Change link targets only; plain-text mentions stay unchanged.
 
 **Before freeze:** changes found during implementation are edited directly into the ADR and the plan in the same change. Each edit adds one line to a `## Revisions` log in the ADR (date, what changed, why). Addenda are not used before freeze.
 

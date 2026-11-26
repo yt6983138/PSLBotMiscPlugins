@@ -36,7 +36,7 @@ Command `Callback`/`Execute`/`HandleInteraction` overrides receive an `executer`
 
 - Commands that ignore the database no longer open one.
 - A forgotten `SaveChangesAsync` loses data silently, so review of each write path is required.
-- Component handlers lose the `executer` argument documented in [ComponentRouting.md](../ComponentRouting.md).
+- Component handlers lose the `executer` argument documented in [ComponentRouting.md](../Topics/ComponentRouting.md).
 
 ## Open questions
 

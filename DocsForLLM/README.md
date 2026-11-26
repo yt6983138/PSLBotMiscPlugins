@@ -12,15 +12,48 @@ The repository-root [AGENTS.md](../AGENTS.md) is the discovery entry point. Star
 
 General guidance and ADRs must be self-contained: a fresh clone will not contain local notes, so tracked documents never point to specific notes. The single exception is `Notes/README.md` naming the local notes index `README.gitignored.md`. Promote confirmed decisions or standing instructions out of notes into the appropriate tracked document. Do not promote recommendations merely because they appear in a plan.
 
+## Canonical homes
+
+Each rule or fact lives in one place; other documents link to it (see the single-source rule in [PlanningGuidelines.md](PlanningGuidelines.md#documentation-and-open-questions)).
+
+| Topic | Owning file |
+| --- | --- |
+| Hard constraints: run policy and allowlist, secrets and configuration, commit ask and order, submodule boundary | [AGENTS.md](../AGENTS.md#required-policy) "Required policy" |
+| GitHub access rules | [AGENTS.md](../AGENTS.md#github-access) "GitHub access" |
+| Documentation placement (tracked/gitignored, no tracked links to notes) | This file, "Organization" |
+| Codebase map, build commands, validation details beyond the hard constraints | [RepositoryGuide.md](RepositoryGuide.md) |
+| Coding conventions | [CodingStandards.md](CodingStandards.md) |
+| Reusable utilities | [ExistingUtilities.md](ExistingUtilities.md) |
+| Team, decision authority, supervision, open-questions rule, single-source rule, documentation-update rule | [PlanningGuidelines.md](PlanningGuidelines.md) |
+| ADR format and lifecycle, including the template | [ADR/README.md](ADR/README.md) |
+| Decisions | The individual ADRs, listed under "Decision records" |
+| Current feature or subsystem behaviour for agents | The topic guides: the files in `DocsForLLM/Topics/` |
+| Localization (pipeline, key declarations and defaults, English ownership, lookup and mutation) | [Topics/Localization.md](Topics/Localization.md) |
+| User-facing behaviour | [usage.md](../PSLDiscordBotBase/Documentation/usage.md) |
+| Developer architecture | [Developing.md](../PSLDiscordBotBase/Documentation/Developing.md) |
+| Plugin lifecycle (`Load`/`Setup`/`Unload`, priority, discovery, no DI registration) | [Developing.md](../PSLDiscordBotBase/Documentation/Developing.md#the-plugin-system) "The Plugin System" |
+| Command pipeline (bases, constraints, subcommand nodes, callbacks) | [Developing.md](../PSLDiscordBotBase/Documentation/Developing.md#the-command-system) "The Command System" |
+| Autocomplete rules | [Developing.md](../PSLDiscordBotBase/Documentation/Developing.md#autocomplete) "Autocomplete" |
+| Requester save contract | [Developing.md](../PSLDiscordBotBase/Documentation/Developing.md#the-inheritance-pattern) "The inheritance pattern" |
+| `QuickReply` and message acknowledgement | [ExistingUtilities.md](ExistingUtilities.md#framework-utilities) (`MessageUtility` row) |
+| Alias system behaviour | [AliasSystem.md](../PSLDiscordBotBase/Documentation/AliasSystem.md) |
+| Deploy tooling | [Tools/Deploy/README.md](../Tools/Deploy/README.md) |
+
+A topic not listed gets a row when its first rule is written.
+
 ## General guidance
 
 - [RepositoryGuide.md](RepositoryGuide.md): codebase map, validation policy, build commands, and repository boundaries.
 - [CodingStandards.md](CodingStandards.md): coding conventions and completion checklist.
 - [ExistingUtilities.md](ExistingUtilities.md): reuse-first catalogue of existing utilities and patterns.
-- [ComponentRouting.md](ComponentRouting.md): implemented command-owned button/select routing APIs, acknowledgement behavior, lifecycle, and integration responsibilities.
-- [ChinaSaveTransfer.md](ChinaSaveTransfer.md): current `/transfer-to-china` flow, owner-confirmed archive/auth/cancellation/error boundaries, button-removal and payload semantics, dependencies, and observable limits.
-- [LocalScores.md](LocalScores.md): current local-score collection behaviour: storage, edit validation, import rules and limits, staged-import workflow state, archive import, and leaderboard exclusion.
 - [PlanningGuidelines.md](PlanningGuidelines.md): team constraints, decision authority, and supervised planning boundaries.
+
+## Topic guides
+
+- [Topics/ComponentRouting.md](Topics/ComponentRouting.md): implemented command-owned button/select routing APIs, acknowledgement behavior, lifecycle, and integration responsibilities.
+- [Topics/ChinaSaveTransfer.md](Topics/ChinaSaveTransfer.md): current `/transfer-to-china` flow, owner-confirmed archive/auth/cancellation/error boundaries, button-removal and payload semantics, dependencies, and observable limits.
+- [Topics/LocalScores.md](Topics/LocalScores.md): current local-score collection behaviour: storage, edit validation, import rules and limits, staged-import workflow state, archive import, and leaderboard exclusion.
+- [Topics/Localization.md](Topics/Localization.md): localization pipeline, key declarations and `Generate()` defaults, English ownership, lookup, fallback and mutation rules.
 
 ## Decision records
 

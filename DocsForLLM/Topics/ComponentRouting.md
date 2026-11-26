@@ -1,6 +1,6 @@
 # Command-owned component routing
 
-This is the implemented API guide for the button/select infrastructure accepted in [ADR 0004](ADR/0004-CommandComponentRouting.md). Modals are not part of this implementation. Autocomplete interactions use a parallel dispatch path, recorded in [ADR 0018](ADR/0018-SlashCommandAutocomplete.md). [`SaveArchiveProgram/TransferToChinaCommand.cs`](../SaveArchiveProgram/TransferToChinaCommand.cs) is a current consumer; the compile-only generic example is [`PSLDiscordBot.Core/Command/Global/Template/ComponentCommand.cs`](../PSLDiscordBotBase/PSLDiscordBot.Core/Command/Global/Template/ComponentCommand.cs), which deliberately has no active `[AddToGlobal]` attribute.
+This is the implemented API guide for the button/select infrastructure accepted in [ADR 0004](../ADR/0004-CommandComponentRouting.md). Modals are not part of this implementation. Autocomplete interactions use a parallel dispatch path, recorded in [ADR 0018](../ADR/0018-SlashCommandAutocomplete.md). [`SaveArchiveProgram/TransferToChinaCommand.cs`](../../SaveArchiveProgram/TransferToChinaCommand.cs) is a current consumer; the compile-only generic example is [`PSLDiscordBot.Core/Command/Global/Template/ComponentCommand.cs`](../../PSLDiscordBotBase/PSLDiscordBot.Core/Command/Global/Template/ComponentCommand.cs), which deliberately has no active `[AddToGlobal]` attribute.
 
 ## Command and route API
 
@@ -24,7 +24,7 @@ Routing identifies a destination, not a user or resource. The encrypted envelope
 
 ## Local-mode consumers
 
-`LocalCommand` routes its components on the first payload byte (score-select menu, import Proceed); the account delete-confirm button uses `DeleteConfirmComponentKind` in `AccountCommand`. See the payload constants in those commands. Click-time rechecks are owner-bound: `AccountCommand.HandleInteraction` (delete-confirm) re-reads the user record and TOS agreement before calling `DeleteAccountAsync`. `LocalCommand` Proceed takes its pending `StagedLocalImport` entry owner-bound and atomically, then commits the prepared snapshot; that recheck is registration only and does not re-verify local mode (see [ADR 0002](ADR/0002-LocalScoreSystem.md)). Score-select re-reads the local collection at selection time and resolves a pending `LocalWorkflowStore<LocalScoreDraft>` entry. Pending local entries expire after a fixed 15 minutes and are process-local.
+`LocalCommand` and `AccountCommand` are component consumers. Payload kinds, owner-bound click-time rechecks and the 15-minute process-local workflow state: [LocalScores.md](LocalScores.md#staged-imports-and-workflow-state).
 
 ## Hooks and lifecycle
 
@@ -39,33 +39,10 @@ Error-hook arguments expose `Exception`, `Interaction`, and nullable `Command`. 
 
 ## Localized controls and replies
 
-`BuilderUtility` adds localized overloads for:
-
-- `ButtonBuilder.WithLabel`;
-- `SelectMenuBuilder.WithPlaceholder`;
-- `SelectMenuOptionBuilder.WithLabel` and `WithDescription`.
-
-Pass an `IDiscordInteraction` to use its `UserLocale`, or a `Language` to preserve an explicit locale. Formatting uses `LocalizedString.GetFormatted`; unknown Discord locale codes safely select English US and then use the `LocalizedString` fallback chain. Native Discord.Net builders validate label/placeholder/description lengths. Keep routing IDs and select values language-independent.
-
-`QuickReply` and `QuickReplyWithAttachments` select the edit operation:
-
-- fresh `IComponentInteraction` (`HasResponded == false`): `UpdateAsync` acknowledges and edits the clicked message;
-- acknowledged/deferred component: `ModifyOriginalResponseAsync` edits that interaction's original response;
-- non-component interaction: the existing `ModifyOriginalResponseAsync` behavior remains.
-
-`MessageUtility` is stateless: it has no weak-table, semaphore, attempt flag, or replacement acknowledgement gate. Every call independently checks `HasResponded`; callers must await and sequence the initial acknowledgement before making later helper edits. Sequential repeated calls edit rather than create automatic follow-ups, but concurrent calls are not serialized and can race. Coordination between separate clicks belongs to the command/workflow when needed and is not implemented by this helper. Use explicit Discord.Net response/follow-up methods for separate or ephemeral messages. The action-first localized overload supports message changes without rebinding existing params-format calls:
-
-```csharp
-await interaction.QuickReply(
-	properties => properties.Components = controls,
-	localizedMessage,
-	formatArgument);
-```
-
-Explicit-locale overloads put `Language` before `LocalizedString` (and after the attachment array for localized attachment calls). Attachment helpers retain the `AttachFiles` permission check: rejected attachments are disposed, text fallback is sent, and requested component/embed modifications are still applied.
+Component labels, placeholders and descriptions are localized with `BuilderUtility`, and replies edit through `QuickReply`/`QuickReplyWithAttachments`; see the `BuilderUtility` and `MessageUtility` rows in [ExistingUtilities.md](../ExistingUtilities.md#framework-utilities). Routing IDs and select values stay language-independent. A fresh component click (`HasResponded == false`) is acknowledged by the first awaited `QuickReply`, so commands must await and sequence it before later edits.
 
 ## Core and AdminHelper integration
 
-Core responds ephemerally to invalid routes with `ComponentInteractionUnavailable`, and handles callback failures with `ComponentInteractionError` using an initial response or ephemeral follow-up as appropriate. It does not log route payloads. AdminHelper's shared status hook blocks all non-admin component interactions whenever status is not `Normal`, including maintenance, shutdown, and data updates; the same status check also covers autocomplete through `BeforeAutocompleteExecutes` (it only cancels; nothing is sent and the interaction expires); its slash, component and autocomplete subscriptions detach together. Component blacklist checks are intentionally not included.
+Core responds ephemerally to invalid routes with `ComponentInteractionUnavailable`, and handles callback failures with `ComponentInteractionError` using an initial response or ephemeral follow-up as appropriate. It does not log route payloads. AdminHelper's shared status hook blocks all non-admin component interactions whenever status is not `Normal`, including maintenance, shutdown, and data updates; the same status check also covers autocomplete through `BeforeAutocompleteExecutes` (cancel-only; see [Developing.md](../../PSLDiscordBotBase/Documentation/Developing.md#autocomplete)); its slash, component and autocomplete subscriptions detach together. Component blacklist checks are intentionally not included.
 
 Existing deployed localization data does not automatically merge generated defaults. The owner must add `ComponentInteractionUnavailable` and `ComponentInteractionError` through the normal localization deployment/update process. Core has safe English fallback text until those keys are present; do not reset or mutate live localization files merely to validate a build.

@@ -1,10 +1,10 @@
 # China save transfer implementation
 
-This guide describes the current source implementation and reconciles the owner's review corrections on 2026-10-23. Direct source observations and owner-confirmed behavior are distinguished below. It is not runtime validation or deployment approval. Product policy and durable deferrals are recorded separately in [ADR 0003](ADR/0003-ChinaSaveTransfer.md).
+This guide describes the current source implementation and reconciles the owner's review corrections on 2026-10-23. Direct source observations and owner-confirmed behavior are distinguished below. It is not runtime validation or deployment approval. Product policy and durable deferrals are recorded separately in [ADR 0003](../ADR/0003-ChinaSaveTransfer.md).
 
 ## Surface and dependencies
 
-- [`SaveArchiveProgram/TransferToChinaCommand.cs`](../SaveArchiveProgram/TransferToChinaCommand.cs) adds the global `/transfer-to-china` command to the existing `SaveArchiveProgram` plugin.
+- [`SaveArchiveProgram/TransferToChinaCommand.cs`](../../SaveArchiveProgram/TransferToChinaCommand.cs) adds the global `/transfer-to-china` command to the existing `SaveArchiveProgram` plugin.
 - The project references the private `PhigrosLibraryCSharp.Modification` package at version `1.1.0`. The public command calls its upload API directly; the package source and upload mechanics remain outside this repository and must not be copied into public documentation.
 - That package's dependency metadata requires `PhigrosLibraryCSharp` `5.2.0` or later; Core's central package management declares `5.2.1`. This is a dependency/deployment fact, not a claimed restore or build failure. No dependency resolution was executed during this review.
 - Core's `AccountCommand.ListenQrCodeChange` (moved from the removed `LoginCommand`, ADR 0005) returns the acquired token without changing the bot binding. The ordinary `/account register qrcode` callback still performs the binding update after polling.
@@ -20,7 +20,7 @@ Default English syntax:
 /transfer-to-china [account_token:<China session token>]
 ```
 
-The command inherits `CommandBase` and overrides `MasterConstraints` to the registered-user and TOS constraints. The slash response is ephemeral through the command base default. Since `c8cb3c8` (a stopgap for the discontinued international cloud save service) the command is archive-only and the `/archive-save` command no longer exists; see the addendum in [ADR 0003](ADR/0003-ChinaSaveTransfer.md).
+The command inherits `CommandBase` and overrides `MasterConstraints` to the registered-user and TOS constraints. The slash response is ephemeral through the command base default. Since `c8cb3c8` (a stopgap for the discontinued international cloud save service) the command is archive-only and the `/archive-save` command no longer exists; see the addendum in [ADR 0003](../ADR/0003-ChinaSaveTransfer.md).
 
 ### Source eligibility and archive boundary
 
@@ -73,9 +73,9 @@ The action choice travels in the payload's `NextOperation` field rather than as 
 ### What the token-bearing payload means
 
 - `Context.AccountToken` is a serialized field. It initially receives the optional slash token, and `LoginDone` assigns the authenticated session token before building Proceed (`LoginDone`).
-- The command's private `CreateComponentId` overload sets `NextOperation`, calls `MemoryPackSerializer.Serialize(context)`, and passes those raw bytes into Framework routing. The Framework envelope **encrypts** the identifier-and-payload plaintext with the per-process AES-128-GCM key before encoding (see [ComponentRouting.md](ComponentRouting.md)); the complete custom ID is ciphertext, and reading or modifying it without the process key fails authentication.
-- `HandleInteraction` recovers the context through `component.GetComponentPayload()` followed by `MemoryPackSerializer.Deserialize<Context>` (via `ParseComponentId`). Deserialization happens only after the encrypted route authenticates and passes the dispatcher's single-use nonce check.
-- The initial QR-start control has a null destination token. Proceed controls after either direct-token or QR authentication carry the acquired token, but only inside the encrypted payload. There is deliberately no per-user binding in the envelope (an owner-accepted residual risk under ADR 0004), and each issued control is single-use because the dispatcher rejects exact-ID replays. No real token or payload was decoded or printed during review, and no credential-handoff refactor is authorized here.
+- The command's private `CreateComponentId` overload sets `NextOperation`, calls `MemoryPackSerializer.Serialize(context)`, and passes those raw bytes into Framework routing. The Framework envelope encrypts the payload, so the complete custom ID is ciphertext (see [ComponentRouting.md](ComponentRouting.md#command-and-route-api)).
+- `HandleInteraction` recovers the context through `component.GetComponentPayload()` followed by `MemoryPackSerializer.Deserialize<Context>` (via `ParseComponentId`). Deserialization happens only after the route authenticates and passes the dispatcher's single-use check.
+- The initial QR-start control has a null destination token. Proceed controls after either direct-token or QR authentication carry the acquired token, but only inside the encrypted payload. The envelope has no per-user binding and each issued control is single-use ([ComponentRouting.md](ComponentRouting.md#command-and-route-api)). No real token or payload was decoded or printed during review, and no credential-handoff refactor is authorized here.
 
 ### Acknowledgement, button removal, and multiple clicks
 

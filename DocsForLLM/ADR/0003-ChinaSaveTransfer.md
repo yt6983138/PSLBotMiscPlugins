@@ -56,7 +56,7 @@ Confirmed on 2026-10-23:
 
 ## Current implementation
 
-The transfer does not automatically switch the bot binding. After the upload calls return it displays the destination token and suggests a separate manual `/account register token` action (formerly `/link-token`, see [ADR 0005](0005-AccountCommand.md)); a China binding requires that command's `is_international:false` option. It performs no destination read-back comparison. Cancellation by dismissing/ignoring the prompt and generic error routing are intentional owner-confirmed behavior, not missing features. The current flow, state handling, dependencies, known gaps and observable limits are described in [ChinaSaveTransfer.md](../ChinaSaveTransfer.md).
+The transfer does not automatically switch the bot binding. After the upload calls return it displays the destination token and suggests a separate manual `/account register token` action (formerly `/link-token`, see [ADR 0005](0005-AccountCommand.md)); a China binding requires that command's `is_international:false` option. It performs no destination read-back comparison. Cancellation by dismissing/ignoring the prompt and generic error routing are intentional owner-confirmed behavior, not missing features. The current flow, state handling, dependencies, known gaps and observable limits are described in [ChinaSaveTransfer.md](../Topics/ChinaSaveTransfer.md).
 
 ## Open questions and implementation gaps
 
@@ -66,7 +66,7 @@ The transfer does not automatically switch the bot binding. After the upload cal
 - Verification criteria for any future transfer-owned binding switch. No new read-back or retry workflow is authorized by this record's implementation review.
 - User instructions for loading the transferred cloud save in a compatible China-side game build.
 
-The earlier proposed workflow and source findings were removed from the local notes after implementation; this ADR and [ChinaSaveTransfer.md](../ChinaSaveTransfer.md) are the durable record.
+The earlier proposed workflow and source findings were removed from the local notes after implementation; this ADR and [ChinaSaveTransfer.md](../Topics/ChinaSaveTransfer.md) are the durable record.
 
 ## Revisions
 
@@ -74,4 +74,4 @@ The earlier proposed workflow and source findings were removed from the local no
 
 ## Addendum (owner decisions, 2026-11-15): archive-only transfer
 
-Owner decision: archive-only transfer is the stopgap realization after the international cloud save service was discontinued. Since `c8cb3c8`, `/transfer-to-china` reads only the user's newest local archive; live international cloud saves are no longer a transfer source, which narrows the Decision and Consequences statements above that approve them as a source. `/archive-save` was removed in the same commit; `/transfer-to-china` and `/local-import-archive` keep the registered-user and TOS constraints. See [ChinaSaveTransfer.md](../ChinaSaveTransfer.md) for current behavior.
+Owner decision: archive-only transfer is the stopgap realization after the international cloud save service was discontinued. Since `c8cb3c8`, `/transfer-to-china` reads only the user's newest local archive; live international cloud saves are no longer a transfer source, which narrows the Decision and Consequences statements above that approve them as a source. `/archive-save` was removed in the same commit; `/transfer-to-china` and `/local-import-archive` keep the registered-user and TOS constraints. See [ChinaSaveTransfer.md](../Topics/ChinaSaveTransfer.md) for current behavior.

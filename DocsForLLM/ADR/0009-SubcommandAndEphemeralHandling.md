@@ -63,7 +63,7 @@ Leaf `IsEphemeral` defaults to `true`, like the framework default, and is overri
 - The TOS constraint must accept null `UserData`, because `/account` requires TOS from unregistered users through the temporary agreement.
 - A check with alternatives, such as the alias admin role or Discord `Administrator` or bot admin, is one constraint that checks all of them.
 - The stricter `admin-role` check (Discord `Administrator` or bot admin) also moves into the alias admin constraint, as a stricter configuration applied to that leaf. When ADR 0008's `admin-role` leaf is merged, it takes the strict constraint as a constructor argument from its root. No user's access changes.
-- No user or message commands exist yet, so those families are out of scope. Components also stay out of scope: [ComponentRouting.md](../ComponentRouting.md) has no automatic account or TOS wrapper.
+- No user or message commands exist yet, so those families are out of scope. Components also stay out of scope: [ComponentRouting.md](../Topics/ComponentRouting.md) has no automatic account or TOS wrapper.
 
 ### Base classes
 
