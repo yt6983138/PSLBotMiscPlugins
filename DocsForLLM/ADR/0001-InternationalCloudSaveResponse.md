@@ -57,3 +57,11 @@ This record does not authorize implementation, deployment, public communication,
 - Consent terms, retention, retrieval/deletion procedures, and responsibility for user requests.
 - Remaining feature priorities and post-shutdown service behavior.
 - Remaining transfer destination/integration requirements tracked in ADR 0003, and leaderboard policy.
+
+## Addendum (2026-11-27): leaderboard policy resolved
+
+The leaderboard participation question deferred to the owner's user poll (Consequences) is resolved by the addenda of [ADR 0002](0002-LocalScoreSystem.md): local users are ranked under the eligibility rule recorded there. The original text is not rewritten after freeze.
+
+## Revisions
+
+- 2026-11-27: pointer addendum resolving the deferred leaderboard policy question via ADR 0002; no existing text changed.

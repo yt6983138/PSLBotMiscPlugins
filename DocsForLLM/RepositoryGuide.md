@@ -19,7 +19,7 @@ Read the relevant source alongside:
 
 - `PSLDiscordBotBase/README.md`: bot overview and documentation links.
 - `PSLDiscordBotBase/Documentation/Developing.md`: build/runtime prerequisites, architecture, plugin lifecycle, and command development. Its project/build paths are relative to the submodule root.
-- `PSLDiscordBotBase/Documentation/usage.md`: user-facing behavior. Help text (`help.md`, `help_*.md`) is not in this repository; see [Localization.md](Topics/Localization.md#rules).
+- `PSLDiscordBotBase/Documentation/usage.md`: user-facing behavior. Help text is not in this repository: it lives in the translations repository as `Documentations/{locale}.json`, each holding one `"help"` key; see [Localization.md](Topics/Localization.md#rules).
 - `PhigrosApi/doc/`: handwritten API documentation.
 
 Prefer the checked-out source and project files over outdated documentation or external summaries.

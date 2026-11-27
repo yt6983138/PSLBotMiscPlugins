@@ -31,7 +31,7 @@ Code defaults (`LocalizationService.Generate()`) supply the initial text of new 
 ## Rules
 
 - **English is owned by `UX/en-US.json`, not by code.** Agents cannot edit English wording or help text. A plan that changes the text, placeholders, or meaning of an existing key, or changes help content, must list each affected key/document (the manual `UX/en-US.json` edit, `help.md`, `help_*.md`) as an owner task (prefer a new key when placeholders change). Help updates are always owner tasks.
-- **Help files are not in the submodule.** They live in the translations repository under `Documentations/Help/`, are edited via Weblate, and are copied to `./PSL/` (`help.md`, `help_{Discord locale}.md`) on deploy.
+- **Help files are not in the submodule.** They live in the translations repository as `Documentations/{locale}.json` (one `"help"` key per file, a single string with `\r\n` breaks), are edited via Weblate, and are copied to `./PSL/` (`help.md`, `help_{Discord locale}.md`) on deploy.
 - Never reintroduce per-string fallbacks; chains live on the manager.
 - Never edit emitted keys/interfaces under `obj/Generated`, reset live localization files, or execute localization-update arguments as validation. Report any owner-applied localization update needed for deployment.
 - The checkout `../PSLDiscordBot.Localizations` is outside this repository; read it only when a task says so and never commit to it.

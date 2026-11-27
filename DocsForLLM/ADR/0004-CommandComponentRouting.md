@@ -79,6 +79,11 @@ Discord does not verify custom IDs: any client can read them, and a user can att
 
 None. No owner-facing architecture or rollout decisions remain open. Transfer-specific workflow decisions remain under ADR 0003 and command-level planning. Cross-family reconsideration of the hook exception policy and the error-callback/shutdown-lifecycle contract is deferred to future refactor planning, not an open question of this ADR.
 
+## Addendum (owner decision, 2026-11-26): before-hook order
+
+The component before-hook does not stop at the first cancellation, which replaces the short-circuit wording in the Decision and Consequences (the original text is not rewritten after freeze). Like the slash, user, message and autocomplete before-hooks, it invokes every subscribed handler in order. A handler that throws is reported through the event-handler error event and the remaining handlers still run. The `Canceled` flag is checked once, after all handlers have run, and a canceled interaction is not forwarded to the command. The owner confirms this is the wanted policy for all five families and that the earlier wording was missed in review. The exception policy itself is unchanged: an exception alone does not cancel dispatch.
+
 ## Revisions
 
 - 2026-11-15: addenda of 2026-10-24, 2026-10-31 and 2026-11-06 and the undated LocalCommand implementation addendum folded into the body; pre-fold text at `a66bede`.
+- 2026-11-26: addendum recording that before-hooks all run and `Canceled` is checked once afterwards, replacing the component short-circuit wording.

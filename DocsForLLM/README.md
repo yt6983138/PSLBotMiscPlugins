@@ -52,7 +52,7 @@ A topic not listed gets a row when its first rule is written.
 
 - [Topics/ComponentRouting.md](Topics/ComponentRouting.md): implemented command-owned button/select routing APIs, acknowledgement behavior, lifecycle, and integration responsibilities.
 - [Topics/ChinaSaveTransfer.md](Topics/ChinaSaveTransfer.md): current `/transfer-to-china` flow, owner-confirmed archive/auth/cancellation/error boundaries, button-removal and payload semantics, dependencies, and observable limits.
-- [Topics/LocalScores.md](Topics/LocalScores.md): current local-score collection behaviour: storage, edit validation, import rules and limits, staged-import workflow state, archive import, and leaderboard exclusion.
+- [Topics/LocalScores.md](Topics/LocalScores.md): current local-score collection behaviour: storage, edit validation, import rules and limits, staged-import workflow state, archive import, and leaderboard ranking of local users.
 - [Topics/Localization.md](Topics/Localization.md): localization pipeline, key declarations and `Generate()` defaults, English ownership, lookup, fallback and mutation rules.
 
 ## Decision records

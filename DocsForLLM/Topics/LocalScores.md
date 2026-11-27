@@ -4,9 +4,9 @@ Current behaviour of the local (user-submitted) score collection. Accepted decis
 
 ## Storage and models
 
-- `LocalSaveData` holds a user's collection as one combined SQLite BLOB; it implements `ISaveContext` and wraps native named entries. `GameKey` and the native `settings` entry are not stored: their read methods return defaults and their write methods do nothing.
+- `LocalSaveData` holds a user's collection as one combined SQLite BLOB; it implements both `ISave` and `ISaveContext` (index 0 is the collection itself; any other index throws) and wraps native named entries. `GameKey` and the native `settings` entry are not stored: their read methods return defaults and their write methods do nothing.
 - `ReadSummary()` returns the stored `$summary` entry or `Summary.Default`. `SaveSummary` has no callers: imports and score edits do not recalculate it, and nothing meaningful depends on it.
-- `SaveService.GetSaveAsync(userData, index, requireCurrent)` (`requireCurrent` defaults to true) returns the active source and throws on failure; the explicit cloud/local `Try...` loaders require both the source and its active mode. Local mode ignores the save index.
+- `SaveService.GetSaveAsync(userData, index, requireCurrent)` (`requireCurrent` defaults to true) returns the active source as `(ISaveContext, ISave)` and throws on failure; the explicit cloud/local `Try...` loaders require both the source and its active mode. Local mode ignores the save index.
 - `IsLocal` on `UserData` is the `AccountMode.Local` bit; `IsInternational` is `[NotMapped]`. The code calls only `EnsureCreated`, so existing databases need manual schema changes (`AccountMode` column with backfill for international users, nullable `Token`, `LocalSaves` table). No migration code exists.
 
 ## Score edit validation
@@ -42,5 +42,13 @@ Current behaviour of the local (user-submitted) score collection. Accepted decis
 
 ## Leaderboard
 
-- `LeaderboardService` omits users whose `AccountMode` has the Local bit and users without a token at each query and per-user lookup. Local activation and account deletion invalidate the stale entry through `SaveService.OnCloudRankingInvalidated`, handled by `LeaderboardService` under its lock after commit.
+- Local users are ranked from their local save under the same visibility and TOS rules as cloud users (ADR 0002 addendum of 2026-11-25). An entry records its `LeaderboardEntry.AccountMode`, and the local marker is derived from its `AccountMode.Local` bit; there is no separate local flag on the analyzed data.
+- One eligibility rule, `UserData.CanEnterLeaderboard` (an `[Expressive]` method, so EF Core translates it in queries), is used by `GetEntries` (every read), the save-fetched hook and `RefreshCache`. A user qualifies when they are publicly visible, have agreed to the current TOS level, and are either in local mode or in cloud mode and not international (the international cloud is gone, so those users would only fail every refresh). It tests the `AccountMode` column with `HasFlag` because the convenience properties are not mapped. Users below the current TOS level are therefore hidden at once on reads.
+- The write paths are the save-fetched hook and `RefreshCache`; both check the rule in the database.
+  - Hook: local reads raise it too. It applies the same eligibility rule (so international cloud users are excluded) and also ranks only from the user's active source: a local user needs a `LocalSaveData` fetch, a cloud user needs a cloud fetch; a mismatch is skipped. It skips non-caller saves and non-zero indexes.
+  - `RefreshCache` selects the users who meet the rule. Local users are analyzed from the local store with no `LeaderboardRefreshEachIntervalMilliseconds` delay (no network); cloud users keep the delay and the download.
+  - Local edits and imports do not trigger a refresh. The entry updates on the next read of the active source or the next bulk refresh.
+- `LeaderboardCommand.PrepareLeaderboardEntries` calls `SaveService.GetSaveAsync(data)` (the active source) and then `LeaderboardService.TryAnalyzeUser(ISave, userId, accountMode, …)` live when the caller is not in the filtered list, and only adds the result to its in-memory list (nothing is written). That `TryAnalyzeUser` overload trusts its caller to pass a save matching `accountMode` (the `(userId, token, account)` overload and `GetSaveAsync` pick the source by mode). It does not check visibility or TOS. If it returns nothing, the command replies with the failed-to-analyze message.
+- Mode switches (`StartLocalAsync`, `UseCloudAsync`, `ActivateCloudAsync`) keep the entry, including its old `AccountMode`, until the next refresh; the marker then shows the source the data came from. Only account deletion removes it, through `SaveService.OnLeaderboardEntryInvalidated`, handled by `LeaderboardService` under its lock after commit.
+- The leaderboard table is a disposable cache with no migration code: the `LeaderboardEntry` schema changed to store `AccountMode` (replacing `IsInternational`), and the `LeaderboardAnalyzedData` MemoryPack blob has no layout compatibility. After either changes, clear the table at deploy and let the bulk refresh rebuild it; unreadable rows make leaderboard reads fail.
 - Cloud-only commands such as `/cloud time-index` reply with the wrong-account-mode message in local mode.

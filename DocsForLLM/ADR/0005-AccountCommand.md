@@ -157,6 +157,11 @@ Existing default texts that name old commands are reworded to the new names: `Co
 
 - None.
 
+## Addendum (owner decision, 2026-11-26): leaderboard line outdated
+
+The Consequences line "Local-mode users never appear on the leaderboard" no longer holds: local users are now ranked. The current rule is in the addenda of [ADR 0002](0002-LocalScoreSystem.md). The original text is not rewritten after freeze.
+
 ## Revisions
 
 - 2026-11-15: addendum of 2026-11-14 folded into the body; pre-fold text at `ab9d55e`; supersession pointers to ADRs 0009 and 0013 added. The validation line was reworded to defer to `AGENTS.md` because the old build-only wording predates the offline allowlist (owner decision).
+- 2026-11-26: addendum added for the outdated leaderboard line; no existing text changed.

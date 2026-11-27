@@ -131,6 +131,20 @@ Autocomplete and alias-like search for the profile avatar and background options
 
 The owner reviewed the shared-library contract, native model defaults/bounds, table schema, binary layout and operational defaults, and accepts them as they are implemented (first open question). The owner-run database migration is done (third), and the avatar/background lookup question was answered by the 2026-11-20 addendum (fourth). The leaderboard policy question is decided: the user poll has ended, and local users appear on the leaderboard with an indicator that marks them as local save users. This replaces the exclusion rule in Consequences ("users in local mode and users without a token are omitted") and the "Leaderboard participation remains undecided" line in Decision. The implementation is not done yet, and the code still follows the exclusion rule until it is. Details such as the indicator's wording, how local entries are refreshed, and what happens on mode switches are left to the implementation plan. The original text is not rewritten after freeze.
 
+## Addendum (owner decisions, 2026-11-26): leaderboard implementation details
+
+The leaderboard rule decided in the 2026-11-25 addendum is now implemented, and the code follows it instead of the exclusion rule in Consequences. The details left to the plan are:
+
+- Local users are ranked from their local save. Eligibility is public visibility and the current TOS level, and either local mode or cloud mode with a binding and not international: the international cloud is gone, so international cloud users would only fail every refresh (owner decision, 2026-11-26). The entry records that it came from a local save.
+- An entry is refreshed when the user reads their active source (a local read for a local user, a cloud read for a cloud user), and in the periodic bulk refresh. A read of the inactive source does not rank the user. Local edits and imports do not refresh the entry; it catches up at the next read or bulk refresh. Bulk refresh analyzes local users from the local store without the per-user delay used for cloud downloads.
+- A mode switch keeps the user's entry until the next refresh, so the entry keeps showing the old source's data and its marker. Account deletion removes the entry. This replaces the Consequences line saying local activation removes the entry; deletion is unchanged.
+- Local entries carry a marker on the rank in the `/leaderboard` output, and a legend line appears only when a listed row is local. The label wording is "Local", pending a planned rename.
+- There is no option to filter local entries in or out; local and cloud entries are ranked together.
+
+The "Leaderboard policy" open question in this record is answered by the 2026-11-25 addendum and this one. The original text is not rewritten after freeze.
+
 ## Revisions
 
 - 2026-11-15: `Updated:` header (2026-10-24) and inline updates folded into the body; pre-fold text at `3b72782`. Stale lines about `ArchiveSaveCommand` blocking local mode and the `TransferToChinaCommand` access rule were dropped (command removed / rule changed in `c8cb3c8`); implementation detail moved to [LocalScores.md](../Topics/LocalScores.md).
+- 2026-11-26: addendum “leaderboard implementation details”; no existing text changed.
+- 2026-11-27: the 2026-11-26 addendum's first bullet amended to state the full eligibility rule including the international exclusion (owner decision of 2026-11-26, recorded after the review); no other text changed.
