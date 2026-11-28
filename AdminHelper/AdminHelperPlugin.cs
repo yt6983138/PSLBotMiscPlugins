@@ -1,5 +1,4 @@
 ﻿using AdminHelper.Services;
-using PSLDiscordBot.Core;
 using PSLDiscordBot.Framework.BuiltInServices;
 
 namespace AdminHelper;
@@ -150,7 +149,7 @@ public class AdminHelperPlugin : IPlugin<AdminHelperPlugin>
 		try
 		{
 			using CommandStatisticsService.Requester requester = this._commandStatisticsService.NewRequester();
-			CommandStatisticInfo info = await requester.GetOrAddNew(e.SocketSlashCommand.CommandName);
+			CommandStatisticInfo info = await requester.GetOrAddNew(OptionUtils.FormatInvocation(e.SocketSlashCommand.Data).CommandPath);
 			info.UseCount++;
 			await requester.SaveChangesAsync();
 		}

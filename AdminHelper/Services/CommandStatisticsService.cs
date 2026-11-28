@@ -1,12 +1,14 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using PSLDiscordBot.Framework.BuiltInServices;
-using PSLDiscordBot.Framework.CommandBase;
 
 namespace AdminHelper.Services;
 
 [PrimaryKey(nameof(CommandName))]
 public class CommandStatisticInfo
 {
+	/// <summary>
+	/// this is now full command path of the command (ex. "leaderboard rank-using rks")
+	/// </summary>
 	public string CommandName { get; set; } = string.Empty;
 	public int UseCount { get; set; }
 }
@@ -64,8 +66,35 @@ public class CommandStatisticsService
 
 			List<CommandStatisticInfo> stats = await this.GetAllReadonly();
 			return stats
-				.Where(x => this._parent._commands.Any(y => y.Name == x.CommandName))
+				.Where(x => this._parent._commands.Any(y => CanShow(y, x)))
 				.ToList();
+
+			static bool CanShow(BasicCommandBase @base, CommandStatisticInfo info)
+			{
+				string[] parts = info.CommandName.Split(' ');
+				if (@base.Name != parts[0]) return false;
+
+				if (parts.Length == 1) return true; // root command, no subcommand
+
+				// fuck discord.net not providing a common interface for both option builder and root builder
+				SlashCommandOptionBuilder? current = @base.CompleteBuilder.Options.FirstOrDefault(x => MatchSubcommand(x, parts[1]));
+				for (int i = 2; i < parts.Length; i++)
+				{
+					string part = parts[i];
+					if (current is null) return false;
+
+					current = current.Options.FirstOrDefault(x => MatchSubcommand(x, part));
+				}
+
+				if (current is null) return false;
+
+				return true;
+			}
+			static bool MatchSubcommand(SlashCommandOptionBuilder option, string name)
+			{
+				if (option.Name != name) return false;
+				return option.Type == ApplicationCommandOptionType.SubCommand || option.Type == ApplicationCommandOptionType.SubCommandGroup;
+			}
 		}
 	}
 }
